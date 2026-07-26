@@ -1,0 +1,121 @@
+<dashboard>
+  <label>Service Health Dashboard</label>
+  <description>Overall health, per-tier scores, and live KPI status for the Online Shopping Cart business service - modeled after the Splunk ITSI service health dashboard. All data is synthetic and generated at search time.</description>
+  <row>
+    <panel>
+      <title>Online Shopping Cart - Overall Service Health</title>
+      <single>
+        <search>
+          <query>`itsi_lite_service_scores_over_time` | timechart span=1h avg(biz_score) as biz_score | stats sparkline(avg(biz_score),1h) as sparkline latest(biz_score) as score</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <refresh>60</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[20,45,70,90]</option>
+        <option name="rangeColors">["#65A637","#99D18B","#FFC300","#F2854C","#B0413E"]</option>
+        <option name="numberPrecision">0.0</option>
+        <option name="height">140</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Web Tier</title>
+      <single>
+        <search>
+          <query>`itsi_lite_service_scores_over_time` | search technical_service_id="svc_web_tier" | timechart span=1h avg(tech_score) as tech_score | stats sparkline(avg(tech_score),1h) as sparkline latest(tech_score) as score</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <refresh>60</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[20,45,70,90]</option>
+        <option name="rangeColors">["#65A637","#99D18B","#FFC300","#F2854C","#B0413E"]</option>
+        <drilldown>
+          <link target="_blank">/app/itsi_lite/deep_dive?form.svc_tok=svc_web_tier</link>
+        </drilldown>
+      </single>
+    </panel>
+    <panel>
+      <title>Application Tier</title>
+      <single>
+        <search>
+          <query>`itsi_lite_service_scores_over_time` | search technical_service_id="svc_app_tier" | timechart span=1h avg(tech_score) as tech_score | stats sparkline(avg(tech_score),1h) as sparkline latest(tech_score) as score</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <refresh>60</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[20,45,70,90]</option>
+        <option name="rangeColors">["#65A637","#99D18B","#FFC300","#F2854C","#B0413E"]</option>
+        <drilldown>
+          <link target="_blank">/app/itsi_lite/deep_dive?form.svc_tok=svc_app_tier</link>
+        </drilldown>
+      </single>
+    </panel>
+    <panel>
+      <title>Database Tier</title>
+      <single>
+        <search>
+          <query>`itsi_lite_service_scores_over_time` | search technical_service_id="svc_db_tier" | timechart span=1h avg(tech_score) as tech_score | stats sparkline(avg(tech_score),1h) as sparkline latest(tech_score) as score</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <refresh>60</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[20,45,70,90]</option>
+        <option name="rangeColors">["#65A637","#99D18B","#FFC300","#F2854C","#B0413E"]</option>
+        <drilldown>
+          <link target="_blank">/app/itsi_lite/deep_dive?form.svc_tok=svc_db_tier</link>
+        </drilldown>
+      </single>
+    </panel>
+    <panel>
+      <title>Payment Gateway</title>
+      <single>
+        <search>
+          <query>`itsi_lite_service_scores_over_time` | search technical_service_id="svc_payment_gw" | timechart span=1h avg(tech_score) as tech_score | stats sparkline(avg(tech_score),1h) as sparkline latest(tech_score) as score</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <refresh>60</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[20,45,70,90]</option>
+        <option name="rangeColors">["#65A637","#99D18B","#FFC300","#F2854C","#B0413E"]</option>
+        <drilldown>
+          <link target="_blank">/app/itsi_lite/deep_dive?form.svc_tok=svc_payment_gw</link>
+        </drilldown>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>KPI Status - All Services (worst first)</title>
+      <table>
+        <search>
+          <query>`itsi_lite_service_scores` | eval sevrank=case(severity="critical",5,severity="high",4,severity="medium",3,severity="low",2,1=1,1) | sort -sevrank | eval Service=technical_service_name." / ".entity_name | table Service kpi_name value unit severity | rename kpi_name as KPI, value as Value, unit as Unit, severity as Severity</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <refresh>60</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <format type="color" field="Severity">
+          <colorPalette type="map">{"critical":"#B0413E","high":"#F2854C","medium":"#FFC300","low":"#99D18B","normal":"#65A637"}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+</dashboard>

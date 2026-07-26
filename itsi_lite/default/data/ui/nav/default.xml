@@ -1,0 +1,6 @@
+<nav search_view="search" color="#5385ce">
+  <view name="service_health_dashboard" default="true" />
+  <view name="service_tree" />
+  <view name="deep_dive" />
+  <view name="notable_events" />
+</nav>

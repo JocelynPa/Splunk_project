@@ -1,0 +1,106 @@
+<dashboard>
+  <label>Service Tree</label>
+  <description>Service dependency hierarchy for the Online Shopping Cart business service - business service, technical services, and underlying entities - approximating an ITSI Glass Table / Service Analyzer view. Click a technical service tile to jump to its Deep Dive.</description>
+  <row>
+    <panel>
+      <title>Online Shopping Cart (Business Service)</title>
+      <single>
+        <search>
+          <query>`itsi_lite_service_scores` | stats latest(biz_score) as score</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[20,45,70,90]</option>
+        <option name="rangeColors">["#65A637","#99D18B","#FFC300","#F2854C","#B0413E"]</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Web Tier</title>
+      <single>
+        <search>
+          <query>`itsi_lite_service_scores` | search technical_service_id="svc_web_tier" | stats latest(tech_score) as score</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[20,45,70,90]</option>
+        <option name="rangeColors">["#65A637","#99D18B","#FFC300","#F2854C","#B0413E"]</option>
+        <drilldown>
+          <link target="_blank">/app/itsi_lite/deep_dive?form.svc_tok=svc_web_tier</link>
+        </drilldown>
+      </single>
+    </panel>
+    <panel>
+      <title>Application Tier</title>
+      <single>
+        <search>
+          <query>`itsi_lite_service_scores` | search technical_service_id="svc_app_tier" | stats latest(tech_score) as score</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[20,45,70,90]</option>
+        <option name="rangeColors">["#65A637","#99D18B","#FFC300","#F2854C","#B0413E"]</option>
+        <drilldown>
+          <link target="_blank">/app/itsi_lite/deep_dive?form.svc_tok=svc_app_tier</link>
+        </drilldown>
+      </single>
+    </panel>
+    <panel>
+      <title>Database Tier</title>
+      <single>
+        <search>
+          <query>`itsi_lite_service_scores` | search technical_service_id="svc_db_tier" | stats latest(tech_score) as score</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[20,45,70,90]</option>
+        <option name="rangeColors">["#65A637","#99D18B","#FFC300","#F2854C","#B0413E"]</option>
+        <drilldown>
+          <link target="_blank">/app/itsi_lite/deep_dive?form.svc_tok=svc_db_tier</link>
+        </drilldown>
+      </single>
+    </panel>
+    <panel>
+      <title>Payment Gateway</title>
+      <single>
+        <search>
+          <query>`itsi_lite_service_scores` | search technical_service_id="svc_payment_gw" | stats latest(tech_score) as score</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[20,45,70,90]</option>
+        <option name="rangeColors">["#65A637","#99D18B","#FFC300","#F2854C","#B0413E"]</option>
+        <drilldown>
+          <link target="_blank">/app/itsi_lite/deep_dive?form.svc_tok=svc_payment_gw</link>
+        </drilldown>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Entities</title>
+      <table>
+        <search>
+          <query>`itsi_lite_service_scores` | eval sevrank=case(entity_severity="critical",5,entity_severity="high",4,entity_severity="medium",3,entity_severity="low",2,1=1,1) | dedup entity_id | sort -sevrank | table technical_service_name entity_name entity_score entity_severity | rename technical_service_name as "Technical Service", entity_name as Entity, entity_score as "Health Score", entity_severity as Severity</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <format type="color" field="Severity">
+          <colorPalette type="map">{"critical":"#B0413E","high":"#F2854C","medium":"#FFC300","low":"#99D18B","normal":"#65A637"}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+</dashboard>

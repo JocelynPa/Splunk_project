@@ -1,0 +1,21 @@
+kpi_id,kpi_name,unit,entity_id,entity_name,technical_service_id,technical_service_name,business_service_id,business_service_name,baseline,volatility,threshold_low,threshold_medium,threshold_high,threshold_critical,kpi_weight
+kpi_web01_cpu,CPU Utilization,%,ent_web01,web-01,svc_web_tier,Web Tier,svc_shopping_cart,Online Shopping Cart,35,8,20,40,65,85,2
+kpi_web01_mem,Memory Utilization,%,ent_web01,web-01,svc_web_tier,Web Tier,svc_shopping_cart,Online Shopping Cart,45,6,25,45,70,88,1
+kpi_web01_rt,Response Time,ms,ent_web01,web-01,svc_web_tier,Web Tier,svc_shopping_cart,Online Shopping Cart,120,25,150,250,400,600,2
+kpi_web02_cpu,CPU Utilization,%,ent_web02,web-02,svc_web_tier,Web Tier,svc_shopping_cart,Online Shopping Cart,55,12,20,40,65,85,2
+kpi_web02_mem,Memory Utilization,%,ent_web02,web-02,svc_web_tier,Web Tier,svc_shopping_cart,Online Shopping Cart,60,8,25,45,70,88,1
+kpi_web02_rt,Response Time,ms,ent_web02,web-02,svc_web_tier,Web Tier,svc_shopping_cart,Online Shopping Cart,180,40,150,250,400,600,2
+kpi_app01_cpu,CPU Utilization,%,ent_app01,app-01,svc_app_tier,Application Tier,svc_shopping_cart,Online Shopping Cart,30,7,20,40,65,85,2
+kpi_app01_mem,Memory Utilization,%,ent_app01,app-01,svc_app_tier,Application Tier,svc_shopping_cart,Online Shopping Cart,40,6,25,45,70,88,1
+kpi_app01_rt,Response Time,ms,ent_app01,app-01,svc_app_tier,Application Tier,svc_shopping_cart,Online Shopping Cart,90,20,150,250,400,600,2
+kpi_app02_cpu,CPU Utilization,%,ent_app02,app-02,svc_app_tier,Application Tier,svc_shopping_cart,Online Shopping Cart,82,10,20,40,65,85,2
+kpi_app02_mem,Memory Utilization,%,ent_app02,app-02,svc_app_tier,Application Tier,svc_shopping_cart,Online Shopping Cart,78,8,25,45,70,88,1
+kpi_app02_rt,Response Time,ms,ent_app02,app-02,svc_app_tier,Application Tier,svc_shopping_cart,Online Shopping Cart,520,80,150,250,400,600,2
+kpi_db01_cpu,CPU Utilization,%,ent_db01,db-01 (primary),svc_db_tier,Database Tier,svc_shopping_cart,Online Shopping Cart,40,6,20,40,65,85,2
+kpi_db01_mem,Memory Utilization,%,ent_db01,db-01 (primary),svc_db_tier,Database Tier,svc_shopping_cart,Online Shopping Cart,55,5,25,45,70,88,1
+kpi_db01_rt,Query Response Time,ms,ent_db01,db-01 (primary),svc_db_tier,Database Tier,svc_shopping_cart,Online Shopping Cart,60,15,80,150,300,500,3
+kpi_db02_cpu,CPU Utilization,%,ent_db02,db-02 (replica),svc_db_tier,Database Tier,svc_shopping_cart,Online Shopping Cart,58,10,20,40,65,85,2
+kpi_db02_mem,Memory Utilization,%,ent_db02,db-02 (replica),svc_db_tier,Database Tier,svc_shopping_cart,Online Shopping Cart,62,8,25,45,70,88,1
+kpi_db02_rt,Query Response Time,ms,ent_db02,db-02 (replica),svc_db_tier,Database Tier,svc_shopping_cart,Online Shopping Cart,140,30,80,150,300,500,3
+kpi_paygw01_fail,Payment Failure Rate,%,ent_paygw01,payment-gw-01,svc_payment_gw,Payment Gateway,svc_shopping_cart,Online Shopping Cart,3,2,2,5,10,20,3
+kpi_paygw01_lat,API Latency,ms,ent_paygw01,payment-gw-01,svc_payment_gw,Payment Gateway,svc_shopping_cart,Online Shopping Cart,300,100,200,400,700,1200,2

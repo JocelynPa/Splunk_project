@@ -1,0 +1,89 @@
+<form>
+  <label>Notable Events</label>
+  <description>Synthetic notable events correlated to the sample service tree and KPIs, modeled after the ITSI Notable Event Review.</description>
+  <fieldset submitButton="true" autoRun="true">
+    <input type="time" token="time_tok">
+      <label>Time Range</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="status_tok" searchWhenChanged="true">
+      <label>Status</label>
+      <choice value="*">All</choice>
+      <choice value="new">New</choice>
+      <choice value="in progress">In Progress</choice>
+      <choice value="resolved">Resolved</choice>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="multiselect" token="sev_tok" searchWhenChanged="true">
+      <label>Severity</label>
+      <choice value="critical">Critical</choice>
+      <choice value="high">High</choice>
+      <choice value="medium">Medium</choice>
+      <choice value="low">Low</choice>
+      <choice value="normal">Normal</choice>
+      <default>critical,high,medium,low,normal</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter>,</delimiter>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>New</title>
+      <single>
+        <search>
+          <query>`itsi_lite_notable_events` | search status="new" | stats count</query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[1,5]</option>
+        <option name="rangeColors">["#65A637","#FFC300","#B0413E"]</option>
+      </single>
+    </panel>
+    <panel>
+      <title>In Progress</title>
+      <single>
+        <search>
+          <query>`itsi_lite_notable_events` | search status="in progress" | stats count</query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+      </single>
+    </panel>
+    <panel>
+      <title>Critical (any status)</title>
+      <single>
+        <search>
+          <query>`itsi_lite_notable_events` | search severity="critical" | stats count</query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[1,3]</option>
+        <option name="rangeColors">["#65A637","#F2854C","#B0413E"]</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Notable Events</title>
+      <table>
+        <search>
+          <query>`itsi_lite_notable_events` | search status=$status_tok$ severity IN ($sev_tok$) | rename _time as Time, business_service_name as "Business Service", technical_service_name as "Technical Service", entity_name as Entity, kpi_name as KPI, severity as Severity, status as Status, owner as Owner, description as Description</query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <format type="color" field="Severity">
+          <colorPalette type="map">{"critical":"#B0413E","high":"#F2854C","medium":"#FFC300","low":"#99D18B","normal":"#65A637"}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+</form>
