@@ -1,0 +1,67 @@
+<form>
+  <label>Deep Dive</label>
+  <description>Compare KPI trends over time for a selected technical service, similar to an ITSI Deep Dive lane view.</description>
+  <fieldset submitButton="true" autoRun="true">
+    <input type="dropdown" token="svc_tok">
+      <label>Technical Service</label>
+      <choice value="svc_web_tier">Web Tier</choice>
+      <choice value="svc_app_tier">Application Tier</choice>
+      <choice value="svc_db_tier">Database Tier</choice>
+      <choice value="svc_payment_gw">Payment Gateway</choice>
+      <default>svc_web_tier</default>
+      <initialValue>svc_web_tier</initialValue>
+    </input>
+    <input type="time" token="time_tok">
+      <label>Time Range</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Composite Health Score Over Time</title>
+      <chart>
+        <search>
+          <query>`itsi_lite_service_scores_over_time` | search technical_service_id=$svc_tok$ | timechart span=15m avg(tech_score) as "Health Score"</query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisY.minimumNumber">0</option>
+        <option name="charting.axisY.maximumNumber">100</option>
+        <option name="charting.chart.nullValueMode">connect</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>KPI Swimlanes</title>
+      <chart>
+        <search>
+          <query>`itsi_lite_kpi_raw` | `itsi_lite_kpi_severity` | search technical_service_id=$svc_tok$ | timechart span=15m avg(value) as value by kpi_name</query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Entity Comparison - Latest Severity</title>
+      <table>
+        <search>
+          <query>`itsi_lite_service_scores` | search technical_service_id=$svc_tok$ | eval sevrank=case(severity="critical",5,severity="high",4,severity="medium",3,severity="low",2,1=1,1) | sort -sevrank | table entity_name kpi_name value unit severity | rename entity_name as Entity, kpi_name as KPI, value as Value, unit as Unit, severity as Severity</query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <format type="color" field="Severity">
+          <colorPalette type="map">{"critical":"#B0413E","high":"#F2854C","medium":"#FFC300","low":"#99D18B","normal":"#65A637"}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+</form>

@@ -1,0 +1,13 @@
+service_id,service_name,parent_service_id,service_type,importance,description
+svc_shopping_cart,Online Shopping Cart,,business_service,critical,Primary customer-facing e-commerce service
+svc_web_tier,Web Tier,svc_shopping_cart,technical_service,high,Front-end web servers behind the load balancer
+svc_app_tier,Application Tier,svc_shopping_cart,technical_service,high,Business logic / API application servers
+svc_db_tier,Database Tier,svc_shopping_cart,technical_service,critical,Primary datastore cluster
+svc_payment_gw,Payment Gateway,svc_shopping_cart,technical_service,critical,Third-party payment processing integration
+ent_web01,web-01,svc_web_tier,entity,medium,Web server node 1
+ent_web02,web-02,svc_web_tier,entity,medium,Web server node 2
+ent_app01,app-01,svc_app_tier,entity,medium,Application server node 1
+ent_app02,app-02,svc_app_tier,entity,medium,Application server node 2
+ent_db01,db-01 (primary),svc_db_tier,entity,critical,Primary database node
+ent_db02,db-02 (replica),svc_db_tier,entity,high,Replica database node
+ent_paygw01,payment-gw-01,svc_payment_gw,entity,critical,Payment gateway integration endpoint
