@@ -1,0 +1,67 @@
+<form>
+  <label>Daily &amp; Monthly Trend</label>
+  <description>Daily and monthly license consumption trends, with a detailed daily table flagging days that came close to or exceeded the license pool quota.</description>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="time" token="time_tok">
+      <label>Time Range</label>
+      <default>
+        <earliest>-90d@d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Daily Consumption (with 7-day moving average)</title>
+      <chart>
+        <search>
+          <query>`license_usage_base` | `license_usage_gb` | timechart span=1d sum(GB) as GB | trendline sma7(GB) as "7-day avg"</query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.overlayFields">7-day avg</option>
+        <option name="charting.axisTitleY.text">GB indexed</option>
+        <option name="drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Monthly Consumption - Last 12 Months</title>
+      <chart>
+        <search>
+          <query>`license_usage_base` | `license_usage_gb` | timechart span=1mon sum(GB) as GB</query>
+          <earliest>-12mon@mon</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.axisTitleY.text">GB indexed</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Daily Detail vs. Quota</title>
+      <table>
+        <search>
+          <query>`license_usage_base` | `license_usage_gb` | bin _time span=1d | stats sum(GB) as GB by _time | appendcols [ `license_pool_quota_gb` | stats sum(quota_GB) as QuotaGB ] | eval PctOfQuota=round((GB/QuotaGB)*100,1) | eval Status=case(PctOfQuota>=100,"over quota",PctOfQuota>=90,"near quota",1=1,"normal") | eval Date=strftime(_time,"%Y-%m-%d") | eval GB=round(GB,2) | table Date GB QuotaGB PctOfQuota Status | sort -Date</query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <format type="color" field="Status">
+          <colorPalette type="map">{"over quota":"#B0413E","near quota":"#FFC300","normal":"#65A637"}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+</form>
