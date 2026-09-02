@@ -1,0 +1,96 @@
+<dashboard>
+  <label>License Overview</label>
+  <description>Annual license consumption at a glance: total usage over the last 365 days, today's utilization against the license pool quota, the 12-month trend, and the top indexes driving consumption. All searches run directly against Splunk's own internal license_usage.log events - no external add-on required.</description>
+  <row>
+    <panel>
+      <title>Total Consumption - Last 365 Days</title>
+      <single>
+        <search>
+          <query>`license_usage_base` | `license_usage_gb` | stats sum(GB) as GB | eval GB=round(GB,1)</query>
+          <earliest>-365d@d</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="unit">GB</option>
+        <option name="numberPrecision">0.0</option>
+        <option name="height">140</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Daily Average - Last 365 Days</title>
+      <single>
+        <search>
+          <query>`license_usage_base` | `license_usage_gb` | bin _time span=1d | stats sum(GB) as DailyGB by _time | stats avg(DailyGB) as GB | eval GB=round(GB,2)</query>
+          <earliest>-365d@d</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="unit">GB/day</option>
+        <option name="numberPrecision">0.00</option>
+        <option name="height">140</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Today vs. License Pool Quota</title>
+      <single>
+        <search>
+          <query>`license_usage_base` earliest=-1d@d latest=@d | `license_usage_gb` | stats sum(GB) as TodayGB | appendcols [ `license_pool_quota_gb` | stats sum(quota_GB) as QuotaGB ] | eval PctUsed=round((TodayGB/QuotaGB)*100,1) | table PctUsed</query>
+          <earliest>-15m</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="unit">%</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[80,95,100]</option>
+        <option name="rangeColors">["#65A637","#FFC300","#F2854C","#B0413E"]</option>
+        <option name="numberPrecision">0.0</option>
+        <option name="height">140</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Monthly Consumption Trend - Last 13 Months</title>
+      <chart>
+        <search>
+          <query>`license_usage_base` | `license_usage_gb` | timechart span=1mon sum(GB) as GB</query>
+          <earliest>-13mon@mon</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="charting.chart">area</option>
+        <option name="charting.axisTitleY.text">GB indexed</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top 10 Indexes - Last 30 Days</title>
+      <chart>
+        <search>
+          <query>`license_usage_base` | `license_usage_gb` | stats sum(GB) as GB by idx | sort -GB | head 10</query>
+          <earliest>-30d@d</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.axisTitleY.text">GB indexed</option>
+        <option name="charting.legend.placement">none</option>
+        <drilldown>
+          <link target="_blank">/app/license_usage_dashboard/top_sources?form.breakdown_field=idx</link>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+</dashboard>

@@ -1,0 +1,5 @@
+<nav search_view="search" color="#5385ce">
+  <view name="license_overview" default="true" />
+  <view name="daily_monthly_trend" />
+  <view name="top_sources" />
+</nav>
