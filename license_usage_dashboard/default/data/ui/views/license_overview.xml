@@ -116,7 +116,7 @@
       <title>License Pool Usage vs. Quota (Today)</title>
       <table>
         <search>
-          <query>`license_usage_base` earliest=-1d@d latest=@d | `license_usage_gb` | stats sum(GB) as TodayGB by pool | eval TodayGB=round(TodayGB,3) | join type=outer pool [ `license_pool_quota_gb` | rename title as pool ] | eval PctOfQuota=round((TodayGB/quota_GB)*100,1) | eval Status=case(PctOfQuota>=100,"over quota",PctOfQuota>=90,"near quota",1=1,"normal") | rename pool as Pool, TodayGB as "Today (GB)", quota_GB as "Quota (GB)", PctOfQuota as "% of Quota" | table Pool "Today (GB)" "Quota (GB)" "% of Quota" Status | sort -"Today (GB)"</query>
+          <query>`license_usage_base` earliest=-1d@d latest=@d | `license_usage_gb` | stats sum(GB) as TodayGB by pool | append [ `license_pool_quota_gb` | rename title as pool ] | stats sum(TodayGB) as TodayGB, sum(quota_GB) as QuotaGB by pool | eval TodayGB=round(TodayGB,3) | eval PctOfQuota=round((TodayGB/QuotaGB)*100,1) | eval Status=case(PctOfQuota>=100,"over quota",PctOfQuota>=90,"near quota",1=1,"normal") | sort -TodayGB | rename pool as Pool, TodayGB as "Today (GB)", QuotaGB as "Quota (GB)", PctOfQuota as "% of Quota" | table Pool "Today (GB)" "Quota (GB)" "% of Quota" Status</query>
           <earliest>-15m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
