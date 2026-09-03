@@ -24,16 +24,19 @@ numbers as soon as it's installed.
 
 1. **License Overview** (default landing page) - total consumption over the
    last 365 days, the daily average, today's usage as a percentage of the
-   license pool quota (color-coded), a 13-month consumption trend, and the
-   top 10 indexes over the last 30 days.
+   license pool quota (color-coded), a 13-month consumption trend, the top
+   10 indexes over the last 30 days, a breakdown of consumption by license
+   pool over the last 30 days, and a table comparing each pool's usage
+   today against its own quota.
 2. **Daily & Monthly Trend** - a time-range picker driving a daily
    consumption chart (with a 7-day moving average overlay), a fixed
    12-month monthly chart, and a day-by-day table flagging any day that
    came close to or went over quota.
 3. **Top Sources** - pick a time range and a dimension (index, sourcetype,
-   host, or source) to see the top 15 contributors as a bar chart, a pie
-   chart of the top 10, and a Pareto table (share of total + cumulative
-   share) to quickly spot the few sources driving most of the volume.
+   host, source, or license pool) to see the top 15 contributors as a bar
+   chart, a pie chart of the top 10, and a Pareto table (share of total +
+   cumulative share) to quickly spot the few sources driving most of the
+   volume.
 
 ## How the numbers are computed
 
@@ -70,10 +73,13 @@ client sees under **Settings > Licensing** / the Monitoring Console.
   index. Once enough history has accumulated, point the
   `license_usage_base` macro at that summary index instead of
   `_internal` so the year-long views stay accurate indefinitely.
-- **Multiple license pools / a license peer deployment**: the panels sum
-  across all pools returned by `licenser/pools`. If the client wants
-  per-pool quota tracking (e.g. separate pools for prod vs. dev), split
-  `license_pool_quota_gb` by `title` and add a pool selector input.
+- **Multiple license pools / a license peer deployment**: the "Today vs.
+  License Pool Quota" single value on the overview sums across all pools
+  for a quick headline number, but the "Consumption by License Pool" chart
+  and "License Pool Usage vs. Quota" table (and the "License Pool"
+  breakdown on Top Sources) already report per pool (via the `pool` field
+  and `license_pool_quota_gb`'s per-`title` rows), so per-pool tracking
+  (e.g. separate pools for prod vs. dev) works out of the box.
 - **Alerting**: pair the daily rollup saved search with an alert action
   (e.g. `| where PctOfQuota>=90`) to notify the client proactively before
   they breach quota, instead of only showing it on a dashboard.

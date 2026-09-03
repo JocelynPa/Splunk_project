@@ -1,6 +1,6 @@
 <form>
   <label>Top Sources</label>
-  <description>Which indexes, sourcetypes, hosts or sources consume the most license, over a selectable time range, with a Pareto breakdown (share of total and cumulative share) to spot the few contributors driving most of the volume.</description>
+  <description>Which indexes, sourcetypes, hosts, sources, or license pools consume the most license, over a selectable time range, with a Pareto breakdown (share of total and cumulative share) to spot the few contributors driving most of the volume.</description>
   <fieldset submitButton="false" autoRun="true">
     <input type="time" token="time_tok2">
       <label>Time Range</label>
@@ -15,6 +15,7 @@
       <choice value="st">Sourcetype</choice>
       <choice value="h">Host</choice>
       <choice value="s">Source</choice>
+      <choice value="pool">License Pool</choice>
       <default>idx</default>
       <initialValue>idx</initialValue>
     </input>

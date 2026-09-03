@@ -92,5 +92,41 @@
         </drilldown>
       </chart>
     </panel>
+    <panel>
+      <title>Consumption by License Pool - Last 30 Days</title>
+      <chart>
+        <search>
+          <query>`license_usage_base` | `license_usage_gb` | stats sum(GB) as GB by pool | sort -GB</query>
+          <earliest>-30d@d</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.axisTitleY.text">GB indexed</option>
+        <option name="charting.legend.placement">none</option>
+        <drilldown>
+          <link target="_blank">/app/license_usage_dashboard/top_sources?form.breakdown_field=pool</link>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>License Pool Usage vs. Quota (Today)</title>
+      <table>
+        <search>
+          <query>`license_usage_base` earliest=-1d@d latest=@d | `license_usage_gb` | stats sum(GB) as TodayGB by pool | eval TodayGB=round(TodayGB,3) | join type=outer pool [ `license_pool_quota_gb` | rename title as pool ] | eval PctOfQuota=round((TodayGB/quota_GB)*100,1) | eval Status=case(PctOfQuota>=100,"over quota",PctOfQuota>=90,"near quota",1=1,"normal") | rename pool as Pool, TodayGB as "Today (GB)", quota_GB as "Quota (GB)", PctOfQuota as "% of Quota" | table Pool "Today (GB)" "Quota (GB)" "% of Quota" Status | sort -"Today (GB)"</query>
+          <earliest>-15m</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <format type="color" field="Status">
+          <colorPalette type="map">{"over quota":"#B0413E","near quota":"#FFC300","normal":"#65A637"}</colorPalette>
+        </format>
+      </table>
+    </panel>
   </row>
 </dashboard>
