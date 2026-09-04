@@ -6,7 +6,7 @@
       <title>Online Shopping Cart - Overall Service Health</title>
       <single>
         <search>
-          <query>`itsi_lite_service_scores_over_time` | timechart span=1h avg(biz_score) as biz_score | stats sparkline(avg(biz_score),1h) as sparkline latest(biz_score) as score</query>
+          <query>| `itsi_lite_service_scores_over_time` | timechart span=1h avg(biz_score) as biz_score | stats sparkline(avg(biz_score),1h) as sparkline latest(biz_score) as score</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <refresh>60</refresh>
@@ -27,7 +27,7 @@
       <title>Web Tier</title>
       <single>
         <search>
-          <query>`itsi_lite_service_scores_over_time` | search technical_service_id="svc_web_tier" | timechart span=1h avg(tech_score) as tech_score | stats sparkline(avg(tech_score),1h) as sparkline latest(tech_score) as score</query>
+          <query>| `itsi_lite_service_scores_over_time` | search technical_service_id="svc_web_tier" | timechart span=1h avg(tech_score) as tech_score | stats sparkline(avg(tech_score),1h) as sparkline latest(tech_score) as score</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <refresh>60</refresh>
@@ -46,7 +46,7 @@
       <title>Application Tier</title>
       <single>
         <search>
-          <query>`itsi_lite_service_scores_over_time` | search technical_service_id="svc_app_tier" | timechart span=1h avg(tech_score) as tech_score | stats sparkline(avg(tech_score),1h) as sparkline latest(tech_score) as score</query>
+          <query>| `itsi_lite_service_scores_over_time` | search technical_service_id="svc_app_tier" | timechart span=1h avg(tech_score) as tech_score | stats sparkline(avg(tech_score),1h) as sparkline latest(tech_score) as score</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <refresh>60</refresh>
@@ -65,7 +65,7 @@
       <title>Database Tier</title>
       <single>
         <search>
-          <query>`itsi_lite_service_scores_over_time` | search technical_service_id="svc_db_tier" | timechart span=1h avg(tech_score) as tech_score | stats sparkline(avg(tech_score),1h) as sparkline latest(tech_score) as score</query>
+          <query>| `itsi_lite_service_scores_over_time` | search technical_service_id="svc_db_tier" | timechart span=1h avg(tech_score) as tech_score | stats sparkline(avg(tech_score),1h) as sparkline latest(tech_score) as score</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <refresh>60</refresh>
@@ -84,7 +84,7 @@
       <title>Payment Gateway</title>
       <single>
         <search>
-          <query>`itsi_lite_service_scores_over_time` | search technical_service_id="svc_payment_gw" | timechart span=1h avg(tech_score) as tech_score | stats sparkline(avg(tech_score),1h) as sparkline latest(tech_score) as score</query>
+          <query>| `itsi_lite_service_scores_over_time` | search technical_service_id="svc_payment_gw" | timechart span=1h avg(tech_score) as tech_score | stats sparkline(avg(tech_score),1h) as sparkline latest(tech_score) as score</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <refresh>60</refresh>
@@ -105,7 +105,7 @@
       <title>KPI Status - All Services (worst first)</title>
       <table>
         <search>
-          <query>`itsi_lite_service_scores` | eval sevrank=case(severity="critical",5,severity="high",4,severity="medium",3,severity="low",2,1=1,1) | sort -sevrank | eval Service=technical_service_name." / ".entity_name | table Service kpi_name value unit severity | rename kpi_name as KPI, value as Value, unit as Unit, severity as Severity</query>
+          <query>| `itsi_lite_service_scores` | eval sevrank=case(severity="critical",5,severity="high",4,severity="medium",3,severity="low",2,1=1,1) | sort -sevrank | eval Service=technical_service_name." / ".entity_name | table Service kpi_name value unit severity | rename kpi_name as KPI, value as Value, unit as Unit, severity as Severity</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <refresh>60</refresh>

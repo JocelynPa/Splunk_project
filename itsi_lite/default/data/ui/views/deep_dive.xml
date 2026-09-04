@@ -24,7 +24,7 @@
       <title>Composite Health Score Over Time</title>
       <chart>
         <search>
-          <query>`itsi_lite_service_scores_over_time` | search technical_service_id=$svc_tok$ | timechart span=15m avg(tech_score) as "Health Score"</query>
+          <query>| `itsi_lite_service_scores_over_time` | search technical_service_id=$svc_tok$ | timechart span=15m avg(tech_score) as "Health Score"</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
         </search>
@@ -40,7 +40,7 @@
       <title>KPI Swimlanes</title>
       <chart>
         <search>
-          <query>`itsi_lite_kpi_raw` | `itsi_lite_kpi_severity` | search technical_service_id=$svc_tok$ | timechart span=15m avg(value) as value by kpi_name</query>
+          <query>| `itsi_lite_kpi_raw` | `itsi_lite_kpi_severity` | search technical_service_id=$svc_tok$ | timechart span=15m avg(value) as value by kpi_name</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
         </search>
@@ -54,7 +54,7 @@
       <title>Entity Comparison - Latest Severity</title>
       <table>
         <search>
-          <query>`itsi_lite_service_scores` | search technical_service_id=$svc_tok$ | eval sevrank=case(severity="critical",5,severity="high",4,severity="medium",3,severity="low",2,1=1,1) | sort -sevrank | table entity_name kpi_name value unit severity | rename entity_name as Entity, kpi_name as KPI, value as Value, unit as Unit, severity as Severity</query>
+          <query>| `itsi_lite_service_scores` | search technical_service_id=$svc_tok$ | eval sevrank=case(severity="critical",5,severity="high",4,severity="medium",3,severity="low",2,1=1,1) | sort -sevrank | table entity_name kpi_name value unit severity | rename entity_name as Entity, kpi_name as KPI, value as Value, unit as Unit, severity as Severity</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
         </search>
