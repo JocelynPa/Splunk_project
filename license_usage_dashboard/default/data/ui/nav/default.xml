@@ -2,4 +2,5 @@
   <view name="license_overview" default="true" />
   <view name="daily_monthly_trend" />
   <view name="top_sources" />
+  <view name="annual_estimate" />
 </nav>
