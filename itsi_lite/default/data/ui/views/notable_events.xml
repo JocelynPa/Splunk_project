@@ -36,7 +36,7 @@
       <title>New</title>
       <single>
         <search>
-          <query>`itsi_lite_notable_events` | search status="new" | stats count</query>
+          <query>| `itsi_lite_notable_events` | search status="new" | stats count</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
         </search>
@@ -50,7 +50,7 @@
       <title>In Progress</title>
       <single>
         <search>
-          <query>`itsi_lite_notable_events` | search status="in progress" | stats count</query>
+          <query>| `itsi_lite_notable_events` | search status="in progress" | stats count</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
         </search>
@@ -60,7 +60,7 @@
       <title>Critical (any status)</title>
       <single>
         <search>
-          <query>`itsi_lite_notable_events` | search severity="critical" | stats count</query>
+          <query>| `itsi_lite_notable_events` | search severity="critical" | stats count</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
         </search>
@@ -76,7 +76,7 @@
       <title>Notable Events</title>
       <table>
         <search>
-          <query>`itsi_lite_notable_events` | search status=$status_tok$ severity IN ($sev_tok$) | rename _time as Time, business_service_name as "Business Service", technical_service_name as "Technical Service", entity_name as Entity, kpi_name as KPI, severity as Severity, status as Status, owner as Owner, description as Description</query>
+          <query>| `itsi_lite_notable_events` | search status=$status_tok$ severity IN ($sev_tok$) | rename _time as Time, business_service_name as "Business Service", technical_service_name as "Technical Service", entity_name as Entity, kpi_name as KPI, severity as Severity, status as Status, owner as Owner, description as Description</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
         </search>

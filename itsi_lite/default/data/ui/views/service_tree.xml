@@ -6,7 +6,7 @@
       <title>Online Shopping Cart (Business Service)</title>
       <single>
         <search>
-          <query>`itsi_lite_service_scores` | stats latest(biz_score) as score</query>
+          <query>| `itsi_lite_service_scores` | stats latest(biz_score) as score</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
         </search>
@@ -22,7 +22,7 @@
       <title>Web Tier</title>
       <single>
         <search>
-          <query>`itsi_lite_service_scores` | search technical_service_id="svc_web_tier" | stats latest(tech_score) as score</query>
+          <query>| `itsi_lite_service_scores` | search technical_service_id="svc_web_tier" | stats latest(tech_score) as score</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
         </search>
@@ -39,7 +39,7 @@
       <title>Application Tier</title>
       <single>
         <search>
-          <query>`itsi_lite_service_scores` | search technical_service_id="svc_app_tier" | stats latest(tech_score) as score</query>
+          <query>| `itsi_lite_service_scores` | search technical_service_id="svc_app_tier" | stats latest(tech_score) as score</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
         </search>
@@ -56,7 +56,7 @@
       <title>Database Tier</title>
       <single>
         <search>
-          <query>`itsi_lite_service_scores` | search technical_service_id="svc_db_tier" | stats latest(tech_score) as score</query>
+          <query>| `itsi_lite_service_scores` | search technical_service_id="svc_db_tier" | stats latest(tech_score) as score</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
         </search>
@@ -73,7 +73,7 @@
       <title>Payment Gateway</title>
       <single>
         <search>
-          <query>`itsi_lite_service_scores` | search technical_service_id="svc_payment_gw" | stats latest(tech_score) as score</query>
+          <query>| `itsi_lite_service_scores` | search technical_service_id="svc_payment_gw" | stats latest(tech_score) as score</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
         </search>
@@ -92,7 +92,7 @@
       <title>Entities</title>
       <table>
         <search>
-          <query>`itsi_lite_service_scores` | eval sevrank=case(entity_severity="critical",5,entity_severity="high",4,entity_severity="medium",3,entity_severity="low",2,1=1,1) | dedup entity_id | sort -sevrank | table technical_service_name entity_name entity_score entity_severity | rename technical_service_name as "Technical Service", entity_name as Entity, entity_score as "Health Score", entity_severity as Severity</query>
+          <query>| `itsi_lite_service_scores` | eval sevrank=case(entity_severity="critical",5,entity_severity="high",4,entity_severity="medium",3,entity_severity="low",2,1=1,1) | dedup entity_id | sort -sevrank | table technical_service_name entity_name entity_score entity_severity | rename technical_service_name as "Technical Service", entity_name as Entity, entity_score as "Health Score", entity_severity as Severity</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
         </search>
