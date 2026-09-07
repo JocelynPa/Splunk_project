@@ -37,6 +37,16 @@ numbers as soon as it's installed.
    chart, a pie chart of the top 10, and a Pareto table (share of total +
    cumulative share) to quickly spot the few sources driving most of the
    volume.
+4. **Annual Estimate** - projects full-year consumption from a selectable
+   baseline window (30/90/180/365 days), since `_internal` often doesn't
+   hold a true year of history. Shows three numbers side by side: a
+   *simple* estimate (daily average x 365), a *trend-adjusted* estimate
+   (30-day forecast via Splunk's built-in `predict` command, annualized -
+   the one to use for renewal sizing since it reacts to growth), and a
+   *conservative* estimate (95th-percentile day x 365, a buffer figure).
+   Also shows how many days of history actually backed the estimate, so
+   you know how much to trust it, plus a forecast chart with a 95%
+   confidence band.
 
 ## How the numbers are computed
 
@@ -61,7 +71,7 @@ client sees under **Settings > Licensing** / the Monitoring Console.
    Splunk version's requirements).
 3. Install it on the license master (or the standalone instance) so
    `index=_internal` and `licenser/pools` reflect the real deployment.
-4. Open the app - the three dashboards are in the app's navigation bar.
+4. Open the app - the four dashboards are in the app's navigation bar.
 
 ## Extending this into your own app
 
@@ -83,9 +93,11 @@ client sees under **Settings > Licensing** / the Monitoring Console.
 - **Alerting**: pair the daily rollup saved search with an alert action
   (e.g. `| where PctOfQuota>=90`) to notify the client proactively before
   they breach quota, instead of only showing it on a dashboard.
-- **Forecasting**: add a `predict` (or `x11`/`ma`) panel on the daily
-  series in `daily_monthly_trend.xml` to project consumption forward and
-  help the client anticipate when they'll need to increase their license.
+- **Tuning the forecast**: `annual_estimate.xml`'s trend-adjusted estimate
+  uses `predict ... algorithm=LLT5 future_timespan=30`. If the client's
+  usage has a strong weekly or monthly seasonal pattern, swap in `LLP5`
+  (periodic) with a `period` parameter, or extend `future_timespan` for a
+  longer-horizon forecast at the cost of a wider confidence band.
 
 ## Files
 
@@ -100,6 +112,7 @@ license_usage_dashboard/
       license_overview.xml
       daily_monthly_trend.xml
       top_sources.xml
+      annual_estimate.xml
   metadata/
     default.meta
 ```
