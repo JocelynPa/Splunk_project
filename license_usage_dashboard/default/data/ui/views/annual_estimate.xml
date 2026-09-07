@@ -49,7 +49,7 @@
       <title>Trend-Adjusted Estimate (30d Forecast x 365)</title>
       <single>
         <search>
-          <query>`license_usage_base` | `license_usage_gb` | timechart span=1d sum(GB) as GB | predict GB as predicted algorithm=LLT5 future_timespan=30 | where isnull(GB) AND isnotnull(predicted) | stats avg(predicted) as TrendAvgGB | eval EstimateGB=round(TrendAvgGB*365,0)</query>
+          <query>`license_usage_base` | `license_usage_gb` | timechart span=1d sum(GB) as GB | predict GB as predicted algorithm=LLT future_timespan=30 | where isnull(GB) AND isnotnull(predicted) | stats avg(predicted) as TrendAvgGB | eval EstimateGB=round(TrendAvgGB*365,0)</query>
           <earliest>$baseline_earliest$</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
@@ -83,7 +83,7 @@
       <title>Daily Consumption - History &amp; 30-Day Forecast (95% confidence band)</title>
       <chart>
         <search>
-          <query>`license_usage_base` | `license_usage_gb` | timechart span=1d sum(GB) as GB | predict GB as predicted algorithm=LLT5 future_timespan=30 upper95=upper95 lower95=lower95</query>
+          <query>`license_usage_base` | `license_usage_gb` | timechart span=1d sum(GB) as GB | predict GB as predicted algorithm=LLT future_timespan=30 upper95=upper95 lower95=lower95</query>
           <earliest>$baseline_earliest$</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>

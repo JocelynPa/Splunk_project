@@ -94,8 +94,8 @@ client sees under **Settings > Licensing** / the Monitoring Console.
   (e.g. `| where PctOfQuota>=90`) to notify the client proactively before
   they breach quota, instead of only showing it on a dashboard.
 - **Tuning the forecast**: `annual_estimate.xml`'s trend-adjusted estimate
-  uses `predict ... algorithm=LLT5 future_timespan=30`. If the client's
-  usage has a strong weekly or monthly seasonal pattern, swap in `LLP5`
+  uses `predict ... algorithm=LLT future_timespan=30`. If the client's
+  usage has a strong weekly or monthly seasonal pattern, swap in `LLP`
   (periodic) with a `period` parameter, or extend `future_timespan` for a
   longer-horizon forecast at the cost of a wider confidence band.
 
