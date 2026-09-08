@@ -80,7 +80,7 @@
       <title>Locked-Out Accounts</title>
       <single>
         <search>
-          <query>`audit_rest_users` | search "locked-out"=1 | stats count</query>
+          <query>| rest /services/authentication/users splunk_server=local | search "locked-out"=1 | stats count</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
