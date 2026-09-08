@@ -134,6 +134,25 @@
 
   <row>
     <panel>
+      <title>LDAP Authentication Strategies</title>
+      <table>
+        <search>
+          <query>| rest /services/authentication/providers/LDAP splunk_server=local | eval Encrypted=if(match(SSL,"(?i)^(1|true)$"),"LDAPS (encrypted)","Plain LDAP (unencrypted)") | table title, host, port, Encrypted, bindDN, userBaseDN, groupBaseDN | rename title as Strategy, host as Host, port as Port, bindDN as "Bind DN", userBaseDN as "User Base DN", groupBaseDN as "Group Base DN"</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <format type="color" field="Encrypted">
+          <colorPalette type="map">{"LDAPS (encrypted)":"#65A637","Plain LDAP (unencrypted)":"#B0413E"}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
       <title>Privileged Configuration Changes - Last 7 Days</title>
       <table>
         <search>

@@ -127,9 +127,33 @@ list:
   `infrastructure_health.xml` and the matching check in `audit_summary.xml`
   / `savedsearches.conf`.
 - Login-activity panels reflect Splunk's own local authentication
-  logging (`index=_audit action=login`). If the deployment sits behind
-  SSO/SAML, failed attempts rejected upstream of Splunk won't appear
-  here.
+  logging (`index=_audit action=login`). **LDAP-backed auth is fine**:
+  Splunk still renders its own login page and calls out to the LDAP
+  server to verify the credentials, so both successful and failed
+  attempts are logged the same way as local accounts - the failed/
+  successful login panels need no adjustment. **SSO/SAML is different**:
+  there, an external identity provider owns the login page and Splunk
+  only ever sees the final assertion, so attempts rejected upstream
+  (wrong password at the IdP, MFA failure, etc.) never reach Splunk and
+  won't appear here.
+- **User Inventory only lists users who have logged into Splunk at least
+  once.** With LDAP (or any external auth), Splunk creates a local
+  "shadow" user record the first time someone authenticates - it does
+  not mirror the full LDAP/AD directory or group membership up front. So
+  this table under-counts anyone with LDAP-mapped access who simply
+  hasn't logged in yet; it is not a substitute for reviewing the LDAP
+  group-to-role mapping in the LDAP strategy itself (which controls who
+  *can* log in and with which role, regardless of whether they've done
+  so yet).
+- **LDAP Authentication Strategies panel** (`/services/authentication/
+  providers/LDAP`) is a lower-confidence endpoint than the others in this
+  app - field names (`SSL`, `bindDN`, `userBaseDN`, `groupBaseDN`) match
+  what Splunk Web's own LDAP settings page is built on, but validate them
+  against `authentication.conf.spec` on your version if the panel looks
+  empty or wrong. The one thing worth trusting even before you validate
+  it: if the `Encrypted` column comes back red ("Plain LDAP
+  (unencrypted)"), that's worth checking manually regardless - it means
+  bind credentials are going out over the wire in cleartext.
 
 ## Dashboards
 
@@ -156,11 +180,13 @@ list:
 3. **Security Audit** - login activity trend and top users by failed
    login, the full user inventory (roles, auth type, lockout state), the
    role inventory (capability count, allowed/default search indexes),
-   privileged configuration changes from the audit trail (user/role/auth
-   edits over the last 7 days), Splunk Web and management-port (8089) SSL
-   status **by instance**, globally-shared saved searches writable by
-   everyone, and recent access to sensitive REST endpoints (users, roles,
-   indexes, server settings).
+   **LDAP authentication strategy configuration** (host/port, bind DN,
+   base DNs, and whether the connection is encrypted), privileged
+   configuration changes from the audit trail (user/role/auth edits over
+   the last 7 days), Splunk Web and management-port (8089) SSL status
+   **by instance**, globally-shared saved searches writable by everyone,
+   and recent access to sensitive REST endpoints (users, roles, indexes,
+   server settings).
 
 ## How the findings checklist works
 

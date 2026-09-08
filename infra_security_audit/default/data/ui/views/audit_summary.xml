@@ -175,6 +175,12 @@
             | stats count
             | eval Category="Security", Check="Number of users holding the admin role kept minimal", Status=if(count&gt;10,"WARNING","OK"), Detail=count." user(s) hold the admin role"
             | table Category Check Status Detail ]
+            | append
+            [ | rest /services/authentication/providers/LDAP splunk_server=local
+            | eval encrypted=if(match(SSL,"(?i)^(1|true)$"),1,0)
+            | stats count as total, sum(encrypted) as encrypted_count
+            | eval Category="Security", Check="LDAP strategies use SSL/TLS (LDAPS)", Status=case(total=0,"OK",encrypted_count&lt;total,"WARNING",true(),"OK"), Detail=if(total=0,"No LDAP strategy configured",(total-encrypted_count)." of ".total." LDAP strategy(ies) not using SSL/TLS")
+            | table Category Check Status Detail ]
             | eval sort_rank=case(Status="CRITICAL",1,Status="WARNING",2,Status="OK",3,true(),4)
             | sort sort_rank, Category, Check
             | table Category Check Status Detail
