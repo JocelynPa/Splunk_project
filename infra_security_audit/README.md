@@ -19,6 +19,68 @@ own internal indexes (`_internal`, `_audit`) and built-in REST endpoints
 `cluster/config`, `saved/searches`, `configs/conf-server`,
 `server/settings`) - no add-on or external data onboarding required.
 
+## Seeing your whole deployment, not just one instance
+
+This app is meant to be installed once (on a search head, or a search head
+cluster) and give you the whole fleet from there - it does **not** need to
+be installed on every indexer. It does this two ways:
+
+1. **REST panels use `splunk_server=*`** for anything genuinely
+   per-instance: the Search Peers inventory, the all-instances version/
+   resource table, disk usage by index, disk space by partition, KV store
+   status, cluster mode, and Splunk Web/management-port SSL. Each of these
+   returns one row *per reachable instance* (tagged with a `Splunk Server`
+   column) instead of collapsing to a single number. A few things stay
+   scoped to the instance you're viewing from on purpose because they're
+   shared/replicated config, not per-instance state: users, roles, saved
+   search ACLs, and license pools (identical everywhere in a normal
+   deployment, so fanning out would just produce duplicate rows).
+2. **`_internal`/`_audit` searches already span every configured search
+   peer automatically** (Splunk distributes any index search across
+   peers, same as a normal search) - this app adds `by host` to queue
+   fill, CPU/memory, errors/warnings, and forwarder connections so that
+   distributed data doesn't get silently pooled into one number and hide
+   which site or indexer it came from.
+
+**The prerequisite for either of these to show anything beyond the local
+instance: every indexer (and any other instance you want visibility into)
+must be added as a distributed search peer** of the search head(s) this
+app runs on (**Settings > Distributed search > Search peers**, or
+`distsearch.conf`). This is a Splunk architecture requirement, not
+something this app can work around - if an indexer isn't a search peer,
+no search or REST call from the search head can see it, dashboard or not.
+The new **"Search Peers (Indexers) - Fleet Inventory"** panel at the top
+of Infrastructure Health is built from `/services/search/distributed/peers`
+specifically because it lists every *configured* peer (including ones
+currently `Down`) rather than silently omitting anything unreachable -
+if a site's indexers are missing from that table entirely, they haven't
+been added as peers yet.
+
+**Multi-site / multiple independent indexer clusters** (e.g. a central
+site with its own indexer cluster + cluster master, and other sites each
+with their own separate indexer cluster + cluster master): Splunk
+supports a single search head or SH cluster having peers across several
+independent indexer clusters simultaneously, and once those peers are
+added, everything above works the same regardless of which site an
+indexer belongs to (the peers table's `site` column tells you). Two
+things this app does *not* cover, because they need something querying
+each cluster master directly rather than through the search head's peer
+list:
+- **Cluster masters themselves are typically not added as search peers**
+  (peers are the indexers, not the CM), so "Cluster Mode by Instance"
+  shows each indexer's own `mode` (`slave`) and `site`, but not a given
+  site's replication/search factor health from its master's point of
+  view. Check that on each site's cluster master directly (**Settings >
+  Indexer clustering**), or add the CM as a peer too if you want it to
+  show up in the fleet tables.
+- **Search head cluster members generally aren't search peers of each
+  other**, so panels that read the *local* `_internal` only (skipped
+  scheduled searches, REST API access log) reflect whichever SHC member
+  you're viewing the dashboard from, not the whole cluster. Switch
+  members to compare, or centralize `_internal` into the indexing tier
+  (many deployments already forward it there) and repoint those panels
+  at that copy if you want one combined view.
+
 ## Requirements
 
 - Install on a search head with visibility into the instance(s) you want
@@ -32,10 +94,12 @@ own internal indexes (`_internal`, `_audit`) and built-in REST endpoints
   instance out of the box.
 - **Field names on REST-backed panels can shift slightly between Splunk
   versions** (e.g. `authentication.conf` password-policy keys, exact
-  `sslConfig` field names). Every search here was written against
-  well-documented, long-stable endpoints and fields, but validate the
-  handful of TLS/SSL and lockout panels against your target version's
-  `*.conf.spec` files if something looks off.
+  `sslConfig` field names, the `/services/search/distributed/peers`
+  fields used by the Fleet Inventory panel). Every search here was
+  written against well-documented, long-stable endpoints and fields, but
+  validate the handful of TLS/SSL, lockout, and peer-inventory panels
+  against your target version's `*.conf.spec`/REST reference if
+  something looks off.
 - **Why some panels inline `| rest ...` instead of using a macro**: the
   `audit_rest_*` macros in `macros.conf` (each a bare `| rest ...` call)
   are safe to reference with `` `macro` `` when they're the first command
@@ -77,22 +141,26 @@ own internal indexes (`_internal`, `_audit`) and built-in REST endpoints
    index(es) at/above 80% of max size", "Splunk Web is serving over plain
    HTTP"). This is the "read this first" view - it tells you what needs
    attention, the other two dashboards tell you why.
-2. **Infrastructure Health** - indexing queue fill % (trend + current
-   snapshot), host CPU/memory, indexing volume by index, errors/warnings
-   by component (table + trend), skipped scheduled searches, forwarder
-   connections, disk usage by index vs. its max size, **disk space by
-   partition vs. the `minFreeSpace` threshold** (the free-space floor
-   below which Splunk stops indexing/searching - a frequent, avoidable
-   cause of outages), KV store status, cluster mode, and license usage
-   vs. quota.
+2. **Infrastructure Health** - starts with a **fleet inventory**: every
+   configured search peer with its site and up/down status, and every
+   reachable instance's version/OS/uptime/CPU/memory in one table. Then:
+   indexing queue fill % (trend + current snapshot by host), CPU/memory
+   by host, indexing volume by index, errors/warnings by host and
+   component (table + trend), skipped scheduled searches, forwarder
+   connections (by receiving indexer), disk usage by index by instance,
+   **disk space by partition by instance vs. the `minFreeSpace`
+   threshold** (the free-space floor below which Splunk stops
+   indexing/searching - a frequent, avoidable cause of outages), KV
+   store status by instance, cluster mode/site by instance, and license
+   usage vs. quota.
 3. **Security Audit** - login activity trend and top users by failed
    login, the full user inventory (roles, auth type, lockout state), the
    role inventory (capability count, allowed/default search indexes),
    privileged configuration changes from the audit trail (user/role/auth
    edits over the last 7 days), Splunk Web and management-port (8089) SSL
-   status, globally-shared saved searches writable by everyone, and
-   recent access to sensitive REST endpoints (users, roles, indexes,
-   server settings).
+   status **by instance**, globally-shared saved searches writable by
+   everyone, and recent access to sensitive REST endpoints (users, roles,
+   indexes, server settings).
 
 ## How the findings checklist works
 
@@ -128,13 +196,16 @@ clauses to match the deployment's normal baseline.
   in a saved search with an alert action (e.g. trigger when any row has
   `Status="CRITICAL"`) to get notified proactively instead of only
   seeing it on a dashboard.
-- **Multi-instance / distributed environments**: every REST-backed macro
-  in `macros.conf` uses `splunk_server=local`. On a search head with
-  access to peers, change this to `splunk_server=*` (or a specific list)
-  to audit indexers/peers from one place - just be aware panels like
-  disk usage or queue fill will then return one row per peer, so you may
-  want to add `by splunk_server` to the relevant `stats`/`table`
-  commands.
+- **Fleet-wide the checks that are still instance-scoped**: the Audit
+  Findings checklist's SSL, KV store, user/role, and license checks
+  intentionally query the instance you're viewing from (see "Seeing your
+  whole deployment" above) to keep the aggregation logic simple. To make
+  one of them fleet-wide, switch its macro in `macros.conf` to
+  `splunk_server=*` and change the `stats max(...)`/`stats values(...)`
+  in that check to `stats min(...)` (or equivalent) so a single bad
+  instance flips the whole check to `WARNING`/`CRITICAL` instead of
+  being averaged/maxed away - the disk-space and index-size checks
+  already do this correctly and are a good template.
 - **More checks**: the findings table is a plain `append` chain of
   single-row searches with `Category`/`Check`/`Status`/`Detail` fields -
   add a new check by writing one more search in that shape and appending
