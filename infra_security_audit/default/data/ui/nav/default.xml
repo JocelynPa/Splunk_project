@@ -1,0 +1,5 @@
+<nav search_view="search" color="#5385ce">
+  <view name="audit_summary" default="true" />
+  <view name="infrastructure_health" />
+  <view name="security_audit" />
+</nav>

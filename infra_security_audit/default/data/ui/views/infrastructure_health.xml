@@ -1,0 +1,263 @@
+<dashboard>
+  <label>Infrastructure Health</label>
+  <description>Deep-dive on the health of the Splunk deployment itself: indexing pipeline queues, indexing volume, host resource usage, errors/warnings, the search scheduler, disk usage per index, forwarder connections, KV store and cluster status. All searches run directly against index=_internal, index=_introspection-free internal metrics.log events, and Splunk's own REST endpoints - no add-on required.</description>
+
+  <row>
+    <panel>
+      <title>Splunk Version</title>
+      <single>
+        <search>
+          <query>`audit_rest_server_info` | table version</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Uptime (days)</title>
+      <single>
+        <search>
+          <query>`audit_rest_server_info` | eval uptime_days=round(uptime/86400,1) | table uptime_days</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+      </single>
+    </panel>
+    <panel>
+      <title>CPU Cores</title>
+      <single>
+        <search>
+          <query>`audit_rest_server_info` | table numberOfCores</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Physical Memory (GB)</title>
+      <single>
+        <search>
+          <query>`audit_rest_server_info` | eval mem_gb=round(physicalMemoryMB/1024,1) | table mem_gb</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+      </single>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Indexing Queue Fill % - Last 4 Hours</title>
+      <chart>
+        <search>
+          <query>`audit_queue_fill` | timechart span=2m avg(pct_full) by name limit=0</query>
+          <earliest>-4h</earliest>
+          <latest>now</latest>
+          <refresh>300</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisTitleY.text">% Full</option>
+        <option name="charting.axisY.maximumNumber">100</option>
+        <option name="drilldown">none</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Current Queue Fill (latest)</title>
+      <table>
+        <search>
+          <query>`audit_queue_fill` | stats latest(pct_full) as PctFull by name | sort -PctFull | rename name as Queue, PctFull as "% Full"</query>
+          <earliest>-15m</earliest>
+          <latest>now</latest>
+          <refresh>300</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <format type="color" field="% Full">
+          <colorPalette type="range">["#65A637","#65A637","#FFC300","#B0413E"]</colorPalette>
+          <scale type="threshold">[70,90,100]</scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Host CPU / Memory - Last 4 Hours</title>
+      <chart>
+        <search>
+          <query>`audit_hostwide_metrics` | timechart span=5m avg(cpu_system_pct) as "CPU System %" avg(cpu_user_pct) as "CPU User %" avg(pct_memory) as "Memory %"</query>
+          <earliest>-4h</earliest>
+          <latest>now</latest>
+          <refresh>300</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisTitleY.text">%</option>
+        <option name="drilldown">none</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Indexing Volume by Index - Last 24h</title>
+      <chart>
+        <search>
+          <query>`audit_per_index_thruput` earliest=-24h | eval GB=kb/1024/1024 | stats sum(GB) as GB by series | sort -GB | head 10 | rename series as Index</query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.axisTitleY.text">GB indexed</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Errors &amp; Warnings by Component - Last 24h</title>
+      <table>
+        <search>
+          <query>`audit_errors_warnings` earliest=-24h | stats count by component, log_level | sort -count | head 15</query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+          <refresh>900</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Errors &amp; Warnings Trend - Last 24h</title>
+      <chart>
+        <search>
+          <query>`audit_errors_warnings` earliest=-24h | timechart span=1h count by log_level</query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+          <refresh>900</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.axisTitleY.text">Events</option>
+        <option name="drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Skipped Scheduled Searches - Last 24h</title>
+      <table>
+        <search>
+          <query>`audit_scheduler_log` status=skipped earliest=-24h | stats count by savedsearch_name, app, user | sort -count | head 15 | rename savedsearch_name as "Saved Search", app as App, user as User, count as "Skips (24h)"</query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+          <refresh>900</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Forwarder Connections - Last Hour</title>
+      <table>
+        <search>
+          <query>`audit_forwarder_connections` earliest=-1h | eval forwarder=coalesce(hostname,sourceHost,sourceIp) | stats latest(_time) as LastSeen sum(kb) as KB by forwarder, connectionType | eval LastSeen=strftime(LastSeen,"%Y-%m-%d %H:%M:%S"), KB=round(KB,1) | sort -KB | rename forwarder as Forwarder, connectionType as Type, KB as "KB Transferred", LastSeen as "Last Seen"</query>
+          <earliest>-1h</earliest>
+          <latest>now</latest>
+          <refresh>300</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Disk Usage by Index</title>
+      <table>
+        <search>
+          <query>`audit_rest_indexes` | eval SizeGB=round(currentDBSizeMB/1024,2), MaxGB=round(maxTotalDataSizeMB/1024,2), PctUsed=if(maxTotalDataSizeMB>0,round((currentDBSizeMB/maxTotalDataSizeMB)*100,1),0) | table title, SizeGB, MaxGB, PctUsed, totalEventCount | sort -PctUsed | rename title as Index, SizeGB as "Size (GB)", MaxGB as "Max Size (GB)", PctUsed as "% of Max", totalEventCount as "Events"</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <format type="color" field="% of Max">
+          <colorPalette type="range">["#65A637","#65A637","#FFC300","#B0413E"]</colorPalette>
+          <scale type="threshold">[70,90,100]</scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>KV Store Status</title>
+      <single>
+        <search>
+          <query>`audit_rest_kvstore_status` | stats values(status) as status | table status</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Cluster Mode</title>
+      <single>
+        <search>
+          <query>`audit_rest_cluster_config` | table mode</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+      </single>
+    </panel>
+    <panel>
+      <title>License Usage vs. Quota (Today)</title>
+      <single>
+        <search>
+          <query>`audit_rest_license_pools` | eval PctUsed=if(quota>0,round((used_bytes/quota)*100,1),0) | stats max(PctUsed) as PctUsed | table PctUsed</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="unit">%</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[80,95,100]</option>
+        <option name="rangeColors">["#65A637","#FFC300","#F2854C","#B0413E"]</option>
+        <option name="height">100</option>
+      </single>
+    </panel>
+  </row>
+</dashboard>

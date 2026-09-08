@@ -1,0 +1,188 @@
+<dashboard>
+  <label>Audit Summary</label>
+  <description>Executive summary of the Splunk deployment's infrastructure health and security posture: headline KPIs plus a consolidated findings checklist (OK / WARNING / CRITICAL) built from live checks against internal indexes and REST endpoints. Drill into "Infrastructure Health" and "Security Audit" for the detail behind each finding.</description>
+
+  <row>
+    <panel>
+      <title>Errors (24h)</title>
+      <single>
+        <search>
+          <query>`audit_errors_warnings` log_level=ERROR earliest=-24h | stats count</query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+          <refresh>900</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[20,100]</option>
+        <option name="rangeColors">["#65A637","#FFC300","#B0413E"]</option>
+        <option name="height">100</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Skipped Searches (24h)</title>
+      <single>
+        <search>
+          <query>`audit_scheduler_log` status=skipped earliest=-24h | stats count</query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+          <refresh>900</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[10,50]</option>
+        <option name="rangeColors">["#65A637","#FFC300","#B0413E"]</option>
+        <option name="height">100</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Max Queue Fill % (15m)</title>
+      <single>
+        <search>
+          <query>`audit_queue_fill` earliest=-15m | stats max(pct_full) as MaxPct | table MaxPct</query>
+          <earliest>-15m</earliest>
+          <latest>now</latest>
+          <refresh>300</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="unit">%</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[90,100]</option>
+        <option name="rangeColors">["#65A637","#FFC300","#B0413E"]</option>
+        <option name="height">100</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Failed Logins (24h)</title>
+      <single>
+        <search>
+          <query>`audit_login_events` info=failed earliest=-24h | stats count</query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+          <refresh>900</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[20,100]</option>
+        <option name="rangeColors">["#65A637","#FFC300","#B0413E"]</option>
+        <option name="height">100</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Locked-Out Accounts</title>
+      <single>
+        <search>
+          <query>`audit_rest_users` | search "locked-out"=1 | stats count</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[1]</option>
+        <option name="rangeColors">["#65A637","#B0413E"]</option>
+        <option name="height">100</option>
+      </single>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Audit Findings</title>
+      <table>
+        <search>
+          <query>
+            [ `audit_queue_fill` earliest=-15m
+            | stats max(pct_full) as MaxPct
+            | eval Category="Infrastructure", Check="Indexing queues not blocked", Status=case(MaxPct&gt;=100,"CRITICAL",MaxPct&gt;=90,"WARNING",true(),"OK"), Detail="Max queue fill: ".round(MaxPct,1)."%"
+            | table Category Check Status Detail ]
+            | append
+            [ `audit_errors_warnings` log_level=ERROR earliest=-24h
+            | stats count
+            | eval Category="Infrastructure", Check="Low ERROR rate in splunkd.log (24h)", Status=case(count&gt;=100,"CRITICAL",count&gt;=20,"WARNING",true(),"OK"), Detail=count." ERROR events in the last 24h"
+            | table Category Check Status Detail ]
+            | append
+            [ `audit_scheduler_log` status=skipped earliest=-24h
+            | stats count
+            | eval Category="Infrastructure", Check="Scheduled searches not being skipped (24h)", Status=case(count&gt;=50,"CRITICAL",count&gt;=10,"WARNING",true(),"OK"), Detail=count." skipped search executions in the last 24h"
+            | table Category Check Status Detail ]
+            | append
+            [ `audit_rest_indexes`
+            | eval PctUsed=if(maxTotalDataSizeMB&gt;0,round((currentDBSizeMB/maxTotalDataSizeMB)*100,1),0)
+            | where PctUsed&gt;=80
+            | stats count as NearMax, max(PctUsed) as MaxPct
+            | eval Category="Infrastructure", Check="Indexes within size quota", Status=case(MaxPct&gt;=95,"CRITICAL",NearMax&gt;0,"WARNING",true(),"OK"), Detail=NearMax." index(es) at/above 80% of max size"
+            | table Category Check Status Detail ]
+            | append
+            [ `audit_rest_license_pools`
+            | eval PctUsed=if(quota&gt;0,round((used_bytes/quota)*100,1),0)
+            | stats max(PctUsed) as MaxPct
+            | eval Category="Infrastructure", Check="License usage within quota", Status=case(MaxPct&gt;=100,"CRITICAL",MaxPct&gt;=90,"WARNING",true(),"OK"), Detail="Highest pool usage: ".MaxPct."%"
+            | table Category Check Status Detail ]
+            | append
+            [ `audit_rest_kvstore_status`
+            | stats values(status) as status
+            | eval Category="Infrastructure", Check="KV store healthy", Status=if(status="ready","OK","WARNING"), Detail="KV store status: ".status
+            | table Category Check Status Detail ]
+            | append
+            [ `audit_rest_server_settings`
+            | eval enabled=if(match('enableSplunkWebSSL',"(?i)^(1|true)$"),1,0)
+            | stats max(enabled) as enabled
+            | eval Category="Security", Check="Splunk Web SSL enabled", Status=if(enabled=1,"OK","WARNING"), Detail=if(enabled=1,"Splunk Web is serving over HTTPS","Splunk Web is serving over plain HTTP")
+            | table Category Check Status Detail ]
+            | append
+            [ `audit_rest_sslconfig`
+            | eval enabled=if(match('enableSplunkdSSL',"(?i)^(0|false)$"),0,1)
+            | stats max(enabled) as enabled
+            | eval Category="Security", Check="Management port (8089) SSL enabled", Status=if(enabled=1,"OK","WARNING"), Detail=if(enabled=1,"splunkd management traffic is encrypted","enableSplunkdSSL is disabled")
+            | table Category Check Status Detail ]
+            | append
+            [ `audit_rest_users`
+            | search "locked-out"=1
+            | stats count
+            | eval Category="Security", Check="No locked-out accounts", Status=if(count&gt;0,"WARNING","OK"), Detail=count." account(s) currently locked out"
+            | table Category Check Status Detail ]
+            | append
+            [ `audit_login_events` info=failed earliest=-24h
+            | stats count
+            | eval Category="Security", Check="Failed login attempts within normal range (24h)", Status=case(count&gt;=100,"CRITICAL",count&gt;=20,"WARNING",true(),"OK"), Detail=count." failed login attempts in the last 24h"
+            | table Category Check Status Detail ]
+            | append
+            [ `audit_rest_saved_searches_acl`
+            | search "eai:acl.sharing"="global" "eai:acl.perms.write"="*"
+            | stats count
+            | eval Category="Security", Check="No globally shared saved searches writable by everyone", Status=if(count&gt;0,"WARNING","OK"), Detail=count." saved search(es) shared globally with write access for everyone"
+            | table Category Check Status Detail ]
+            | append
+            [ `audit_rest_users`
+            | search roles=admin
+            | stats count
+            | eval Category="Security", Check="Number of users holding the admin role kept minimal", Status=if(count&gt;10,"WARNING","OK"), Detail=count." user(s) hold the admin role"
+            | table Category Check Status Detail ]
+            | eval sort_rank=case(Status="CRITICAL",1,Status="WARNING",2,Status="OK",3,true(),4)
+            | sort sort_rank, Category, Check
+            | table Category Check Status Detail
+          </query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+          <refresh>900</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <format type="color" field="Status">
+          <colorPalette type="map">{"CRITICAL":"#B0413E","WARNING":"#FFC300","OK":"#65A637"}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+</dashboard>
