@@ -7,7 +7,7 @@
       <title>Splunk Version</title>
       <single>
         <search>
-          <query>`audit_rest_server_info` | table version</query>
+          <query>| rest /services/server/info splunk_server=local | table version</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
@@ -21,7 +21,7 @@
       <title>Uptime (days)</title>
       <single>
         <search>
-          <query>`audit_rest_server_info` | eval uptime_days=round(uptime/86400,1) | table uptime_days</query>
+          <query>| rest /services/server/info splunk_server=local | eval uptime_days=round(uptime/86400,1) | table uptime_days</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
@@ -35,7 +35,7 @@
       <title>CPU Cores</title>
       <single>
         <search>
-          <query>`audit_rest_server_info` | table numberOfCores</query>
+          <query>| rest /services/server/info splunk_server=local | table numberOfCores</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
@@ -49,7 +49,7 @@
       <title>Physical Memory (GB)</title>
       <single>
         <search>
-          <query>`audit_rest_server_info` | eval mem_gb=round(physicalMemoryMB/1024,1) | table mem_gb</query>
+          <query>| rest /services/server/info splunk_server=local | eval mem_gb=round(physicalMemoryMB/1024,1) | table mem_gb</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
@@ -196,7 +196,7 @@
       <title>Disk Usage by Index</title>
       <table>
         <search>
-          <query>`audit_rest_indexes` | eval SizeGB=round(currentDBSizeMB/1024,2), MaxGB=round(maxTotalDataSizeMB/1024,2), PctUsed=if(maxTotalDataSizeMB>0,round((currentDBSizeMB/maxTotalDataSizeMB)*100,1),0) | table title, SizeGB, MaxGB, PctUsed, totalEventCount | sort -PctUsed | rename title as Index, SizeGB as "Size (GB)", MaxGB as "Max Size (GB)", PctUsed as "% of Max", totalEventCount as "Events"</query>
+          <query>| rest /services/data/indexes splunk_server=local | eval SizeGB=round(currentDBSizeMB/1024,2), MaxGB=round(maxTotalDataSizeMB/1024,2), PctUsed=if(maxTotalDataSizeMB>0,round((currentDBSizeMB/maxTotalDataSizeMB)*100,1),0) | table title, SizeGB, MaxGB, PctUsed, totalEventCount | sort -PctUsed | rename title as Index, SizeGB as "Size (GB)", MaxGB as "Max Size (GB)", PctUsed as "% of Max", totalEventCount as "Events"</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
@@ -216,7 +216,7 @@
       <title>Disk Space by Partition (vs. minFreeSpace threshold)</title>
       <table>
         <search>
-          <query>`audit_rest_partitions_space` | eval FreeGB=round(free/1024,2), CapacityGB=round(capacity/1024,2), PctFree=if(capacity>0,round((free/capacity)*100,1),0) | eval MinFreeGB=round([ `audit_rest_server_settings` | return $minFreeSpace ]/1024,2) | eval Status=case(FreeGB&lt;MinFreeGB,"CRITICAL",FreeGB&lt;(MinFreeGB*2),"WARNING",true(),"OK") | table title, FreeGB, CapacityGB, PctFree, MinFreeGB, Status | sort PctFree | rename title as "Mount Point", FreeGB as "Free (GB)", CapacityGB as "Capacity (GB)", PctFree as "% Free", MinFreeGB as "minFreeSpace Threshold (GB)"</query>
+          <query>| rest /services/server/status/partitions-space splunk_server=local | eval FreeGB=round(free/1024,2), CapacityGB=round(capacity/1024,2), PctFree=if(capacity>0,round((free/capacity)*100,1),0), joinkey=1 | join type=outer joinkey [ | rest /services/server/settings splunk_server=local | eval MinFreeGB=round(minFreeSpace/1024,2), joinkey=1 | fields joinkey MinFreeGB ] | eval Status=case(FreeGB&lt;MinFreeGB,"CRITICAL",FreeGB&lt;(MinFreeGB*2),"WARNING",true(),"OK") | table title, FreeGB, CapacityGB, PctFree, MinFreeGB, Status | sort PctFree | rename title as "Mount Point", FreeGB as "Free (GB)", CapacityGB as "Capacity (GB)", PctFree as "% Free", MinFreeGB as "minFreeSpace Threshold (GB)"</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>900</refresh>
@@ -235,7 +235,7 @@
       <title>KV Store Status</title>
       <single>
         <search>
-          <query>`audit_rest_kvstore_status` | stats values(status) as status | table status</query>
+          <query>| rest /services/kvstore/status splunk_server=local | stats values(status) as status | table status</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
@@ -249,7 +249,7 @@
       <title>Cluster Mode</title>
       <single>
         <search>
-          <query>`audit_rest_cluster_config` | table mode</query>
+          <query>| rest /services/cluster/config splunk_server=local | table mode</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
@@ -263,7 +263,7 @@
       <title>License Usage vs. Quota (Today)</title>
       <single>
         <search>
-          <query>`audit_rest_license_pools` | eval PctUsed=if(quota>0,round((used_bytes/quota)*100,1),0) | stats max(PctUsed) as PctUsed | table PctUsed</query>
+          <query>| rest /services/licenser/pools splunk_server=local | eval PctUsed=if(quota>0,round((used_bytes/quota)*100,1),0) | stats max(PctUsed) as PctUsed | table PctUsed</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>

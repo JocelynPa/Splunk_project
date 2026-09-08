@@ -35,9 +35,25 @@ own internal indexes (`_internal`, `_audit`) and built-in REST endpoints
   `sslConfig` field names). Every search here was written against
   well-documented, long-stable endpoints and fields, but validate the
   handful of TLS/SSL and lockout panels against your target version's
-  `*.conf.spec` files if something looks off, and adjust the macro in
-  `macros.conf` - every dashboard panel is built from a macro, so a fix
-  in one place fixes every panel that uses it.
+  `*.conf.spec` files if something looks off.
+- **Why some panels inline `| rest ...` instead of using a macro**: the
+  `audit_rest_*` macros in `macros.conf` (each a bare `| rest ...` call)
+  are safe to reference with `` `macro` `` when they're the first command
+  *inside* a bracketed subsearch (`append [...]`, `appendcols [...]`,
+  `join [...]` - see the Audit Findings table and `savedsearches.conf`).
+  They are **not** safe as the literal first token of a top-level panel
+  `<query>`: Splunk decides whether to implicitly prepend `search` based
+  on the raw, pre-macro-expansion text, so a query starting with a
+  backtick (rather than a literal `|`) can get dispatched as `search
+  \`macro\` ...`, which expands to `search | rest ...` and fails with
+  *"Error in 'rest' command: This command must be the first command of a
+  search."* Every panel that calls a REST endpoint directly (not nested
+  in a subsearch) therefore writes `| rest ...` out in full instead of
+  going through a macro. Keep this in mind if you add new panels: a
+  generating-command macro is only safe to invoke top-level with an
+  explicit `| \`macro\`` (pipe then backtick) *and* a macro definition
+  with no leading pipe of its own - inlining the full command is simpler
+  and is what this app does throughout.
 - **Disk space panel/finding** (`/services/server/status/partitions-space`)
   assumes the endpoint's `free`/`capacity` values are in MB, matching
   `minFreeSpace` (also MB, per `server.conf.spec`) - this holds on every

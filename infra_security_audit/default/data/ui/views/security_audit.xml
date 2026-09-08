@@ -39,7 +39,7 @@
       <title>Locked-Out Accounts</title>
       <single>
         <search>
-          <query>`audit_rest_users` | search "locked-out"=1 | stats count</query>
+          <query>| rest /services/authentication/users splunk_server=local | search "locked-out"=1 | stats count</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
@@ -57,7 +57,7 @@
       <title>Users with Admin Role</title>
       <single>
         <search>
-          <query>`audit_rest_users` | search roles=admin | stats count</query>
+          <query>| rest /services/authentication/users splunk_server=local | search roles=admin | stats count</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
@@ -105,7 +105,7 @@
       <title>User Inventory</title>
       <table>
         <search>
-          <query>`audit_rest_users` | table title, roles, type, email, realname, "locked-out" | rename title as User, type as "Auth Type", "locked-out" as "Locked Out"</query>
+          <query>| rest /services/authentication/users splunk_server=local | table title, roles, type, email, realname, "locked-out" | rename title as User, type as "Auth Type", "locked-out" as "Locked Out"</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
@@ -121,7 +121,7 @@
       <title>Role Inventory &amp; Index Access</title>
       <table>
         <search>
-          <query>`audit_rest_roles` | eval CapabilityCount=mvcount(capabilities) | table title, CapabilityCount, srchIndexesAllowed, srchIndexesDefault, imported_roles | rename title as Role, CapabilityCount as "# Capabilities", srchIndexesAllowed as "Indexes Allowed", srchIndexesDefault as "Default Indexes", imported_roles as "Inherits From"</query>
+          <query>| rest /services/authorization/roles splunk_server=local | eval CapabilityCount=mvcount(capabilities) | table title, CapabilityCount, srchIndexesAllowed, srchIndexesDefault, imported_roles | rename title as Role, CapabilityCount as "# Capabilities", srchIndexesAllowed as "Indexes Allowed", srchIndexesDefault as "Default Indexes", imported_roles as "Inherits From"</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
@@ -153,7 +153,7 @@
       <title>Splunk Web SSL</title>
       <single>
         <search>
-          <query>`audit_rest_server_settings` | eval WebSSL=if(match('enableSplunkWebSSL',"(?i)^(1|true)$"),"Enabled","DISABLED") | table WebSSL</query>
+          <query>| rest /services/server/settings splunk_server=local | eval WebSSL=if(match('enableSplunkWebSSL',"(?i)^(1|true)$"),"Enabled","DISABLED") | table WebSSL</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
@@ -169,7 +169,7 @@
       <title>Management Port (8089) SSL</title>
       <single>
         <search>
-          <query>`audit_rest_sslconfig` | eval MgmtSSL=if(match('enableSplunkdSSL',"(?i)^(0|false)$"),"DISABLED","Enabled") | table MgmtSSL</query>
+          <query>| rest /services/configs/conf-server splunk_server=local | search title=sslConfig | eval MgmtSSL=if(match('enableSplunkdSSL',"(?i)^(0|false)$"),"DISABLED","Enabled") | table MgmtSSL</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
@@ -188,7 +188,7 @@
       <title>Globally Shared Saved Searches Writable by Everyone</title>
       <table>
         <search>
-          <query>`audit_rest_saved_searches_acl` | search "eai:acl.sharing"="global" "eai:acl.perms.write"="*" | table title, "eai:acl.app", "eai:acl.owner" | rename title as "Saved Search", "eai:acl.app" as App, "eai:acl.owner" as Owner</query>
+          <query>| rest /services/saved/searches splunk_server=local | search "eai:acl.sharing"="global" "eai:acl.perms.write"="*" | table title, "eai:acl.app", "eai:acl.owner" | rename title as "Saved Search", "eai:acl.app" as App, "eai:acl.owner" as Owner</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
