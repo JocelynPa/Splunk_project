@@ -213,6 +213,25 @@
 
   <row>
     <panel>
+      <title>Disk Space by Partition (vs. minFreeSpace threshold)</title>
+      <table>
+        <search>
+          <query>`audit_rest_partitions_space` | eval FreeGB=round(free/1024,2), CapacityGB=round(capacity/1024,2), PctFree=if(capacity>0,round((free/capacity)*100,1),0) | eval MinFreeGB=round([ `audit_rest_server_settings` | return $minFreeSpace ]/1024,2) | eval Status=case(FreeGB&lt;MinFreeGB,"CRITICAL",FreeGB&lt;(MinFreeGB*2),"WARNING",true(),"OK") | table title, FreeGB, CapacityGB, PctFree, MinFreeGB, Status | sort PctFree | rename title as "Mount Point", FreeGB as "Free (GB)", CapacityGB as "Capacity (GB)", PctFree as "% Free", MinFreeGB as "minFreeSpace Threshold (GB)"</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+          <refresh>900</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <format type="color" field="Status">
+          <colorPalette type="map">{"CRITICAL":"#B0413E","WARNING":"#FFC300","OK":"#65A637"}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
       <title>KV Store Status</title>
       <single>
         <search>

@@ -124,6 +124,12 @@
             | eval Category="Infrastructure", Check="Indexes within size quota", Status=case(MaxPct&gt;=95,"CRITICAL",NearMax&gt;0,"WARNING",true(),"OK"), Detail=NearMax." index(es) at/above 80% of max size"
             | table Category Check Status Detail ]
             | append
+            [ `audit_rest_partitions_space`
+            | stats min(free) as MinFreeMB
+            | appendcols [ `audit_rest_server_settings` | stats max(minFreeSpace) as MinFreeThresholdMB ]
+            | eval Category="Infrastructure", Check="Disk space above minFreeSpace threshold", Status=case(MinFreeMB&lt;MinFreeThresholdMB,"CRITICAL",MinFreeMB&lt;(MinFreeThresholdMB*2),"WARNING",true(),"OK"), Detail="Lowest free space: ".round(MinFreeMB/1024,1)."GB (threshold: ".round(MinFreeThresholdMB/1024,1)."GB)"
+            | table Category Check Status Detail ]
+            | append
             [ `audit_rest_license_pools`
             | eval PctUsed=if(quota&gt;0,round((used_bytes/quota)*100,1),0)
             | stats max(PctUsed) as MaxPct

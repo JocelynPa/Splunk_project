@@ -38,6 +38,14 @@ own internal indexes (`_internal`, `_audit`) and built-in REST endpoints
   `*.conf.spec` files if something looks off, and adjust the macro in
   `macros.conf` - every dashboard panel is built from a macro, so a fix
   in one place fixes every panel that uses it.
+- **Disk space panel/finding** (`/services/server/status/partitions-space`)
+  assumes the endpoint's `free`/`capacity` values are in MB, matching
+  `minFreeSpace` (also MB, per `server.conf.spec`) - this holds on every
+  version this was checked against, but if the "Disk Space by Partition"
+  numbers look off by a factor of ~1000 on your instance, the endpoint is
+  returning KB instead; fix the `/1024` conversions in
+  `infrastructure_health.xml` and the matching check in `audit_summary.xml`
+  / `savedsearches.conf`.
 - Login-activity panels reflect Splunk's own local authentication
   logging (`index=_audit action=login`). If the deployment sits behind
   SSO/SAML, failed attempts rejected upstream of Splunk won't appear
@@ -56,8 +64,11 @@ own internal indexes (`_internal`, `_audit`) and built-in REST endpoints
 2. **Infrastructure Health** - indexing queue fill % (trend + current
    snapshot), host CPU/memory, indexing volume by index, errors/warnings
    by component (table + trend), skipped scheduled searches, forwarder
-   connections, disk usage by index vs. its max size, KV store status,
-   cluster mode, and license usage vs. quota.
+   connections, disk usage by index vs. its max size, **disk space by
+   partition vs. the `minFreeSpace` threshold** (the free-space floor
+   below which Splunk stops indexing/searching - a frequent, avoidable
+   cause of outages), KV store status, cluster mode, and license usage
+   vs. quota.
 3. **Security Audit** - login activity trend and top users by failed
    login, the full user inventory (roles, auth type, lockout state), the
    role inventory (capability count, allowed/default search indexes),
