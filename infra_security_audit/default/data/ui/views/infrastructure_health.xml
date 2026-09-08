@@ -1,10 +1,45 @@
 <dashboard>
   <label>Infrastructure Health</label>
-  <description>Deep-dive on the health of the Splunk deployment itself: indexing pipeline queues, indexing volume, host resource usage, errors/warnings, the search scheduler, disk usage per index, forwarder connections, KV store and cluster status. All searches run directly against index=_internal, index=_introspection-free internal metrics.log events, and Splunk's own REST endpoints - no add-on required.</description>
+  <description>Deep-dive on the health of the Splunk deployment itself: indexing pipeline queues, indexing volume, host resource usage, errors/warnings, the search scheduler, disk usage per index, forwarder connections, KV store and cluster status. Fleet-wide panels use `splunk_server=*` and only see instances configured as distributed search peers of wherever this app is installed - see the README for the multi-site prerequisite. All searches run directly against index=_internal, index=_introspection-free internal metrics.log events, and Splunk's own REST endpoints - no add-on required.</description>
 
   <row>
     <panel>
-      <title>Splunk Version</title>
+      <title>Search Peers (Indexers) - Fleet Inventory</title>
+      <table>
+        <search>
+          <query>| rest /services/search/distributed/peers splunk_server=local | table peerName, site, status, version, build, replicationStatus | sort site, peerName | rename peerName as "Peer", site as Site, status as Status, version as Version, build as Build, replicationStatus as "Replication Status"</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+          <refresh>900</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <format type="color" field="Status">
+          <colorPalette type="map">{"Up":"#65A637","Down":"#B0413E"}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>All Reachable Instances - Version &amp; Resources</title>
+      <table>
+        <search>
+          <query>| rest /services/server/info splunk_server=* | eval uptime_days=round(uptime/86400,1), mem_gb=round(physicalMemoryMB/1024,1) | table splunk_server, serverName, version, os_name, uptime_days, numberOfCores, mem_gb | sort splunk_server | rename splunk_server as "Splunk Server", serverName as "Server Name", version as Version, os_name as OS, uptime_days as "Uptime (days)", numberOfCores as "CPU Cores", mem_gb as "Memory (GB)"</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>This Instance - Version</title>
       <single>
         <search>
           <query>| rest /services/server/info splunk_server=local | table version</query>
@@ -18,7 +53,7 @@
       </single>
     </panel>
     <panel>
-      <title>Uptime (days)</title>
+      <title>This Instance - Uptime (days)</title>
       <single>
         <search>
           <query>| rest /services/server/info splunk_server=local | eval uptime_days=round(uptime/86400,1) | table uptime_days</query>
@@ -32,7 +67,7 @@
       </single>
     </panel>
     <panel>
-      <title>CPU Cores</title>
+      <title>This Instance - CPU Cores</title>
       <single>
         <search>
           <query>| rest /services/server/info splunk_server=local | table numberOfCores</query>
@@ -46,7 +81,7 @@
       </single>
     </panel>
     <panel>
-      <title>Physical Memory (GB)</title>
+      <title>This Instance - Physical Memory (GB)</title>
       <single>
         <search>
           <query>| rest /services/server/info splunk_server=local | eval mem_gb=round(physicalMemoryMB/1024,1) | table mem_gb</query>
@@ -79,10 +114,10 @@
       </chart>
     </panel>
     <panel>
-      <title>Current Queue Fill (latest)</title>
+      <title>Current Queue Fill by Host (latest)</title>
       <table>
         <search>
-          <query>`audit_queue_fill` | stats latest(pct_full) as PctFull by name | sort -PctFull | rename name as Queue, PctFull as "% Full"</query>
+          <query>`audit_queue_fill` | stats latest(pct_full) as PctFull by host, name | sort -PctFull | rename host as Host, name as Queue, PctFull as "% Full"</query>
           <earliest>-15m</earliest>
           <latest>now</latest>
           <refresh>300</refresh>
@@ -99,7 +134,7 @@
 
   <row>
     <panel>
-      <title>Host CPU / Memory - Last 4 Hours</title>
+      <title>Fleet-Wide Avg CPU / Memory - Last 4 Hours</title>
       <chart>
         <search>
           <query>`audit_hostwide_metrics` | timechart span=5m avg(cpu_system_pct) as "CPU System %" avg(cpu_user_pct) as "CPU User %" avg(pct_memory) as "Memory %"</query>
@@ -113,6 +148,22 @@
         <option name="drilldown">none</option>
       </chart>
     </panel>
+    <panel>
+      <title>CPU / Memory by Host (latest)</title>
+      <table>
+        <search>
+          <query>`audit_hostwide_metrics` | stats latest(cpu_system_pct) as CPUSystem, latest(cpu_user_pct) as CPUUser, latest(pct_memory) as Memory by host | eval CPUSystem=round(CPUSystem,1), CPUUser=round(CPUUser,1), Memory=round(Memory,1) | sort -Memory | rename host as Host, CPUSystem as "CPU System %", CPUUser as "CPU User %", Memory as "Memory %"</query>
+          <earliest>-15m</earliest>
+          <latest>now</latest>
+          <refresh>300</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+
+  <row>
     <panel>
       <title>Indexing Volume by Index - Last 24h</title>
       <chart>
@@ -133,10 +184,10 @@
 
   <row>
     <panel>
-      <title>Errors &amp; Warnings by Component - Last 24h</title>
+      <title>Errors &amp; Warnings by Host &amp; Component - Last 24h</title>
       <table>
         <search>
-          <query>`audit_errors_warnings` earliest=-24h | stats count by component, log_level | sort -count | head 15</query>
+          <query>`audit_errors_warnings` earliest=-24h | stats count by host, component, log_level | sort -count | head 20 | rename host as Host</query>
           <earliest>-24h</earliest>
           <latest>now</latest>
           <refresh>900</refresh>
@@ -180,7 +231,7 @@
       <title>Forwarder Connections - Last Hour</title>
       <table>
         <search>
-          <query>`audit_forwarder_connections` earliest=-1h | eval forwarder=coalesce(hostname,sourceHost,sourceIp) | stats latest(_time) as LastSeen sum(kb) as KB by forwarder, connectionType | eval LastSeen=strftime(LastSeen,"%Y-%m-%d %H:%M:%S"), KB=round(KB,1) | sort -KB | rename forwarder as Forwarder, connectionType as Type, KB as "KB Transferred", LastSeen as "Last Seen"</query>
+          <query>`audit_forwarder_connections` earliest=-1h | eval forwarder=coalesce(hostname,sourceHost,sourceIp) | stats latest(_time) as LastSeen sum(kb) as KB by host, forwarder, connectionType | eval LastSeen=strftime(LastSeen,"%Y-%m-%d %H:%M:%S"), KB=round(KB,1) | sort -KB | rename host as "Receiving Indexer", forwarder as Forwarder, connectionType as Type, KB as "KB Transferred", LastSeen as "Last Seen"</query>
           <earliest>-1h</earliest>
           <latest>now</latest>
           <refresh>300</refresh>
@@ -196,7 +247,7 @@
       <title>Disk Usage by Index</title>
       <table>
         <search>
-          <query>| rest /services/data/indexes splunk_server=local | eval SizeGB=round(currentDBSizeMB/1024,2), MaxGB=round(maxTotalDataSizeMB/1024,2), PctUsed=if(maxTotalDataSizeMB>0,round((currentDBSizeMB/maxTotalDataSizeMB)*100,1),0) | table title, SizeGB, MaxGB, PctUsed, totalEventCount | sort -PctUsed | rename title as Index, SizeGB as "Size (GB)", MaxGB as "Max Size (GB)", PctUsed as "% of Max", totalEventCount as "Events"</query>
+          <query>| rest /services/data/indexes splunk_server=* | eval SizeGB=round(currentDBSizeMB/1024,2), MaxGB=round(maxTotalDataSizeMB/1024,2), PctUsed=if(maxTotalDataSizeMB>0,round((currentDBSizeMB/maxTotalDataSizeMB)*100,1),0) | table splunk_server, title, SizeGB, MaxGB, PctUsed, totalEventCount | sort -PctUsed | rename splunk_server as "Splunk Server", title as Index, SizeGB as "Size (GB)", MaxGB as "Max Size (GB)", PctUsed as "% of Max", totalEventCount as "Events"</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
@@ -216,7 +267,7 @@
       <title>Disk Space by Partition (vs. minFreeSpace threshold)</title>
       <table>
         <search>
-          <query>| rest /services/server/status/partitions-space splunk_server=local | eval FreeGB=round(free/1024,2), CapacityGB=round(capacity/1024,2), PctFree=if(capacity>0,round((free/capacity)*100,1),0), joinkey=1 | join type=outer joinkey [ | rest /services/server/settings splunk_server=local | eval MinFreeGB=round(minFreeSpace/1024,2), joinkey=1 | fields joinkey MinFreeGB ] | eval Status=case(FreeGB&lt;MinFreeGB,"CRITICAL",FreeGB&lt;(MinFreeGB*2),"WARNING",true(),"OK") | table title, FreeGB, CapacityGB, PctFree, MinFreeGB, Status | sort PctFree | rename title as "Mount Point", FreeGB as "Free (GB)", CapacityGB as "Capacity (GB)", PctFree as "% Free", MinFreeGB as "minFreeSpace Threshold (GB)"</query>
+          <query>| rest /services/server/status/partitions-space splunk_server=* | eval FreeGB=round(free/1024,2), CapacityGB=round(capacity/1024,2), PctFree=if(capacity>0,round((free/capacity)*100,1),0) | join type=left splunk_server [ | rest /services/server/settings splunk_server=* | eval MinFreeGB=round(minFreeSpace/1024,2) | fields splunk_server MinFreeGB ] | eval Status=case(FreeGB&lt;MinFreeGB,"CRITICAL",FreeGB&lt;(MinFreeGB*2),"WARNING",true(),"OK") | table splunk_server, title, FreeGB, CapacityGB, PctFree, MinFreeGB, Status | sort splunk_server, PctFree | rename splunk_server as "Splunk Server", title as "Mount Point", FreeGB as "Free (GB)", CapacityGB as "Capacity (GB)", PctFree as "% Free", MinFreeGB as "minFreeSpace Threshold (GB)"</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>900</refresh>
@@ -232,32 +283,33 @@
 
   <row>
     <panel>
-      <title>KV Store Status</title>
-      <single>
+      <title>KV Store Status by Instance</title>
+      <table>
         <search>
-          <query>| rest /services/kvstore/status splunk_server=local | stats values(status) as status | table status</query>
+          <query>| rest /services/kvstore/status splunk_server=* | table splunk_server, status | rename splunk_server as "Splunk Server", status as Status</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
           <refreshType>delay</refreshType>
         </search>
         <option name="drilldown">none</option>
-        <option name="height">100</option>
-      </single>
+        <format type="color" field="Status">
+          <colorPalette type="map">{"ready":"#65A637"}</colorPalette>
+        </format>
+      </table>
     </panel>
     <panel>
-      <title>Cluster Mode</title>
-      <single>
+      <title>Cluster Mode by Instance</title>
+      <table>
         <search>
-          <query>| rest /services/cluster/config splunk_server=local | table mode</query>
+          <query>| rest /services/cluster/config splunk_server=* | table splunk_server, mode, site, multisite | rename splunk_server as "Splunk Server", mode as Mode, site as Site, multisite as Multisite</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
           <refreshType>delay</refreshType>
         </search>
         <option name="drilldown">none</option>
-        <option name="height">100</option>
-      </single>
+      </table>
     </panel>
     <panel>
       <title>License Usage vs. Quota (Today)</title>

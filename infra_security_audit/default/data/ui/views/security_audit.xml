@@ -150,36 +150,36 @@
 
   <row>
     <panel>
-      <title>Splunk Web SSL</title>
-      <single>
+      <title>Splunk Web SSL by Instance</title>
+      <table>
         <search>
-          <query>| rest /services/server/settings splunk_server=local | eval WebSSL=if(match('enableSplunkWebSSL',"(?i)^(1|true)$"),"Enabled","DISABLED") | table WebSSL</query>
+          <query>| rest /services/server/settings splunk_server=* | eval WebSSL=if(match('enableSplunkWebSSL',"(?i)^(1|true)$"),"Enabled","DISABLED") | table splunk_server, WebSSL | sort splunk_server | rename splunk_server as "Splunk Server"</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
           <refreshType>delay</refreshType>
         </search>
         <option name="drilldown">none</option>
-        <option name="colorMode">block</option>
-        <option name="useColors">1</option>
-        <option name="height">100</option>
-      </single>
+        <format type="color" field="WebSSL">
+          <colorPalette type="map">{"Enabled":"#65A637","DISABLED":"#B0413E"}</colorPalette>
+        </format>
+      </table>
     </panel>
     <panel>
-      <title>Management Port (8089) SSL</title>
-      <single>
+      <title>Management Port (8089) SSL by Instance</title>
+      <table>
         <search>
-          <query>| rest /services/configs/conf-server splunk_server=local | search title=sslConfig | eval MgmtSSL=if(match('enableSplunkdSSL',"(?i)^(0|false)$"),"DISABLED","Enabled") | table MgmtSSL</query>
+          <query>| rest /services/configs/conf-server splunk_server=* | search title=sslConfig | eval MgmtSSL=if(match('enableSplunkdSSL',"(?i)^(0|false)$"),"DISABLED","Enabled") | table splunk_server, MgmtSSL | sort splunk_server | rename splunk_server as "Splunk Server"</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
           <refreshType>delay</refreshType>
         </search>
         <option name="drilldown">none</option>
-        <option name="colorMode">block</option>
-        <option name="useColors">1</option>
-        <option name="height">100</option>
-      </single>
+        <format type="color" field="MgmtSSL">
+          <colorPalette type="map">{"Enabled":"#65A637","DISABLED":"#B0413E"}</colorPalette>
+        </format>
+      </table>
     </panel>
   </row>
 
