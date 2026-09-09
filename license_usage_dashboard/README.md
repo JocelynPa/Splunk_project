@@ -46,7 +46,12 @@ numbers as soon as it's installed.
    use for renewal sizing since it reacts to growth), and a *conservative*
    estimate (95th-percentile day, a buffer figure). Also shows how many
    days of history actually backed the estimate, so you know how much to
-   trust it, plus a forecast chart with a 95% confidence band.
+   trust it, plus a forecast chart with a 95% confidence band. A table per
+   period (Daily/Monthly/Annual "by License Pool") breaks the same three
+   methods down per pool - Simple and Conservative are computed directly
+   per pool, while Trend-Adjusted allocates the single global forecast
+   across pools by their historical share of consumption, since `predict`
+   can't run separately per pool value in one static search.
 
 ## How the numbers are computed
 

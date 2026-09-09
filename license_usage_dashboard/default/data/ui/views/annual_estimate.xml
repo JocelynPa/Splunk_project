@@ -182,6 +182,51 @@
   </row>
   <row>
     <panel>
+      <title>Daily Estimate by License Pool</title>
+      <table>
+        <search>
+          <query>`license_usage_base` | `license_usage_gb` | bin _time span=1d | stats sum(GB) as GB by _time pool | stats avg(GB) as AvgGB perc95(GB) as P95GB by pool | eventstats sum(AvgGB) as TotalAvgGB | eval SharePct=if(TotalAvgGB&gt;0,AvgGB/TotalAvgGB,0) | append [ search `license_usage_base` | `license_usage_gb` | timechart span=1d sum(GB) as GB | predict GB as predicted algorithm=LLT future_timespan=30 | where isnull(GB) AND isnotnull(predicted) | stats avg(predicted) as TrendAvgGB ] | eventstats max(TrendAvgGB) as TrendAvgGB | where isnotnull(pool) | eval SimpleGB=round(AvgGB,2), TrendGB=round(SharePct*TrendAvgGB,2), ConservativeGB=round(P95GB,2) | sort -SimpleGB | rename pool as Pool, SimpleGB as "Simple (GB/day)", TrendGB as "Trend-Adjusted (GB/day)", ConservativeGB as "Conservative (GB/day)" | table Pool "Simple (GB/day)" "Trend-Adjusted (GB/day)" "Conservative (GB/day)"</query>
+          <earliest>$baseline_earliest$</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Monthly Estimate by License Pool (x30)</title>
+      <table>
+        <search>
+          <query>`license_usage_base` | `license_usage_gb` | bin _time span=1d | stats sum(GB) as GB by _time pool | stats avg(GB) as AvgGB perc95(GB) as P95GB by pool | eventstats sum(AvgGB) as TotalAvgGB | eval SharePct=if(TotalAvgGB&gt;0,AvgGB/TotalAvgGB,0) | append [ search `license_usage_base` | `license_usage_gb` | timechart span=1d sum(GB) as GB | predict GB as predicted algorithm=LLT future_timespan=30 | where isnull(GB) AND isnotnull(predicted) | stats avg(predicted) as TrendAvgGB ] | eventstats max(TrendAvgGB) as TrendAvgGB | where isnotnull(pool) | eval SimpleGB=round(AvgGB*30,0), TrendGB=round(SharePct*TrendAvgGB*30,0), ConservativeGB=round(P95GB*30,0) | sort -SimpleGB | rename pool as Pool, SimpleGB as "Simple (GB/month)", TrendGB as "Trend-Adjusted (GB/month)", ConservativeGB as "Conservative (GB/month)" | table Pool "Simple (GB/month)" "Trend-Adjusted (GB/month)" "Conservative (GB/month)"</query>
+          <earliest>$baseline_earliest$</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Annual Estimate by License Pool (x365)</title>
+      <table>
+        <search>
+          <query>`license_usage_base` | `license_usage_gb` | bin _time span=1d | stats sum(GB) as GB by _time pool | stats avg(GB) as AvgGB perc95(GB) as P95GB by pool | eventstats sum(AvgGB) as TotalAvgGB | eval SharePct=if(TotalAvgGB&gt;0,AvgGB/TotalAvgGB,0) | append [ search `license_usage_base` | `license_usage_gb` | timechart span=1d sum(GB) as GB | predict GB as predicted algorithm=LLT future_timespan=30 | where isnull(GB) AND isnotnull(predicted) | stats avg(predicted) as TrendAvgGB ] | eventstats max(TrendAvgGB) as TrendAvgGB | where isnotnull(pool) | eval SimpleGB=round(AvgGB*365,0), TrendGB=round(SharePct*TrendAvgGB*365,0), ConservativeGB=round(P95GB*365,0) | sort -SimpleGB | rename pool as Pool, SimpleGB as "Simple (GB/year)", TrendGB as "Trend-Adjusted (GB/year)", ConservativeGB as "Conservative (GB/year)" | table Pool "Simple (GB/year)" "Trend-Adjusted (GB/year)" "Conservative (GB/year)"</query>
+          <earliest>$baseline_earliest$</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
       <title>Daily Consumption - History &amp; 30-Day Forecast (95% confidence band)</title>
       <chart>
         <search>
@@ -208,6 +253,7 @@
           <li><b>Simple Estimate</b>: average daily consumption over the baseline window. Easy to explain, but flat - it assumes tomorrow looks like the average of the past, ignoring any growth or decline trend.</li>
           <li><b>Trend-Adjusted Estimate</b>: uses Splunk's built-in <code>predict</code> command (local-level-trend algorithm) to forecast the next 30 days from the baseline window, then averages that forecasted rate. This is the number to use for renewal sizing, since it reacts to onboarding of new data sources.</li>
           <li><b>Conservative Estimate</b>: the 95th-percentile day - a buffer figure for clients who want to size against their heaviest days rather than the average, to avoid recurring near-quota warnings.</li>
+          <li><b>By License Pool</b> tables below break the same three methods down per pool. Simple and Conservative are computed directly per pool. The Trend-Adjusted column allocates the single global forecast across pools in proportion to each pool's historical share of consumption - Splunk's <code>predict</code> command can't be run separately per pool value in one static search, so this is an approximation: a pool whose own growth is faster or slower than the overall trend will be under- or over-stated.</li>
           <li>All three depend on the selected baseline window actually holding data. If <b>Days of History Used</b> is much smaller than the window (e.g. 20 days shown for a 90-day window), <code>_internal</code> retention is cutting the history short - treat the estimate as low-confidence and consider enabling the summary-index rollup in <code>savedsearches.conf</code> to build up longer history over time.</li>
         </ul>
         ]]>
