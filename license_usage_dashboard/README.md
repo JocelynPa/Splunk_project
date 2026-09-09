@@ -37,16 +37,16 @@ numbers as soon as it's installed.
    chart, a pie chart of the top 10, and a Pareto table (share of total +
    cumulative share) to quickly spot the few sources driving most of the
    volume.
-4. **Annual Estimate** - projects full-year consumption from a selectable
-   baseline window (30/90/180/365 days), since `_internal` often doesn't
-   hold a true year of history. Shows three numbers side by side: a
-   *simple* estimate (daily average x 365), a *trend-adjusted* estimate
-   (30-day forecast via Splunk's built-in `predict` command, annualized -
-   the one to use for renewal sizing since it reacts to growth), and a
-   *conservative* estimate (95th-percentile day x 365, a buffer figure).
-   Also shows how many days of history actually backed the estimate, so
-   you know how much to trust it, plus a forecast chart with a 95%
-   confidence band.
+4. **Consumption Estimates** - projects daily, monthly (x30) and annual
+   (x365) consumption from a selectable baseline window (30/90/180/365
+   days), since `_internal` often doesn't hold a true year of history.
+   For each of the three periods it shows the same three numbers side by
+   side: a *simple* estimate (daily average), a *trend-adjusted* estimate
+   (30-day forecast via Splunk's built-in `predict` command - the one to
+   use for renewal sizing since it reacts to growth), and a *conservative*
+   estimate (95th-percentile day, a buffer figure). Also shows how many
+   days of history actually backed the estimate, so you know how much to
+   trust it, plus a forecast chart with a 95% confidence band.
 
 ## How the numbers are computed
 
