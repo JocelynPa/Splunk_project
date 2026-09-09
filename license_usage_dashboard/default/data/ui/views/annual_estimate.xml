@@ -1,6 +1,6 @@
 <form>
-  <label>Annual Estimate</label>
-  <description>Estimates full-year license consumption from a recent observation window, for cases where _internal doesn't hold a true 365-day history yet (or to project forward for renewal sizing). Three methods are shown side by side - a simple average, a trend-adjusted forecast, and a conservative (buffer) estimate - because a single day's usage is too noisy (batch jobs, weekday/weekend swings) to extrapolate from directly.</description>
+  <label>Consumption Estimates</label>
+  <description>Estimates license consumption per day, per month, and per year from a recent observation window, for cases where _internal doesn't hold a true 365-day history yet (or to project forward for renewal sizing). Three methods are shown side by side for each period - a simple average, a trend-adjusted forecast, and a conservative (buffer) estimate - because a single day's usage is too noisy (batch jobs, weekday/weekend swings) to extrapolate from directly.</description>
   <fieldset submitButton="false" autoRun="true">
     <input type="dropdown" token="baseline_earliest">
       <label>Baseline window (history used for the estimate)</label>
@@ -29,8 +29,110 @@
         <option name="height">140</option>
       </single>
     </panel>
+  </row>
+  <row>
     <panel>
-      <title>Simple Estimate (Daily Avg x 365)</title>
+      <title>Daily Estimate - Simple (Daily Avg)</title>
+      <single>
+        <search>
+          <query>`license_usage_base` | `license_usage_gb` | bin _time span=1d | stats sum(GB) as GB by _time | stats avg(GB) as AvgGB | eval EstimateGB=round(AvgGB,2)</query>
+          <earliest>$baseline_earliest$</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="unit">GB / day</option>
+        <option name="numberPrecision">0.00</option>
+        <option name="height">140</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Daily Estimate - Trend-Adjusted (Forecast Avg)</title>
+      <single>
+        <search>
+          <query>`license_usage_base` | `license_usage_gb` | timechart span=1d sum(GB) as GB | predict GB as predicted algorithm=LLT future_timespan=30 | where isnull(GB) AND isnotnull(predicted) | stats avg(predicted) as TrendAvgGB | eval EstimateGB=round(TrendAvgGB,2)</query>
+          <earliest>$baseline_earliest$</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="unit">GB / day</option>
+        <option name="numberPrecision">0.00</option>
+        <option name="height">140</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Daily Estimate - Conservative (P95 Day)</title>
+      <single>
+        <search>
+          <query>`license_usage_base` | `license_usage_gb` | bin _time span=1d | stats sum(GB) as GB by _time | stats perc95(GB) as P95GB | eval EstimateGB=round(P95GB,2)</query>
+          <earliest>$baseline_earliest$</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="unit">GB / day</option>
+        <option name="numberPrecision">0.00</option>
+        <option name="height">140</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Monthly Estimate - Simple (Daily Avg x 30)</title>
+      <single>
+        <search>
+          <query>`license_usage_base` | `license_usage_gb` | bin _time span=1d | stats sum(GB) as GB by _time | stats avg(GB) as AvgGB | eval EstimateGB=round(AvgGB*30,0)</query>
+          <earliest>$baseline_earliest$</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="unit">GB / month</option>
+        <option name="numberPrecision">0</option>
+        <option name="height">140</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Monthly Estimate - Trend-Adjusted (30d Forecast x 30)</title>
+      <single>
+        <search>
+          <query>`license_usage_base` | `license_usage_gb` | timechart span=1d sum(GB) as GB | predict GB as predicted algorithm=LLT future_timespan=30 | where isnull(GB) AND isnotnull(predicted) | stats avg(predicted) as TrendAvgGB | eval EstimateGB=round(TrendAvgGB*30,0)</query>
+          <earliest>$baseline_earliest$</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="unit">GB / month</option>
+        <option name="numberPrecision">0</option>
+        <option name="height">140</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Monthly Estimate - Conservative (P95 Day x 30)</title>
+      <single>
+        <search>
+          <query>`license_usage_base` | `license_usage_gb` | bin _time span=1d | stats sum(GB) as GB by _time | stats perc95(GB) as P95GB | eval EstimateGB=round(P95GB*30,0)</query>
+          <earliest>$baseline_earliest$</earliest>
+          <latest>now</latest>
+          <refresh>3600</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="unit">GB / month</option>
+        <option name="numberPrecision">0</option>
+        <option name="height">140</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Annual Estimate - Simple (Daily Avg x 365)</title>
       <single>
         <search>
           <query>`license_usage_base` | `license_usage_gb` | bin _time span=1d | stats sum(GB) as GB by _time | stats avg(GB) as AvgGB | eval EstimateGB=round(AvgGB*365,0)</query>
@@ -46,7 +148,7 @@
       </single>
     </panel>
     <panel>
-      <title>Trend-Adjusted Estimate (30d Forecast x 365)</title>
+      <title>Annual Estimate - Trend-Adjusted (30d Forecast x 365)</title>
       <single>
         <search>
           <query>`license_usage_base` | `license_usage_gb` | timechart span=1d sum(GB) as GB | predict GB as predicted algorithm=LLT future_timespan=30 | where isnull(GB) AND isnotnull(predicted) | stats avg(predicted) as TrendAvgGB | eval EstimateGB=round(TrendAvgGB*365,0)</query>
@@ -62,7 +164,7 @@
       </single>
     </panel>
     <panel>
-      <title>Conservative Estimate (P95 Day x 365)</title>
+      <title>Annual Estimate - Conservative (P95 Day x 365)</title>
       <single>
         <search>
           <query>`license_usage_base` | `license_usage_gb` | bin _time span=1d | stats sum(GB) as GB by _time | stats perc95(GB) as P95GB | eval EstimateGB=round(P95GB*365,0)</query>
@@ -102,9 +204,10 @@
       <html>
         <![CDATA[
         <ul>
-          <li><b>Simple Estimate</b>: average daily consumption over the baseline window, multiplied by 365. Easy to explain, but flat - it assumes tomorrow looks like the average of the past, ignoring any growth or decline trend.</li>
-          <li><b>Trend-Adjusted Estimate</b>: uses Splunk's built-in <code>predict</code> command (local-level-trend algorithm) to forecast the next 30 days from the baseline window, then annualizes that forecasted rate. This is the number to use for renewal sizing, since it reacts to onboarding of new data sources.</li>
-          <li><b>Conservative Estimate</b>: the 95th-percentile day multiplied by 365 - a buffer figure for clients who want to size against their heaviest days rather than the average, to avoid recurring near-quota warnings.</li>
+          <li><b>Daily / Monthly / Annual</b>: the same three methods below are computed once per period - daily is the raw per-day figure, monthly multiplies it by 30, annual by 365 - so all three periods stay consistent with each other.</li>
+          <li><b>Simple Estimate</b>: average daily consumption over the baseline window. Easy to explain, but flat - it assumes tomorrow looks like the average of the past, ignoring any growth or decline trend.</li>
+          <li><b>Trend-Adjusted Estimate</b>: uses Splunk's built-in <code>predict</code> command (local-level-trend algorithm) to forecast the next 30 days from the baseline window, then averages that forecasted rate. This is the number to use for renewal sizing, since it reacts to onboarding of new data sources.</li>
+          <li><b>Conservative Estimate</b>: the 95th-percentile day - a buffer figure for clients who want to size against their heaviest days rather than the average, to avoid recurring near-quota warnings.</li>
           <li>All three depend on the selected baseline window actually holding data. If <b>Days of History Used</b> is much smaller than the window (e.g. 20 days shown for a 90-day window), <code>_internal</code> retention is cutting the history short - treat the estimate as low-confidence and consider enabling the summary-index rollup in <code>savedsearches.conf</code> to build up longer history over time.</li>
         </ul>
         ]]>
