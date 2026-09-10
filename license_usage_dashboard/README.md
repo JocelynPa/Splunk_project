@@ -24,14 +24,17 @@ numbers as soon as it's installed.
 
 1. **License Overview** (default landing page) - total consumption over the
    last 365 days, the daily average, today's usage as a percentage of the
-   license pool quota (color-coded), a 13-month consumption trend, the top
-   10 indexes over the last 30 days, a breakdown of consumption by license
-   pool over the last 30 days, and a table comparing each pool's usage
-   today against its own quota.
+   license pool quota (color-coded, live/in-progress figure), a 13-month
+   consumption trend, the top 10 indexes over the last 30 days, a breakdown
+   of consumption by license pool over the last 30 days, and a table
+   comparing each pool's usage against its own quota for the most recent
+   *closed* license day (sourced from Splunk's own `RolloverSummary`
+   accounting, not a live estimate - see below).
 2. **Daily & Monthly Trend** - a time-range picker driving a daily
    consumption chart (with a 7-day moving average overlay), a fixed
-   12-month monthly chart, and a day-by-day table flagging any day that
-   came close to or went over quota.
+   12-month monthly chart, and a day-by-day, by-license-pool table (from
+   `RolloverSummary`) flagging any day that came close to or went over the
+   quota that was actually in effect that day.
 3. **Top Sources** - pick a time range and a dimension (index, sourcetype,
    host, source, or license pool) to see the top 15 contributors as a bar
    chart, a pie chart of the top 10, and a Pareto table (share of total +
@@ -55,14 +58,41 @@ numbers as soon as it's installed.
 
 ## How the numbers are computed
 
-- `macros.conf` -> `license_usage_base`: the shared base search,
-  `index=_internal source=*license_usage.log* type=Usage`.
-- `license_usage_gb`: converts the raw `b` (bytes) field to `GB` and
-  normalizes missing `idx`/`h`/`s`/`st` values to `(UNKNOWN)`.
-- `license_pool_quota_gb`: `| rest /services/licenser/pools` converted to
-  GB, used to compute "today vs. quota" and the daily quota table.
+This app pulls from two different event types inside `license_usage.log`,
+depending on whether a panel needs a live, in-progress figure or an
+authoritative, closed-book one:
 
-These are the same fields and endpoint Splunk's own Monitoring Console
+- `macros.conf` -> `license_usage_base`: `index=_internal
+  source=*license_usage.log* type=Usage` - raw, continuously-emitted
+  per-index/sourcetype/host/source events. Used for consumption trends,
+  the "Top Sources" breakdowns, and the estimate/forecast dashboard, since
+  it's the only source with that level of granularity and it updates
+  throughout the day.
+- `license_usage_gb`: converts the raw `b` (bytes) field to `GB` and
+  normalizes missing `idx`/`h`/`s`/`st`/`pool` values to `(UNKNOWN)`.
+- `license_pool_quota_gb`: `| rest /services/licenser/pools` converted to
+  GB - a live snapshot of each pool's *current* quota and used bytes.
+  Used only for the "Today vs. License Pool Quota" single value on the
+  Overview, since today's license day hasn't closed yet and this REST
+  endpoint is the only source with a real-time counter.
+- `license_rollover_base` / `license_rollover_gb`: `index=_internal
+  source=*license_usage.log* type="RolloverSummary"` - the summary event
+  Splunk itself writes once per pool each time a license day *closes*,
+  carrying both the day's final counted usage (`b`) and the pool quota in
+  effect that day (`poolsz`). This is the same record Splunk's own license
+  enforcement uses to decide whether a day was in violation, so it's more
+  authoritative than re-summing `Usage` events, and - unlike a REST
+  snapshot of the *current* quota - it's correct even for days before the
+  quota was last changed. `license_rollover_gb` shifts `_time` back 12
+  hours before binning to `1d` (the license day rollover boundary doesn't
+  align with local midnight), dedupes repeated rollover updates for the
+  same day via `latest()`, and aggregates bytes across license peers per
+  pool (summed, since usage is additive) while quota size is taken via
+  `max()` (a pool-level constant, not additive). Used for every "vs.
+  quota" table that looks at past (closed) days: the pool quota table on
+  Overview and the daily detail table on Daily & Monthly Trend.
+
+These are the same fields and endpoints Splunk's own Monitoring Console
 license usage views are built on, so the numbers here will match what the
 client sees under **Settings > Licensing** / the Monitoring Console.
 
@@ -90,11 +120,15 @@ client sees under **Settings > Licensing** / the Monitoring Console.
   `_internal` so the year-long views stay accurate indefinitely.
 - **Multiple license pools / a license peer deployment**: the "Today vs.
   License Pool Quota" single value on the overview sums across all pools
-  for a quick headline number, but the "Consumption by License Pool" chart
-  and "License Pool Usage vs. Quota" table (and the "License Pool"
-  breakdown on Top Sources) already report per pool (via the `pool` field
-  and `license_pool_quota_gb`'s per-`title` rows), so per-pool tracking
-  (e.g. separate pools for prod vs. dev) works out of the box.
+  for a quick headline number, but the "Consumption by License Pool" chart,
+  the `RolloverSummary`-based "vs. Quota" tables on Overview and Daily &
+  Monthly Trend, the "License Pool" breakdown on Top Sources, and the "by
+  License Pool" tables on Consumption Estimates already report per pool
+  (via the `pool` field), so per-pool tracking (e.g. separate pools for
+  prod vs. dev) works out of the box. On a license peer deployment,
+  `RolloverSummary` events are per-peer, and `license_rollover_gb` sums
+  bytes across peers but takes the max of `poolsz` (a pool-level constant)
+  so the quota isn't double-counted.
 - **Alerting**: pair the daily rollup saved search with an alert action
   (e.g. `| where PctOfQuota>=90`) to notify the client proactively before
   they breach quota, instead of only showing it on a dashboard.
@@ -110,7 +144,7 @@ client sees under **Settings > Licensing** / the Monitoring Console.
 license_usage_dashboard/
   default/
     app.conf
-    macros.conf                 # base search, GB conversion, pool quota
+    macros.conf                 # base search, GB conversion, pool quota (live REST + RolloverSummary)
     savedsearches.conf          # summary-index rollup (disabled)
     data/ui/nav/default.xml
     data/ui/views/

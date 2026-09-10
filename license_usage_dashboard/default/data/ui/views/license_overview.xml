@@ -1,6 +1,6 @@
 <dashboard>
   <label>License Overview</label>
-  <description>Annual license consumption at a glance: total usage over the last 365 days, today's utilization against the license pool quota, the 12-month trend, and the top indexes driving consumption. All searches run directly against Splunk's own internal license_usage.log events - no external add-on required.</description>
+  <description>Annual license consumption at a glance: total usage over the last 365 days, today's utilization against the license pool quota, the 12-month trend, and the top indexes driving consumption. All searches run directly against Splunk's own internal license_usage.log events - no external add-on required. "Today vs. License Pool Quota" is a live, in-progress figure (today's license day hasn't closed yet); the pool table below it uses the RolloverSummary event Splunk itself writes once each license day closes, which is the authoritative record used for quota enforcement and correctly reflects the quota that was in effect that day even if it has since changed.</description>
   <row>
     <panel>
       <title>Total Consumption - Last 365 Days</title>
@@ -113,11 +113,11 @@
   </row>
   <row>
     <panel>
-      <title>License Pool Usage vs. Quota (Today)</title>
+      <title>License Pool Usage vs. Quota (Most Recent Closed Day)</title>
       <table>
         <search>
-          <query>`license_usage_base` earliest=-1d@d latest=@d | `license_usage_gb` | stats sum(GB) as TodayGB by pool | append [ `license_pool_quota_gb` | rename title as pool ] | stats sum(TodayGB) as TodayGB, sum(quota_GB) as QuotaGB by pool | eval TodayGB=round(TodayGB,3) | eval PctOfQuota=round((TodayGB/QuotaGB)*100,1) | eval Status=case(PctOfQuota>=100,"over quota",PctOfQuota>=90,"near quota",1=1,"normal") | sort -TodayGB | rename pool as Pool, TodayGB as "Today (GB)", QuotaGB as "Quota (GB)", PctOfQuota as "% of Quota" | table Pool "Today (GB)" "Quota (GB)" "% of Quota" Status</query>
-          <earliest>-15m</earliest>
+          <query>`license_rollover_base` | `license_rollover_gb` | sort 0 -_time | dedup pool | eval PctOfQuota=round((GB/QuotaGB)*100,1) | eval Status=case(PctOfQuota>=100,"over quota",PctOfQuota>=90,"near quota",1=1,"normal") | eval Date=strftime(_time,"%Y-%m-%d") | sort -GB | rename pool as Pool, GB as "Usage (GB)", QuotaGB as "Quota (GB)", PctOfQuota as "% of Quota" | table Pool Date "Usage (GB)" "Quota (GB)" "% of Quota" Status</query>
+          <earliest>-7d@d</earliest>
           <latest>now</latest>
           <refresh>3600</refresh>
           <refreshType>delay</refreshType>
