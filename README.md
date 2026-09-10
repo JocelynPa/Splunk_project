@@ -30,3 +30,13 @@ access), plus a consolidated pass/fail findings checklist. Built entirely
 on Splunk's own internal indexes and REST endpoints - no add-on required.
 See [`infra_security_audit/README.md`](infra_security_audit/README.md)
 for details and install steps.
+
+## GitDeploy_for_Splunk
+
+A Splunk app plus companion SH Deployer agent that pushes Splunk apps to a
+Git repository and optionally deploys them to a Search Head Cluster via
+`splunk apply shcluster-bundle`, with a commercial RSA-based licensing
+system. See
+[`GitDeploy_for_Splunk/README.md`](GitDeploy_for_Splunk/README.md) and
+[`GitDeploy_for_Splunk/INSTALL.md`](GitDeploy_for_Splunk/INSTALL.md) for
+details and install steps.

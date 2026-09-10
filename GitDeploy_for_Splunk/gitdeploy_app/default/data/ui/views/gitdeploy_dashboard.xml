@@ -1,0 +1,951 @@
+<dashboard version="1.1" script="license_validation.js, gitdeploy.js" hideEdit="true" hideExport="true">
+  <label>GitDeploy for Splunk - Deploy Applications</label>
+  <description>Push Splunk applications to Git repository and deploy to SH Cluster</description>
+  
+  <search id="dsearch">
+    <query>| rest /services/apps/local
+           | search NOT visible=0
+           | search disabled=0
+           | search NOT title IN (
+                                  "splunk_internal_metrics",
+                                  "splunk_monitoring_console",
+                                  "splunk_secure_gateway",
+                                  "splunk_archiver",
+                                  "splunk_httpinput",
+                                  "splunk_instrumentation",
+                                  "learned",
+                                  "legacy",
+                                  "sample_app",
+                                  "search",
+                                  "launcher",
+                                  "gettingstarted",
+                                  "introspection_generator_addon",
+                                  "journald_input",
+                                  "splunk_gdi",
+                                  "splunk_essentials_9",
+                                  "SplunkForwarder",
+                                  "SplunkLightForwarder",
+                                  "appsbrowser",
+                                  "config_explorer",
+                                  "custom_login",
+                                  "gitdeploy_app",
+                                  "Config_ressources",
+                                  "SA-IndexCreation",
+                                  "splunk_metrics_workspace",
+                                  "lookup_editor",
+                                  "splunk-dashboard-studio",
+                                  "splunk_rapid_diag",
+                                  "python_upgrade_readiness_app"
+                                 )
+           | table title, label, description
+           | rename title as name
+           | sort label</query>
+    <earliest>-1m</earliest>
+    <latest>now</latest>
+  </search>
+  
+  <row>
+    <panel>
+      <html>
+        <style>
+          /* ============================================ */
+          /* GIT PUSHER STYLES - VERSION 2.1             */
+          /* ============================================ */
+          
+          .git-pusher-container {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          
+          /* Header avec badge de licence */
+          .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+          }
+          
+          .header-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+          }
+          
+          .header-title h1 {
+            margin: 0;
+            font-size: 28px;
+            color: #333;
+          }
+          
+          .version-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+          }
+          
+          /* Container pour le badge de licence */
+          #license-badge-container {
+            min-width: 200px;
+            text-align: right;
+          }
+          
+          /* Grille principale - 3 colonnes */
+          .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.2fr;
+            gap: 20px;
+          }
+          
+          @media (max-width: 1400px) {
+            .main-grid {
+              grid-template-columns: 1fr 1fr;
+            }
+            .main-grid .section:nth-child(2) {
+              grid-column: span 2;
+            }
+          }
+          
+          @media (max-width: 900px) {
+            .main-grid {
+              grid-template-columns: 1fr;
+            }
+            .main-grid .section:nth-child(2) {
+              grid-column: span 1;
+            }
+          }
+          
+          /* Sections */
+          .section {
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e8e8e8;
+          }
+          
+          .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 0 20px 0;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+            color: #333;
+            font-size: 18px;
+          }
+          
+          .section-title::before {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+          }
+          
+          /* Formulaire */
+          .form-group {
+            margin-bottom: 20px;
+          }
+          
+          .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #444;
+          }
+          
+          .form-group input[type="text"],
+          .form-group input[type="password"],
+          .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+          }
+          
+          .form-group input:focus,
+          .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+          }
+          
+          .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+          }
+          
+          .form-hint {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+          }
+          
+          /* Checkbox personnalisé */
+          .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+          }
+          
+          .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+          }
+          
+          .checkbox-group label {
+            margin: 0;
+            font-weight: normal;
+            color: #555;
+          }
+          
+          /* Liste des applications */
+          #dashboard-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+          }
+          
+          #dashboard-list::-webkit-scrollbar {
+            width: 8px;
+          }
+          
+          #dashboard-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+          }
+          
+          #dashboard-list::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+          }
+          
+          #dashboard-list::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+          }
+          
+          .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            color: white;
+          }
+          
+          .app-header label {
+            color: white;
+            font-weight: 600;
+          }
+          
+          .app-count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+          }
+          
+          .app-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: white;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+          }
+          
+          .app-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+          }
+          
+          .app-item.selected {
+            border-color: #667eea;
+            background: linear-gradient(145deg, #f0f4ff 0%, #e8edff 100%);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+          }
+          
+          .app-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+          }
+          
+          .app-item label {
+            flex: 1;
+            cursor: pointer;
+            font-size: 14px;
+          }
+          
+          .app-item .app-info {
+            flex: 1;
+            cursor: pointer;
+          }
+          
+          .app-item .app-name {
+            font-weight: 500;
+            color: #333;
+          }
+          
+          .app-item .app-technical {
+            font-size: 11px;
+            color: #888;
+            font-family: monospace;
+          }
+          
+          .app-item .view-dashboards-btn {
+            padding: 4px 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+          }
+          
+          .app-item:hover .view-dashboards-btn,
+          .app-item.selected .view-dashboards-btn {
+            opacity: 1;
+          }
+          
+          .app-item .view-dashboards-btn:hover {
+            background: #5a6fd6;
+          }
+          
+          /* Panneau des dashboards */
+          .dashboards-panel {
+            min-height: 400px;
+          }
+          
+          .dashboards-panel .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
+            color: #888;
+            text-align: center;
+          }
+          
+          .dashboards-panel .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+          }
+          
+          .dashboards-panel .empty-state p {
+            margin: 5px 0;
+          }
+          
+          .selected-app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            color: white;
+          }
+          
+          .selected-app-header .app-name {
+            font-weight: 600;
+          }
+          
+          .selected-app-header .dashboard-count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+          }
+          
+          .dashboard-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+          }
+          
+          .dashboard-actions button {
+            padding: 8px 15px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+          }
+          
+          .dashboard-actions button:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+          }
+          
+          #dashboards-list {
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 5px;
+          }
+          
+          .dashboard-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            margin-bottom: 6px;
+            background: white;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+          }
+          
+          .dashboard-item:hover {
+            border-color: #667eea;
+            background: #fafbff;
+          }
+          
+          .dashboard-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #667eea;
+          }
+          
+          .dashboard-item .dashboard-info {
+            flex: 1;
+          }
+          
+          .dashboard-item .dashboard-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+          }
+          
+          .dashboard-item .dashboard-file {
+            font-size: 11px;
+            color: #888;
+            font-family: monospace;
+          }
+          
+          .dashboard-item .dashboard-type {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            background: #e3f2fd;
+            color: #1976d2;
+          }
+          
+          .loading-dashboards {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 40px;
+            color: #888;
+          }
+          
+          .loading-dashboards .mini-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e0e0e0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+          }
+          
+          /* Sélection summary */
+          .selection-summary {
+            margin-top: 15px;
+            padding: 12px 15px;
+            background: #f0f4ff;
+            border-radius: 8px;
+            border: 1px solid #d0d9ff;
+          }
+          
+          .selection-summary .summary-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+          }
+          
+          .selection-summary .summary-list {
+            font-size: 12px;
+            color: #666;
+            max-height: 100px;
+            overflow-y: auto;
+          }
+          
+          .selection-summary .summary-item {
+            padding: 3px 0;
+            border-bottom: 1px dashed #e0e0e0;
+          }
+          
+          .selection-summary .summary-item:last-child {
+            border-bottom: none;
+          }
+          
+          .app-badge {
+            background: #e8f0fe;
+            color: #1a73e8;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: monospace;
+          }
+          
+          /* Section SH Deployer */
+          .deployer-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(145deg, #fff8e1 0%, #ffecb3 100%);
+            border-radius: 12px;
+            border: 2px solid #ffd54f;
+          }
+          
+          .deployer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+          }
+          
+          .deployer-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #f57c00;
+          }
+          
+          .deployer-status {
+            font-size: 13px;
+          }
+          
+          .deployer-config-btn {
+            background: none;
+            border: 1px solid #f57c00;
+            color: #f57c00;
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+          }
+          
+          .deployer-config-btn:hover {
+            background: #f57c00;
+            color: white;
+          }
+          
+          .deployer-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+          }
+          
+          .deployer-checkbox input {
+            width: 20px;
+            height: 20px;
+            accent-color: #f57c00;
+          }
+          
+          /* Section sélection apps SH Cluster */
+          .deployer-apps-section {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            border: 1px dashed #ffd54f;
+          }
+          
+          .deployer-apps-section.visible {
+            display: block;
+          }
+          
+          .deployer-apps-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+          }
+          
+          .deployer-apps-header label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+          }
+          
+          .deployer-apps-list {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+          }
+          
+          .shcluster-app-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            margin-bottom: 5px;
+            background: #fff8e1;
+            border-radius: 4px;
+            transition: background 0.2s;
+          }
+          
+          .shcluster-app-item:hover {
+            background: #ffecb3;
+          }
+          
+          .shcluster-app-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #f57c00;
+          }
+          
+          .shcluster-app-item label {
+            flex: 1;
+            cursor: pointer;
+            font-size: 13px;
+          }
+          
+          .shcluster-app-item .app-badge {
+            font-size: 11px;
+          }
+          
+          .deployer-auth {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #ffd54f;
+          }
+          
+          .deployer-auth.visible {
+            display: block;
+          }
+          
+          .deployer-auth-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+          }
+          
+          .deployer-auth input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ffd54f;
+            border-radius: 6px;
+            background: white;
+          }
+          
+          /* Boutons */
+          .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+          }
+          
+          .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+          
+          .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 2;
+          }
+          
+          .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+          }
+          
+          .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+          }
+          
+          .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            flex: 1;
+          }
+          
+          .btn-secondary:hover {
+            background: #e0e0e0;
+          }
+          
+          /* Messages */
+          .message {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            white-space: pre-line;
+          }
+          
+          .message.active {
+            display: flex;
+          }
+          
+          .message.success {
+            background: linear-gradient(145deg, #e8f5e9 0%, #c8e6c9 100%);
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+          }
+          
+          .message.error {
+            background: linear-gradient(145deg, #ffebee 0%, #ffcdd2 100%);
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+          }
+          
+          /* Loading */
+          .loading {
+            display: none;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: linear-gradient(145deg, #e3f2fd 0%, #bbdefb 100%);
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 1px solid #90caf9;
+          }
+          
+          .loading.active {
+            display: flex;
+          }
+          
+          .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #90caf9;
+            border-top-color: #1976d2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+          }
+          
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+          
+          .loading-text {
+            color: #1565c0;
+            font-weight: 500;
+          }
+        </style>
+        
+        <div class="git-pusher-container">
+          <!-- Header -->
+          <div class="header-section">
+            <div class="header-title">
+              <h1>🚀 GitDeploy for Splunk</h1>
+              <span class="version-badge">v2.1</span>
+            </div>
+            <div id="license-badge-container">
+              <!-- Le badge de licence sera inséré ici par JavaScript -->
+            </div>
+          </div>
+          
+          <!-- Grille principale -->
+          <div class="main-grid">
+            <!-- Colonne gauche: Applications -->
+            <div class="section">
+              <h2 class="section-title">📦 Applications</h2>
+              <div id="dashboard-list">
+                <!-- Liste générée par JavaScript -->
+                <p style="color: #888; text-align: center; padding: 20px;">Loading applications...</p>
+              </div>
+            </div>
+            
+            <!-- Colonne centrale: Dashboards de l'app sélectionnée -->
+            <div class="section dashboards-panel">
+              <h2 class="section-title">📊 Dashboards / Views</h2>
+              <div id="dashboards-container">
+                <div class="empty-state">
+                  <div class="icon">📂</div>
+                  <p><strong>Select an application</strong></p>
+                  <p style="font-size: 13px;">Click on an app to view its dashboards</p>
+                </div>
+              </div>
+              
+              <!-- Résumé de la sélection -->
+              <div class="selection-summary" id="selection-summary" style="display: none;">
+                <div class="summary-title">📋 Selection Summary</div>
+                <div class="summary-list" id="selection-summary-list">
+                  <!-- Rempli par JavaScript -->
+                </div>
+              </div>
+            </div>
+            
+            <!-- Colonne droite: Configuration -->
+            <div class="section">
+              <h2 class="section-title">⚙️ Git Configuration</h2>
+              
+              <div class="form-group">
+                <label for="git-url">Repository URL</label>
+                <input type="text" id="git-url" placeholder="https://github.com/user/repo.git" />
+                <div class="form-hint">HTTPS URL of your Git repository</div>
+              </div>
+              
+              <div class="form-group">
+                <label for="git-branch">Branch</label>
+                <input type="text" id="git-branch" value="main" placeholder="main" />
+              </div>
+              
+              <div class="form-group">
+                <label for="git-token">Access Token / Password</label>
+                <input type="password" id="git-token" placeholder="ghp_xxxx or personal access token" />
+                <div class="form-hint">Personal access token with write permissions</div>
+              </div>
+              
+              <div class="form-group">
+                <label for="commit-message">Commit Message</label>
+                <textarea id="commit-message" placeholder="Describe your changes..."></textarea>
+              </div>
+              
+              <div class="checkbox-group">
+                <input type="checkbox" id="save-credentials" />
+                <label for="save-credentials">Remember credentials for next time</label>
+              </div>
+              
+              <!-- Section SH Deployer -->
+              <div class="deployer-section" id="deployer-section">
+                <div class="deployer-header">
+                  <div class="deployer-title">
+                    🎯 Deploy to Search Head Cluster
+                    <span class="deployer-status" id="deployer-status">
+                      <span style="color: #888;">● Checking...</span>
+                    </span>
+                  </div>
+                </div>
+                
+                <!-- Message si non configuré -->
+                <div id="deployer-not-configured" style="display: none; padding: 15px; background: #fff3cd; border-radius: 8px; margin-bottom: 15px;">
+                  <span style="color: #856404;">⚠️ SH Deployer is not configured.</span>
+                  <a href="gitdeploy_config" style="color: #0056b3; margin-left: 10px;">Go to Configuration →</a>
+                </div>
+                
+                <!-- Avertissement branche non autorisée -->
+                <div id="shcluster-branch-warning" style="display: none; padding: 15px; background: #fff3cd; border-radius: 8px; margin-bottom: 15px;">
+                </div>
+                
+                <div class="deployer-checkbox">
+                  <input type="checkbox" id="deploy-to-shcluster" />
+                  <label for="deploy-to-shcluster">
+                    <strong>Enable automatic deployment</strong><br/>
+                    <small style="color: #888;">After pushing to Git, pull and apply bundle to SH Cluster (main/master branch only)</small>
+                  </label>
+                </div>
+                
+                <!-- Sélection des apps pour le SH Cluster -->
+                <div class="deployer-apps-section" id="deployer-apps-section">
+                  <div class="deployer-apps-header">
+                    <label>
+                      <input type="checkbox" id="shcluster-all-apps" checked="checked" />
+                      <strong>Deploy all selected apps to SH Cluster</strong>
+                    </label>
+                  </div>
+                  
+                  <div class="deployer-apps-list" id="shcluster-apps-list" style="display: none;">
+                    <div class="form-hint" style="margin-bottom: 10px;">
+                      Select which apps to deploy to the Search Head Cluster:
+                    </div>
+                    <div id="shcluster-apps-container">
+                      <!-- Apps will be populated by JavaScript -->
+                      <p style="color: #888; font-style: italic;">Select apps from the left panel first</p>
+                    </div>
+                  </div>
+                  
+                  <!-- Statut des credentials -->
+                  <div id="deployer-credentials-status" style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 6px; font-size: 13px;">
+                    <span id="stored-credentials-status" style="color: #888;">Checking credentials configuration...</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Boutons -->
+              <div class="button-group">
+                <button class="btn btn-primary" id="push-btn" onclick="pushDashboards()">
+                  ✈️ Deploy to Git
+                </button>
+                <button class="btn btn-secondary" onclick="resetForm(true)">
+                  🔄 Reset
+                </button>
+              </div>
+              
+              <!-- Messages -->
+              <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <span class="loading-text">Deploying applications to Git... Please wait</span>
+              </div>
+              
+              <div class="message success" id="success-msg">
+                <span id="success-text"></span>
+              </div>
+              <div class="message error" id="error-msg">
+                <span id="error-text"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <script>
+          function toggleDeployerAuth() {
+            var checkbox = document.getElementById('deploy-to-shcluster');
+            var authSection = document.getElementById('deployer-auth');
+            if (checkbox) {
+              if (authSection) {
+                if (checkbox.checked) {
+                  authSection.classList.add('visible');
+                } else {
+                  authSection.classList.remove('visible');
+                }
+              }
+            }
+          }
+        </script>
+      </html>
+    </panel>
+  </row>
+</dashboard>
