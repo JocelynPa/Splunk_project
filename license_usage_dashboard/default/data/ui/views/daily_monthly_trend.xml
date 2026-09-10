@@ -1,6 +1,6 @@
 <form>
   <label>Daily &amp; Monthly Trend</label>
-  <description>Daily and monthly license consumption trends, with a detailed daily table flagging days that came close to or exceeded the license pool quota.</description>
+  <description>Daily and monthly license consumption trends, with a detailed daily table (by license pool) flagging days that came close to or exceeded quota. The detail table is sourced from Splunk's own RolloverSummary events - the authoritative record written once each license day closes - so it reflects the quota that was actually in effect on each day, not today's quota applied retroactively.</description>
   <fieldset submitButton="false" autoRun="true">
     <input type="time" token="time_tok">
       <label>Time Range</label>
@@ -48,10 +48,10 @@
   </row>
   <row>
     <panel>
-      <title>Daily Detail vs. Quota</title>
+      <title>Daily Detail vs. Quota by License Pool</title>
       <table>
         <search>
-          <query>`license_usage_base` | `license_usage_gb` | bin _time span=1d | stats sum(GB) as GB by _time | appendcols [ `license_pool_quota_gb` | stats sum(quota_GB) as QuotaGB ] | eval PctOfQuota=round((GB/QuotaGB)*100,1) | eval Status=case(PctOfQuota>=100,"over quota",PctOfQuota>=90,"near quota",1=1,"normal") | eval Date=strftime(_time,"%Y-%m-%d") | eval GB=round(GB,2) | table Date GB QuotaGB PctOfQuota Status | sort -Date</query>
+          <query>`license_rollover_base` | `license_rollover_gb` | eval PctOfQuota=round((GB/QuotaGB)*100,1) | eval Status=case(PctOfQuota>=100,"over quota",PctOfQuota>=90,"near quota",1=1,"normal") | eval Date=strftime(_time,"%Y-%m-%d") | rename pool as Pool | sort -Date, Pool | table Date Pool GB QuotaGB PctOfQuota Status</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
           <refresh>3600</refresh>
