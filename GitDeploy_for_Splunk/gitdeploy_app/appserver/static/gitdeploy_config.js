@@ -60,9 +60,39 @@ require([
         if (/^(\d{1,3}\.){3}\d{1,3}$/.test(hostname) || hostname === 'localhost') {
             return protocol + '//' + hostname + ':9999';
         }
+
+        // Si c'est un domaine, essayer d'ajouter "-api" au sous-domaine (cas d'un reverse
+        // proxy type Nginx Proxy Manager, ex: splunk.example.com -> splunk-api.example.com).
+        // Cohérent avec la même logique dans gitdeploy.js/getServerUrl().
+        var parts = hostname.split('.');
+        if (parts.length >= 2) {
+            parts[0] = parts[0] + '-api';
+            return protocol + '//' + parts.join('.');
+        }
+
         return protocol + '//' + hostname + ':9999';
     }
-    
+
+    // URL à utiliser pour un appel déclenché par l'utilisateur (Sauvegarder, Tester la
+    // connexion) : priorité au champ "URL de l'API" tel qu'actuellement saisi dans le
+    // formulaire (même s'il n'a pas encore été sauvegardé), sinon on retombe sur
+    // getConfigApiUrl() (localStorage / auto-détection).
+    function resolveApiUrlFromForm() {
+        var apiUrl = $('#api-url').val().trim();
+
+        if (apiUrl) {
+            if (!$('#use-proxy').is(':checked')) {
+                var port = $('#api-port').val() || 9999;
+                if (apiUrl.indexOf(':' + port) === -1) {
+                    apiUrl = apiUrl.replace(/\/$/, '') + ':' + port;
+                }
+            }
+            return apiUrl;
+        }
+
+        return getConfigApiUrl();
+    }
+
     // ============================================
     // CHARGEMENT DE LA CONFIGURATION
     // ============================================
@@ -158,7 +188,10 @@ require([
     function saveConfig() {
         console.log('Saving configuration...');
         var config = getConfigFromForm();
-        var apiUrl = getConfigApiUrl();
+        // Utiliser l'URL telle que saisie dans le formulaire (pas seulement l'auto-détection
+        // ou une ancienne valeur en localStorage), pour que corriger le champ "URL de l'API"
+        // et cliquer Sauvegarder fonctionne réellement dès le premier essai.
+        var apiUrl = resolveApiUrlFromForm();
 
         $.ajax({
             url: apiUrl + '/config',
@@ -183,11 +216,13 @@ require([
                 }
             },
             error: function(xhr, status, error) {
-                console.error('Save error:', error);
+                console.error('Save error:', error, 'URL:', apiUrl + '/config', 'status:', xhr.status);
                 if (xhr.status === 401) {
                     showMessage('❌ Token API invalide ou manquant. Vérifiez la valeur du champ "Token API" (voir les logs du serveur pour le token généré au démarrage).', 'error');
+                } else if (xhr.status === 0) {
+                    showMessage('❌ Impossible de joindre ' + apiUrl + ' (connexion refusée, certificat TLS non approuvé, ou URL incorrecte). Vérifiez le champ "URL de l\'API" et que le serveur GitDeploy tourne bien à cette adresse.', 'error');
                 } else {
-                    showMessage('❌ Erreur de connexion au serveur: ' + error, 'error');
+                    showMessage('❌ Erreur de connexion au serveur (' + apiUrl + '): ' + error, 'error');
                 }
             }
         });
@@ -208,20 +243,11 @@ require([
         console.log('Testing API connection...');
         var $status = $('#api-status');
         $status.removeClass('connected disconnected').text('● Test en cours...');
-        
-        var apiUrl = $('#api-url').val().trim();
-        
-        if (!apiUrl) {
-            apiUrl = getConfigApiUrl();
-        } else if (!$('#use-proxy').is(':checked')) {
-            var port = $('#api-port').val() || 9999;
-            if (apiUrl.indexOf(':' + port) === -1) {
-                apiUrl = apiUrl.replace(/\/$/, '') + ':' + port;
-            }
-        }
-        
+
+        var apiUrl = resolveApiUrlFromForm();
+
         console.log('Testing URL:', apiUrl);
-        
+
         $.ajax({
             url: apiUrl + '/health',
             method: 'GET',
@@ -232,8 +258,8 @@ require([
                 $status.addClass('connected').text('● Connecté');
             },
             error: function(xhr, status, error) {
-                console.error('API test failed:', error);
-                $status.addClass('disconnected').text('● Échec connexion');
+                console.error('API test failed:', error, 'URL:', apiUrl + '/health');
+                $status.addClass('disconnected').text('● Échec connexion (' + apiUrl + ')');
             }
         });
     }
