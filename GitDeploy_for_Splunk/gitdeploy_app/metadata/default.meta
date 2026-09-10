@@ -1,0 +1,15 @@
+#
+# GitDeploy for Splunk - Metadata
+#
+
+[]
+access = read : [ * ], write : [ admin ]
+export = system
+
+[views]
+access = read : [ * ], write : [ admin ]
+export = system
+
+[viewstates]
+access = read : [ * ], write : [ admin ]
+export = system
