@@ -1,4 +1,4 @@
-# 🔐 Guide de Gestion des Licences - Git Pusher
+# 🔐 Guide de Gestion des Licences - GitDeploy for Splunk
 
 ## Vue d'ensemble
 
@@ -40,7 +40,7 @@ Le système de licence utilise **RSA-4096** pour signer les licences. Le process
 
 ```bash
 # Aller dans le dossier de l'application
-cd /chemin/vers/pusher_app_prem/bin/
+cd /chemin/vers/gitdeploy_app/bin/
 
 # Générer les clés
 python3 license_generator_rsa.py genkeys
@@ -112,10 +112,31 @@ RdaJrpLTG+orz0/Kpbz2HSxbAVXkvL5GvYVfxROjy0UgxOZFycZAaGN2am+5CDHA
 
 ---
 
+## Étape 3bis : Intégrer la clé dans license_validator.py (vérification serveur)
+
+Depuis la v2.1, `gitdeploy.py` vérifie aussi la licence côté serveur (hors ligne, sans appel
+réseau) via `gitdeploy_app/bin/license_validator.py`. **Cette clé doit être strictement
+identique** à celle collée dans `license_validation.js` à l'étape 3 - sinon la validation
+côté serveur et celle côté navigateur ne seront plus d'accord.
+
+Ouvrir `gitdeploy_app/bin/license_validator.py` et remplacer le bloc `PUBLIC_KEY_PEM` (en
+tête de fichier) par la même clé :
+
+```python
+PUBLIC_KEY_PEM = b"""-----BEGIN PUBLIC KEY-----
+... COLLER ICI LE MÊME CONTENU QUE license_validation.js ...
+-----END PUBLIC KEY-----"""
+```
+
+Contrairement à `license_validation.js`, ce fichier Python n'est **pas** obfusqué (ce n'est
+pas nécessaire côté serveur) et n'a pas besoin de repasser par `obfuscate_js.py`.
+
+---
+
 ## Étape 4 : Obfusquer le JavaScript
 
 ```bash
-cd /chemin/vers/pusher_app_prem/
+cd /chemin/vers/gitdeploy_app/
 
 # Obfusquer le fichier
 python3 bin/obfuscate_js.py appserver/static/license_validation.js \
@@ -272,6 +293,9 @@ Générer une nouvelle licence avec une nouvelle date d'expiration.
 Si vous régénérez les clés, **toutes les licences existantes deviennent invalides**. Il faudra :
 1. Régénérer les clés
 2. Mettre à jour la clé publique dans `license_validation.js`
-3. Ré-obfusquer le JS
-4. Redistribuer l'application à tous les clients
-5. Régénérer toutes les licences clients
+3. Mettre à jour la **même** clé publique dans `license_validator.py` (voir Étape 3bis) -
+   sinon la validation côté serveur refusera des licences que le navigateur accepte, ou
+   inversement
+4. Ré-obfusquer le JS
+5. Redistribuer l'application à tous les clients
+6. Régénérer toutes les licences clients

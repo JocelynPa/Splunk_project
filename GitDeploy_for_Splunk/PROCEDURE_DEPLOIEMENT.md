@@ -1,8 +1,8 @@
-# 🚀 Git Pusher - Procédure de Déploiement Complète
+# 🚀 GitDeploy for Splunk - Procédure de Déploiement Complète
 
 ## Vue d'ensemble
 
-Ce document décrit toutes les étapes pour déployer Git Pusher chez un client, depuis la préparation du package jusqu'à la validation finale.
+Ce document décrit toutes les étapes pour déployer GitDeploy for Splunk chez un client, depuis la préparation du package jusqu'à la validation finale.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -25,24 +25,24 @@ Ce document décrit toutes les étapes pour déployer Git Pusher chez un client,
 ## 1.1 Structure initiale requise
 
 ```
-pusher_app_prem/
+gitdeploy_app/
 ├── bin/
-│   ├── git_pusher.py
-│   ├── start_git_pusher.sh
+│   ├── gitdeploy.py
+│   ├── start_gitdeploy.sh
 │   ├── license_generator_rsa.py    ← NE PAS LIVRER
 │   ├── obfuscate_js.py             ← NE PAS LIVRER
 │   └── keys/                        ← NE PAS LIVRER
 │       ├── private_key.pem
 │       └── public_key.pem
 ├── appserver/static/
-│   ├── git_pusher.js
-│   ├── git_pusher_config.js
+│   ├── gitdeploy.js
+│   ├── gitdeploy_config.js
 │   └── license_validation.js       ← Version source (à obfusquer)
 ├── default/
 │   ├── app.conf
 │   └── data/ui/views/
-│       ├── git_pusher_dashboard.xml
-│       └── git_pusher_config.xml
+│       ├── gitdeploy_dashboard.xml
+│       └── gitdeploy_config.xml
 ├── static/
 │   ├── appIcon.png
 │   └── appIcon_2x.png
@@ -52,7 +52,7 @@ pusher_app_prem/
 ## 1.2 Générer les clés RSA (une seule fois)
 
 ```bash
-cd /chemin/vers/pusher_app_prem/bin/
+cd /chemin/vers/gitdeploy_app/bin/
 
 # Installer les dépendances Python
 pip3 install cryptography
@@ -89,7 +89,7 @@ VOTRE_CLE_PUBLIQUE_ICI
 ## 1.4 Obfusquer le JavaScript
 
 ```bash
-cd /chemin/vers/pusher_app_prem/
+cd /chemin/vers/gitdeploy_app/
 
 # Obfusquer
 python3 bin/obfuscate_js.py appserver/static/license_validation.js \
@@ -111,30 +111,30 @@ echo "✅ JavaScript obfusqué"
 cd /chemin/vers/
 
 # Créer un dossier temporaire pour le package
-mkdir -p package_tmp/pusher_app_prem
+mkdir -p package_tmp/gitdeploy_app
 
 # Copier les fichiers à distribuer (SANS les fichiers secrets)
-cp -r pusher_app_prem/appserver package_tmp/pusher_app_prem/
-cp -r pusher_app_prem/bin package_tmp/pusher_app_prem/
-cp -r pusher_app_prem/default package_tmp/pusher_app_prem/
-cp -r pusher_app_prem/static package_tmp/pusher_app_prem/
-cp pusher_app_prem/README.md package_tmp/pusher_app_prem/
+cp -r gitdeploy_app/appserver package_tmp/gitdeploy_app/
+cp -r gitdeploy_app/bin package_tmp/gitdeploy_app/
+cp -r gitdeploy_app/default package_tmp/gitdeploy_app/
+cp -r gitdeploy_app/static package_tmp/gitdeploy_app/
+cp gitdeploy_app/README.md package_tmp/gitdeploy_app/
 
 # Supprimer les fichiers secrets du package
-rm -f package_tmp/pusher_app_prem/bin/license_generator_rsa.py
-rm -f package_tmp/pusher_app_prem/bin/obfuscate_js.py
-rm -rf package_tmp/pusher_app_prem/bin/keys/
-rm -rf package_tmp/pusher_app_prem/bin/licenses/
+rm -f package_tmp/gitdeploy_app/bin/license_generator_rsa.py
+rm -f package_tmp/gitdeploy_app/bin/obfuscate_js.py
+rm -rf package_tmp/gitdeploy_app/bin/keys/
+rm -rf package_tmp/gitdeploy_app/bin/licenses/
 
 # Créer l'archive
 cd package_tmp
-tar -czvf ../pusher_app_prem_v2.1.tgz pusher_app_prem/
+tar -czvf ../gitdeploy_app_v2.1.tgz gitdeploy_app/
 
 # Nettoyer
 cd ..
 rm -rf package_tmp
 
-echo "✅ Package créé: pusher_app_prem_v2.1.tgz"
+echo "✅ Package créé: gitdeploy_app_v2.1.tgz"
 ```
 
 ---
@@ -155,7 +155,7 @@ Avant de générer la licence, obtenir du client :
 ## 2.2 Générer la licence
 
 ```bash
-cd /chemin/vers/pusher_app_prem/bin/
+cd /chemin/vers/gitdeploy_app/bin/
 
 # Générer la licence
 python3 license_generator_rsa.py quick "Acme Corporation" "admin@acme.com" "splunk.acme.com" professional
@@ -175,7 +175,7 @@ python3 license_generator_rsa.py verify licenses/license_splunk.acme.com_ABC123X
 ## 2.4 Envoyer au client
 
 Envoyer au client :
-1. `pusher_app_prem_v2.1.tgz` (le package de l'application)
+1. `gitdeploy_app_v2.1.tgz` (le package de l'application)
 2. `license_splunk.acme.com_ABC123XYZ.lic` (la licence personnalisée)
 
 ---
@@ -199,21 +199,21 @@ sudo su - splunk
 cd /opt/splunk/etc/apps/
 
 # Extraire l'archive
-tar -xzvf /chemin/vers/pusher_app_prem_v2.1.tgz
+tar -xzvf /chemin/vers/gitdeploy_app_v2.1.tgz
 
 # Vérifier
-ls -la pusher_app_prem/
+ls -la gitdeploy_app/
 ```
 
 ## 3.3 Configurer les permissions
 
 ```bash
 # Définir le propriétaire
-chown -R splunk:splunk /opt/splunk/etc/apps/pusher_app_prem
+chown -R splunk:splunk /opt/splunk/etc/apps/gitdeploy_app
 
 # Rendre les scripts exécutables
-chmod +x /opt/splunk/etc/apps/pusher_app_prem/bin/*.sh
-chmod +x /opt/splunk/etc/apps/pusher_app_prem/bin/*.py
+chmod +x /opt/splunk/etc/apps/gitdeploy_app/bin/*.sh
+chmod +x /opt/splunk/etc/apps/gitdeploy_app/bin/*.py
 ```
 
 ## 3.4 Générer les certificats SSL
@@ -221,41 +221,41 @@ chmod +x /opt/splunk/etc/apps/pusher_app_prem/bin/*.py
 **Option A : Certificat auto-signé (simple)**
 
 ```bash
-mkdir -p /opt/splunk/etc/apps/pusher_app_prem/local/certs
+mkdir -p /opt/splunk/etc/apps/gitdeploy_app/local/certs
 
 openssl req -x509 -newkey rsa:4096 \
-  -keyout /opt/splunk/etc/apps/pusher_app_prem/local/certs/server.key \
-  -out /opt/splunk/etc/apps/pusher_app_prem/local/certs/server.crt \
+  -keyout /opt/splunk/etc/apps/gitdeploy_app/local/certs/server.key \
+  -out /opt/splunk/etc/apps/gitdeploy_app/local/certs/server.crt \
   -days 365 -nodes -subj "/CN=gitdeploy"
 
-chmod 600 /opt/splunk/etc/apps/pusher_app_prem/local/certs/server.key
-chown -R splunk:splunk /opt/splunk/etc/apps/pusher_app_prem/local/certs/
+chmod 600 /opt/splunk/etc/apps/gitdeploy_app/local/certs/server.key
+chown -R splunk:splunk /opt/splunk/etc/apps/gitdeploy_app/local/certs/
 ```
 
 **Option B : Certificats Let's Encrypt (avec proxy)**
 
 ```bash
 # Copier depuis Nginx Proxy Manager ou autre
-mkdir -p /opt/splunk/etc/apps/pusher_app_prem/local/certs/
-cp /chemin/vers/fullchain.pem /opt/splunk/etc/apps/pusher_app_prem/local/certs/server.crt
-cp /chemin/vers/privkey.pem /opt/splunk/etc/apps/pusher_app_prem/local/certs/server.key
-chmod 600 /opt/splunk/etc/apps/pusher_app_prem/local/certs/server.key
-chown -R splunk:splunk /opt/splunk/etc/apps/pusher_app_prem/local/certs/
+mkdir -p /opt/splunk/etc/apps/gitdeploy_app/local/certs/
+cp /chemin/vers/fullchain.pem /opt/splunk/etc/apps/gitdeploy_app/local/certs/server.crt
+cp /chemin/vers/privkey.pem /opt/splunk/etc/apps/gitdeploy_app/local/certs/server.key
+chmod 600 /opt/splunk/etc/apps/gitdeploy_app/local/certs/server.key
+chown -R splunk:splunk /opt/splunk/etc/apps/gitdeploy_app/local/certs/
 ```
 
-## 3.5 Démarrer le serveur Git Pusher
+## 3.5 Démarrer le serveur GitDeploy for Splunk
 
 ```bash
-cd /opt/splunk/etc/apps/pusher_app_prem/bin/
+cd /opt/splunk/etc/apps/gitdeploy_app/bin/
 
 # Démarrer
-./start_git_pusher.sh start
+./start_gitdeploy.sh start
 
 # Vérifier le statut
-./start_git_pusher.sh status
+./start_gitdeploy.sh status
 
 # Voir les logs
-tail -f /opt/splunk/var/log/splunk/git_pusher.log
+tail -f /opt/splunk/var/log/splunk/gitdeploy.log
 ```
 
 ## 3.6 Ouvrir le firewall
@@ -357,14 +357,14 @@ curl -k https://localhost:9998/health
 
 Ouvrir dans le navigateur :
 ```
-https://VOTRE_SPLUNK/en-US/app/pusher_app_prem/git_pusher_config
+https://VOTRE_SPLUNK/en-US/app/gitdeploy_app/gitdeploy_config
 ```
 
 ## 5.2 Configurer l'API
 
 | Champ | Valeur | Exemple |
 |-------|--------|---------|
-| URL de l'API | URL du serveur Git Pusher | `https://splunk-api.acme.com` |
+| URL de l'API | URL du serveur GitDeploy for Splunk | `https://splunk-api.acme.com` |
 | Port | Port si accès direct | `9999` |
 | Utiliser un proxy | Cocher si reverse proxy | ✅ |
 
@@ -398,7 +398,7 @@ Cliquer sur **"Save Configuration"**
 ## 6.1 Accéder au dashboard principal
 
 ```
-https://VOTRE_SPLUNK/en-US/app/pusher_app_prem/git_pusher_dashboard
+https://VOTRE_SPLUNK/en-US/app/gitdeploy_app/gitdeploy_dashboard
 ```
 
 ## 6.2 Ouvrir le gestionnaire de licence
@@ -444,8 +444,8 @@ Le badge doit afficher :
 ## 7.3 Vérifications finales
 
 ```bash
-# Logs Git Pusher
-tail -50 /opt/splunk/var/log/splunk/git_pusher.log
+# Logs GitDeploy for Splunk
+tail -50 /opt/splunk/var/log/splunk/gitdeploy.log
 
 # Logs Deployer Agent (si applicable)
 tail -50 /opt/splunk/var/log/splunk/deployer_agent.log
@@ -474,7 +474,7 @@ ls -la /tmp/test-repo/apps/
 - [ ] Application extraite dans /opt/splunk/etc/apps/
 - [ ] Permissions configurées (splunk:splunk)
 - [ ] Certificats SSL installés
-- [ ] Serveur Git Pusher démarré
+- [ ] Serveur GitDeploy for Splunk démarré
 - [ ] Firewall ouvert (9999)
 - [ ] Splunk redémarré
 - [ ] API accessible (curl /health)
@@ -517,14 +517,14 @@ ls -la /tmp/test-repo/apps/
 ## A. Commandes utiles
 
 ```bash
-# Statut Git Pusher
-/opt/splunk/etc/apps/pusher_app_prem/bin/start_git_pusher.sh status
+# Statut GitDeploy for Splunk
+/opt/splunk/etc/apps/gitdeploy_app/bin/start_gitdeploy.sh status
 
-# Redémarrer Git Pusher
-/opt/splunk/etc/apps/pusher_app_prem/bin/start_git_pusher.sh restart
+# Redémarrer GitDeploy for Splunk
+/opt/splunk/etc/apps/gitdeploy_app/bin/start_gitdeploy.sh restart
 
 # Logs en temps réel
-tail -f /opt/splunk/var/log/splunk/git_pusher.log
+tail -f /opt/splunk/var/log/splunk/gitdeploy.log
 
 # Vider le cache Splunk (après modification JS/CSS)
 rm -rf /opt/splunk/var/run/splunk/appserver/*
@@ -539,7 +539,7 @@ curl -k https://localhost:9999/license
 
 | Port | Service | Protocole |
 |------|---------|-----------|
-| 9999 | Git Pusher API | HTTPS |
+| 9999 | GitDeploy for Splunk API | HTTPS |
 | 9998 | Deployer Agent | HTTPS |
 | 8000 | Splunk Web | HTTPS |
 | 8089 | Splunk API | HTTPS |
@@ -548,9 +548,9 @@ curl -k https://localhost:9999/license
 
 | Fichier | Description |
 |---------|-------------|
-| `/opt/splunk/etc/apps/pusher_app_prem/local/config.json` | Configuration de l'app |
-| `/opt/splunk/etc/apps/pusher_app_prem/local/license.lic` | Licence (copie serveur) |
-| `/opt/splunk/etc/apps/pusher_app_prem/local/certs/` | Certificats SSL |
+| `/opt/splunk/etc/apps/gitdeploy_app/local/config.json` | Configuration de l'app |
+| `/opt/splunk/etc/apps/gitdeploy_app/local/license.lic` | Licence (copie serveur) |
+| `/opt/splunk/etc/apps/gitdeploy_app/local/certs/` | Certificats SSL |
 
 ## D. Dépannage rapide
 

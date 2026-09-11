@@ -449,45 +449,36 @@ class GitPusherRequestHandler(BaseHTTPRequestHandler):
             # ============================================
             
             elif path == '/license/upload' or path == '/license/save':
-                # Sauvegarder la licence sur le serveur (fichier)
-                # La validation RSA est faite côté client
+                # Sauvegarder la licence sur le serveur (fichier). La signature RSA est
+                # revérifiée ici côté serveur (voir license_validator.save_license_file) avant
+                # d'écrire quoi que ce soit sur disque : on ne fait plus confiance à la seule
+                # validation côté client pour accepter le contenu.
                 content_length = int(self.headers.get('Content-Length', 0))
                 body = self.rfile.read(content_length).decode('utf-8')
-                
+
                 try:
                     data = json.loads(body)
                     license_content = data.get('license_content', '')
                 except:
                     license_content = body
-                
+
                 if not license_content:
                     response = {"success": False, "error": "Contenu de licence vide"}
                 else:
-                    # Sauvegarder le fichier de licence
-                    try:
-                        local_dir = os.path.join(APP_HOME, 'local')
-                        os.makedirs(local_dir, exist_ok=True)
-                        
-                        license_path = os.path.join(local_dir, 'license.lic')
-                        
-                        with open(license_path, 'w') as f:
-                            f.write(license_content)
-                        
-                        os.chmod(license_path, 0o600)
-                        
-                        logger.info(f"Licence sauvegardée: {license_path}")
+                    save_result = save_license_file(license_content)
+                    if save_result.get('success'):
+                        logger.info("Licence sauvegardée sur le serveur (signature vérifiée)")
                         response = {
                             "success": True,
-                            "message": "Licence sauvegardée sur le serveur",
-                            "path": license_path
+                            "message": "Licence sauvegardée sur le serveur"
                         }
-                    except Exception as e:
-                        logger.error(f"Erreur sauvegarde licence: {e}")
+                    else:
+                        logger.error(f"Erreur sauvegarde licence: {save_result.get('error')}")
                         response = {
                             "success": False,
-                            "error": f"Erreur sauvegarde: {str(e)}"
+                            "error": save_result.get('error', 'Erreur de sauvegarde')
                         }
-                
+
                 self.wfile.write(json.dumps(response).encode())
                 return
             
@@ -778,8 +769,11 @@ class GitPusherRequestHandler(BaseHTTPRequestHandler):
                                 logger.error(f"Direct push also failed: {result.stderr}")
                                 raise Exception(f"Push failed: {result.stderr}")
                 
-                # NOTE: L'incrémentation des stats est maintenant faite côté client (JavaScript)
-                
+                # Incrémenter le compteur d'utilisation côté serveur (fait foi pour check_limits(),
+                # contrairement au compteur JavaScript dans le localStorage du navigateur qui peut
+                # être modifié par l'utilisateur).
+                increment_usage()
+
                 logger.info("Git push successful!")
                 
                 # ============================================
