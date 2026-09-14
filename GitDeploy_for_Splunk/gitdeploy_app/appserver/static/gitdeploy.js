@@ -73,7 +73,6 @@ function getServerUrl() {
 const GITDEPLOY_CONFIG = {
     serverUrl: getServerUrl(),
     credentialsKey: 'gitdeploy_credentials',
-    deployerConfigKey: 'gitdeploy_deployer_config',
     // Token d'authentification pour le serveur GitDeploy, configuré sur la page Configuration.
     apiToken: (loadAppConfig().api && loadAppConfig().api.token) || '',
     version: '2.1.0'
@@ -1332,10 +1331,13 @@ function updateDeployerUI() {
 
 function loadDeployerConfig() {
     try {
-        const saved = localStorage.getItem(GITDEPLOY_CONFIG.deployerConfigKey);
-        if (saved) {
-            const config = JSON.parse(saved);
-            SH_DEPLOYER_CONFIG = { ...SH_DEPLOYER_CONFIG, ...config };
+        // La page Configuration sauvegarde les paramètres du deployer (host/port/token/enabled)
+        // dans la clé localStorage partagée 'gitdeploy_config' (via loadAppConfig()), pas dans
+        // une clé séparée : lire depuis la même source, sinon les changements faits sur la page
+        // Configuration ne sont jamais vus par le dashboard principal.
+        const appConfig = loadAppConfig();
+        if (appConfig && appConfig.deployer) {
+            SH_DEPLOYER_CONFIG = { ...SH_DEPLOYER_CONFIG, ...appConfig.deployer };
             console.log("Deployer config loaded");
         }
     } catch (error) {
@@ -1345,7 +1347,9 @@ function loadDeployerConfig() {
 
 function saveDeployerConfig() {
     try {
-        localStorage.setItem(GITDEPLOY_CONFIG.deployerConfigKey, JSON.stringify(SH_DEPLOYER_CONFIG));
+        const appConfig = loadAppConfig();
+        appConfig.deployer = { ...(appConfig.deployer || {}), ...SH_DEPLOYER_CONFIG };
+        localStorage.setItem('gitdeploy_config', JSON.stringify(appConfig));
         console.log("Deployer config saved");
     } catch (error) {
         console.error("Error saving deployer config:", error);
