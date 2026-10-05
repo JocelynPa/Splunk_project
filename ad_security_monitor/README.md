@@ -9,6 +9,7 @@ gives one central place to see everything that happens to (and with) the
 | **AD Accounts Overview** | How many accounts are enabled / disabled / locked / expired, how many have **password never expires**, stale accounts, privileged accounts, risky flags (PASSWD_NOTREQD, AS-REP roastable, unconstrained delegation), `krbtgt` password age, computers by OS. Built on the lookups of the *Microsoft Windows Active Directory Objects* app. |
 | **Break-Glass Account (secadm)** | Account state (enabled, password age, never-expires, privileged), **password changes/resets**, attribute changes, enable/disable, lockouts, group membership changes, **who** did it, **from where**, **when**, every logon (type, source IP/host, DC), failed attempts, actions performed *by* the account, off-hours use, source hosts never seen before. |
 | **AD Replication & Sync Health** | Per-link replication state (last success, lag, consecutive failures), KCC / lingering object / tombstone / USN rollback / DNS / DFSR events, 4932/4933 sync audit, Kerberos clock-skew (time sync). |
+| **AD Health & Performance** | Per-DC data freshness, problem events in `MSAD:NT6:Health`, `MSAD:NT6:Netlogon` and `MSAD:NT6:DNS-Health` (keyword-based, macro `adx_problem_terms`), Perfmon counters for NTDS (LDAP searches, pending replication ops, DS threads), CPU, DNS, plus a Perfmon explorer for any counter. Uses `idx_msad_win` / `idx_perfmon_win` (macros `adx_msad_index`, `adx_perfmon_index`). |
 | **AD Account Activity & Threat Detection** | Account creation/deletion/disable, admin password resets, lockouts, privileged group changes, audit log cleared / audit policy changed, DSRM and SID History, password spray, Kerberoasting, DCSync. |
 
 Disabled-by-default alerts (saved searches) cover break-glass logon,
@@ -20,7 +21,7 @@ a daily KPI snapshot for the trend panel.
 
 1. **Windows Security event logs from the domain controllers** (via
    Splunk_TA_windows + Universal Forwarder) in the index set in the
-   `adx_index` macro (default `wineventlog`). Required audit policies:
+   `adx_index` macro (default `idx_eventlog_win`). Required audit policies:
    *Account Management* (4720-4726, 4738, 4740, 4767, 4781, 4794, group
    events 4728/4729/4732/4733/4756/4757), *Logon* (4624/4625/4648/4672),
    *Kerberos Authentication Service* + *Kerberos Service Ticket Operations*
@@ -32,17 +33,15 @@ a daily KPI snapshot for the trend panel.
    (`WinEventLog:Directory Service`, `WinEventLog:DFS Replication`).
 3. **Microsoft Windows Active Directory Objects lookups** for user and
    computer objects (overview dashboard + the break-glass state table).
-4. *(Optional)* the replication-status scripted input in
-   [`deploy_to_domain_controllers/TA_adx_replication`](../deploy_to_domain_controllers/TA_adx_replication)
-   (see below) for the per-link replication table.
+4. `MSAD:NT6:Replication`, `MSAD:NT6:Health`, `MSAD:NT6:Netlogon`, `MSAD:NT6:DNS-Health` in `idx_msad_win` and Perfmon data in `idx_perfmon_win` (all from the AD Objects app / Windows TA).
 
 ## Configuration (one place: `default/macros.conf`, or Settings > Advanced search > Search macros)
 
 | Macro | Purpose | Default |
 |---|---|---|
-| `adx_index` | Index of the Windows event logs | `index=wineventlog` |
-| `adx_users_lookup` / `adx_computers_lookup` | Lookup names from the AD Objects app | `ms_ad_obj_user_lookup` / `ms_ad_obj_computer_lookup` |
-| `adx_repl_data` | Replication scripted-input data | `adx:replication` in `adx_index` |
+| `adx_index` | Index of the Windows event logs | `index=idx_eventlog_win` |
+| `adx_users_lookup` / `adx_computers_lookup` | Lookup names from the AD Objects app | `AD_Obj_User_LDAP_list_kv` / `AD_Obj_Computer_LDAP_list_kv` |
+| `adx_repl_data` | Replication events | `MSAD:NT6:Replication` in `idx_msad_win` |
 | `adx_stale_days`, `adx_max_pwd_age_days`, `adx_krbtgt_max_age_days`, `adx_spray_threshold` | Thresholds | 90, 90, 180, 10 |
 | `adx_offhours_filter` | What counts as off-hours | before 07:00, from 19:00, weekends |
 | `adx_priv_group_names` | Privileged groups (EN + FR names) | Domain Admins, Admins du domaine, ... |
@@ -67,14 +66,6 @@ default). Add rows to monitor more than one account; all break-glass panels
 and alerts follow the file. An account is matched both when it is the
 **target** of an event (someone changes/uses it) and when it is the **actor**
 (it is used to change other things).
-
-### Replication scripted input
-
-Copy `TA_adx_replication` to **one** domain controller (or an admin host with
-RSAT) running a Universal Forwarder, set `disabled = 0` in
-`default/inputs.conf`, and adjust `index` if needed. It queries every DC with
-`Get-ADReplicationPartnerMetadata` every 10 minutes and emits one line per
-inbound link. A copy of `props.conf` is also provided for the indexers.
 
 ## Notes and limits
 

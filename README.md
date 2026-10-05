@@ -40,9 +40,7 @@ stale, expired, privileged) built on the Microsoft Windows Active
 Directory Objects lookups, AD replication health, and account-activity /
 attack-technique detections. See
 [`ad_security_monitor/README.md`](ad_security_monitor/README.md) for
-details, prerequisites and install steps. The optional replication
-scripted input lives in
-[`deploy_to_domain_controllers/TA_adx_replication`](deploy_to_domain_controllers/TA_adx_replication).
+details, prerequisites and install steps.
 
 ## GitDeploy_for_Splunk
 
