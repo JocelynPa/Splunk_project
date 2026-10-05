@@ -20,7 +20,7 @@ a daily KPI snapshot for the trend panel.
 
 1. **Windows Security event logs from the domain controllers** (via
    Splunk_TA_windows + Universal Forwarder) in the index set in the
-   `adx_index` macro (default `wineventlog`). Required audit policies:
+   `adx_index` macro (default `idx_eventlog_win`). Required audit policies:
    *Account Management* (4720-4726, 4738, 4740, 4767, 4781, 4794, group
    events 4728/4729/4732/4733/4756/4757), *Logon* (4624/4625/4648/4672),
    *Kerberos Authentication Service* + *Kerberos Service Ticket Operations*
@@ -40,9 +40,9 @@ a daily KPI snapshot for the trend panel.
 
 | Macro | Purpose | Default |
 |---|---|---|
-| `adx_index` | Index of the Windows event logs | `index=wineventlog` |
-| `adx_users_lookup` / `adx_computers_lookup` | Lookup names from the AD Objects app | `ms_ad_obj_user_lookup` / `ms_ad_obj_computer_lookup` |
-| `adx_repl_data` | Replication scripted-input data | `adx:replication` in `adx_index` |
+| `adx_index` | Index of the Windows event logs | `index=idx_eventlog_win` |
+| `adx_users_lookup` / `adx_computers_lookup` | Lookup names from the AD Objects app | `AD_Obj_User_LDAP_list_kv` / `AD_Obj_Computer_LDAP_list_kv` |
+| `adx_repl_data` | Replication scripted-input data | `adx:replication` in `idx_msad_win` |
 | `adx_stale_days`, `adx_max_pwd_age_days`, `adx_krbtgt_max_age_days`, `adx_spray_threshold` | Thresholds | 90, 90, 180, 10 |
 | `adx_offhours_filter` | What counts as off-hours | before 07:00, from 19:00, weekends |
 | `adx_priv_group_names` | Privileged groups (EN + FR names) | Domain Admins, Admins du domaine, ... |
