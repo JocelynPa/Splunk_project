@@ -40,7 +40,7 @@ a daily KPI snapshot for the trend panel.
 | Macro | Purpose | Default |
 |---|---|---|
 | `adx_index` | Index of the Windows event logs | `index=idx_eventlog_win` |
-| `adx_users_lookup` / `adx_computers_lookup` | Lookup names from the AD Objects app | `AD_Obj_User_LDAP_list_kv` / `AD_Obj_Computer_LDAP_list_kv` |
+| `adx_users_lookup` / `adx_computers_lookup` | Lookup names from the AD Objects app | `AD_Obj_User` / `AD_Obj_Computer` (lookup definitions; group lookup `AD_Obj_Group` in `adx_groups_lookup`) |
 | `adx_repl_data` | Replication events | `MSAD:NT6:Replication` in `idx_msad_win` |
 | `adx_stale_days`, `adx_max_pwd_age_days`, `adx_krbtgt_max_age_days`, `adx_spray_threshold` | Thresholds | 90, 90, 180, 10 |
 | `adx_offhours_filter` | What counts as off-hours | before 07:00, from 19:00, weekends |
