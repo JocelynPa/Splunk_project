@@ -1,329 +1,779 @@
-<form version="1.1">
+<dashboard version="2" theme="dark">
   <label>Break-Glass Account (secadm)</label>
   <description>Centralised view of every change made to, and every use of, the break-glass account(s) listed in adx_breakglass_accounts.csv, built from Windows Security events collected on the domain controllers (4624/4625, 4723/4724, 4738, 4722/4725, 4740/4767, 4728/4732/4756, 5136, 4672, 4648, 4768/4769/4771). Any non-zero red tile is an event worth correlating with an incident ticket.</description>
-  <fieldset submitButton="false" autoRun="true">
-    <input type="time" token="time">
-      <label>Time range</label>
-      <default>
-        <earliest>-7d@h</earliest>
-        <latest>now</latest>
-      </default>
-    </input>
-  </fieldset>
-
-  <row>
-    <panel>
-      <title>Break-glass account state (from AD lookup)</title>
-      <html><p>Break-glass accounts are listed in lookups/adx_breakglass_accounts.csv. Normal state: ENABLED/DISABLED according to your policy, password rotated after each use, never used outside an incident. lastLogonTimestamp is replicated only every ~9-14 days: use the event panels below for real-time usage.</p></html>
-      <table>
-        <search>
-          <query>| `adx_users` | lookup adx_breakglass_accounts account AS sam OUTPUT label | where isnotnull(label) | eval status=if(is_disabled=1,"DISABLED","ENABLED"), locked=if(is_locked=1,"LOCKED","no"), never_expires=if(pwd_never_expires=1,"YES","no"), pwd_last_set=strftime(pwd_last_set,"%Y-%m-%d %H:%M"), last_logon_replicated=strftime(last_logon,"%Y-%m-%d %H:%M"), privileged=if(is_privileged=1,"YES","no") | table sam status locked pwd_last_set pwd_age_days never_expires last_logon_replicated privileged priv_groups</query>
-          <earliest>-5m</earliest>
-          <latest>now</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">5</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-        <format type="color" field="status">
-          <colorPalette type="map">{"DISABLED":#65A637,"ENABLED":#F8BE34}</colorPalette>
-        </format>
-        <format type="color" field="locked">
-          <colorPalette type="map">{"LOCKED":#B0413E}</colorPalette>
-        </format>
-      </table>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>Successful logons</title>
-      <single>
-        <search>
-          <query>`adx_breakglass_events` | search event_id=4624 tgt_bg=* | stats count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="height">100</option>
-        <option name="colorMode">block</option>
-        <option name="useColors">1</option>
-        <option name="rangeValues">[1]</option>
-        <option name="rangeColors">["#5385ce","#B0413E"]</option>
-      </single>
-    </panel>
-    <panel>
-      <title>Failed logons</title>
-      <single>
-        <search>
-          <query>`adx_breakglass_events` | search (event_id=4625 OR event_id=4771) tgt_bg=* | stats count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="height">100</option>
-        <option name="colorMode">block</option>
-        <option name="useColors">1</option>
-        <option name="rangeValues">[1]</option>
-        <option name="rangeColors">["#65A637","#B0413E"]</option>
-      </single>
-    </panel>
-    <panel>
-      <title>Password changes / resets</title>
-      <single>
-        <search>
-          <query>`adx_breakglass_events` | search (event_id=4723 OR event_id=4724 OR event_id=4794) tgt_bg=* | stats count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="height">100</option>
-        <option name="colorMode">block</option>
-        <option name="useColors">1</option>
-        <option name="rangeValues">[1]</option>
-        <option name="rangeColors">["#65A637","#B0413E"]</option>
-      </single>
-    </panel>
-    <panel>
-      <title>Account modifications</title>
-      <single>
-        <search>
-          <query>`adx_breakglass_events` | search (event_id=4738 OR event_id=4722 OR event_id=4725 OR event_id=4726 OR event_id=4781 OR event_id=4767 OR event_id=4740 OR event_id=5136) tgt_bg=* | stats count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="height">100</option>
-        <option name="colorMode">block</option>
-        <option name="useColors">1</option>
-        <option name="rangeValues">[1]</option>
-        <option name="rangeColors">["#65A637","#B0413E"]</option>
-      </single>
-    </panel>
-    <panel>
-      <title>Group membership changes</title>
-      <single>
-        <search>
-          <query>`adx_breakglass_events` | search is_group_event=1 tgt_bg=* | stats count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="height">100</option>
-        <option name="colorMode">block</option>
-        <option name="useColors">1</option>
-        <option name="rangeValues">[1]</option>
-        <option name="rangeColors">["#65A637","#B0413E"]</option>
-      </single>
-    </panel>
-    <panel>
-      <title>Actions performed BY the account</title>
-      <single>
-        <search>
-          <query>`adx_breakglass_events` | search act_bg=* (category="Account Management" OR category="Group Management" OR category="Directory Service Changes") | stats count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="height">100</option>
-        <option name="colorMode">block</option>
-        <option name="useColors">1</option>
-        <option name="rangeValues">[1]</option>
-        <option name="rangeColors">["#65A637","#B0413E"]</option>
-      </single>
-    </panel>
-    <panel>
-      <title>Off-hours logons</title>
-      <single>
-        <search>
-          <query>`adx_breakglass_events` | search event_id=4624 tgt_bg=* | `adx_offhours_filter` | stats count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="height">100</option>
-        <option name="colorMode">block</option>
-        <option name="useColors">1</option>
-        <option name="rangeValues">[1]</option>
-        <option name="rangeColors">["#65A637","#B0413E"]</option>
-      </single>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>Break-glass activity over time (by action)</title>
-      <chart>
-        <search>
-          <query>`adx_breakglass_events` | timechart count by action</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="charting.chart">column</option>
-        <option name="charting.chart.stackMode">stacked</option>
-        <option name="charting.legend.placement">bottom</option>
-        <option name="charting.drilldown">none</option>
-        <option name="height">280</option>
-      </chart>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>Change log: who changed the account, when, from where</title>
-      <table>
-        <search>
-          <query>`adx_breakglass_events` | search tgt_bg=* (category="Account Management" OR category="Group Management" OR category="Directory Service Changes") | eval changed_by=actor_user, group=group_name, object_attribute=if(event_id="5136", AttributeLDAPDisplayName." = ".coalesce(AttributeValue,""), null()) | sort - _time | table _time action target_user changed_by group object_attribute src_host src_ip dc event_id</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">10</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-        <format type="color" field="action">
-          <colorPalette type="map">{"Password reset (by admin)":#B0413E,"Password change attempt (self)":#F8BE34}</colorPalette>
-        </format>
-      </table>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>Account usage: logons</title>
-      <table>
-        <search>
-          <query>`adx_breakglass_events` | search event_id=4624 tgt_bg=* | lookup adx_logon_types logon_type OUTPUT logon_type_label | eval auth_package=coalesce(AuthenticationPackageName, Authentication_Package), process=coalesce(LogonProcessName, Logon_Process) | sort - _time | table _time target_user logon_type_label src_ip src_host dc auth_package process</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">10</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-      </table>
-    </panel>
-    <panel>
-      <title>Failed attempts</title>
-      <table>
-        <search>
-          <query>`adx_breakglass_events` | search (event_id=4625 OR event_id=4771) tgt_bg=* | eval code=coalesce(Sub_Status, SubStatus, Failure_Code, Status) | lookup adx_failure_codes code OUTPUT reason | sort - _time | table _time action target_user reason code src_ip src_host dc</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">10</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-      </table>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>Actions performed BY the break-glass account</title>
-      <table>
-        <search>
-          <query>`adx_breakglass_events` | search act_bg=* (category="Account Management" OR category="Group Management" OR category="Directory Service Changes") | eval affected_object=coalesce(group_name." &lt;- ".target_user, target_user) | sort - _time | table _time action actor_user affected_object src_host src_ip dc</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">10</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-      </table>
-    </panel>
-    <panel>
-      <title>Privileged sessions and explicit-credential use</title>
-      <table>
-        <search>
-          <query>`adx_breakglass_events` | search (event_id=4672 OR event_id=4648) | eval privileges=coalesce(PrivilegeList, Privileges) | sort - _time | table _time action target_user actor_user src_host dc privileges</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">10</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-      </table>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>Usage by source host / IP</title>
-      <chart>
-        <search>
-          <query>`adx_breakglass_events` | search event_id=4624 tgt_bg=* | eval source=coalesce(src_host, src_ip, "local / unknown") | stats count by source | sort - count | head 15</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="charting.chart">bar</option>
-        <option name="charting.legend.placement">none</option>
-        <option name="charting.drilldown">none</option>
-        <option name="height">300</option>
-      </chart>
-    </panel>
-    <panel>
-      <title>Who changes the account (actors)</title>
-      <chart>
-        <search>
-          <query>`adx_breakglass_events` | search tgt_bg=* (category="Account Management" OR category="Group Management") | stats count by actor_user | sort - count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="charting.chart">pie</option>
-        <option name="charting.legend.placement">bottom</option>
-        <option name="charting.drilldown">none</option>
-        <option name="height">300</option>
-      </chart>
-    </panel>
-    <panel>
-      <title>Logons by hour of day</title>
-      <chart>
-        <search>
-          <query>`adx_breakglass_events` | search event_id=4624 tgt_bg=* | eval hour=strftime(_time,"%H") | stats count by hour | sort hour</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="charting.chart">column</option>
-        <option name="charting.legend.placement">none</option>
-        <option name="charting.drilldown">none</option>
-        <option name="height">300</option>
-      </chart>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>Source hosts seen for the first time (last 7 days vs 90-day baseline)</title>
-      <html><p>Fixed 90-day lookback, independent of the time picker.</p></html>
-      <table>
-        <search>
-          <query>`adx_breakglass_events` | search event_id=4624 tgt_bg=* | eval source=coalesce(src_host, src_ip, "local / unknown") | stats min(_time) as first_seen, max(_time) as last_seen, count by source | where first_seen&gt;relative_time(now(),"-7d") | eval first_seen=strftime(first_seen,"%Y-%m-%d %H:%M"), last_seen=strftime(last_seen,"%Y-%m-%d %H:%M")</query>
-          <earliest>-90d@d</earliest>
-          <latest>now</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">8</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-      </table>
-    </panel>
-    <panel>
-      <title>Break-glass accounts configuration (lookup)</title>
-      <table>
-        <search>
-          <query>| inputlookup adx_breakglass_accounts.csv</query>
-          <earliest>-5m</earliest>
-          <latest>now</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">5</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-      </table>
-    </panel>
-  </row>
-</form>
+  <definition><![CDATA[
+{
+  "title": "Break-Glass Account (secadm)",
+  "description": "Centralised view of every change made to, and every use of, the break-glass account(s) listed in adx_breakglass_accounts.csv, built from Windows Security events collected on the domain controllers (4624/4625, 4723/4724, 4738, 4722/4725, 4740/4767, 4728/4732/4756, 5136, 4672, 4648, 4768/4769/4771). Any non-zero red tile is an event worth correlating with an incident ticket.",
+  "inputs": {
+    "input_global_trp": {
+      "type": "input.timerange",
+      "title": "Time range",
+      "options": {
+        "token": "global_time",
+        "defaultValue": "-7d@h,now"
+      }
+    }
+  },
+  "defaults": {},
+  "visualizations": {
+    "viz_1": {
+      "type": "splunk.table",
+      "title": "Break-glass account state (from AD lookup)",
+      "dataSources": {
+        "primary": "ds_1"
+      },
+      "options": {
+        "count": 5,
+        "wrap": true,
+        "columnFormat": {
+          "status": {
+            "rowBackgroundColors": "> table | seriesByName(\"status\") | matchValue(statusColorConfig)"
+          },
+          "locked": {
+            "rowBackgroundColors": "> table | seriesByName(\"locked\") | matchValue(lockedColorConfig)"
+          }
+        }
+      },
+      "description": "Break-glass accounts are listed in lookups/adx_breakglass_accounts.csv. Normal state: ENABLED/DISABLED according to your policy, password rotated after each use, never used outside an incident. lastLogonTimestamp is replicated only every ~9-14 days: use the event panels below for real-time usage.",
+      "context": {
+        "statusColorConfig": [
+          {
+            "match": "DISABLED",
+            "value": "#65A637"
+          },
+          {
+            "match": "ENABLED",
+            "value": "#F8BE34"
+          }
+        ],
+        "lockedColorConfig": [
+          {
+            "match": "LOCKED",
+            "value": "#B0413E"
+          }
+        ]
+      }
+    },
+    "viz_2": {
+      "type": "splunk.singlevalue",
+      "title": "Successful logons",
+      "dataSources": {
+        "primary": "ds_2"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#5385ce",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_3": {
+      "type": "splunk.singlevalue",
+      "title": "Failed logons",
+      "dataSources": {
+        "primary": "ds_3"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_4": {
+      "type": "splunk.singlevalue",
+      "title": "Password changes / resets",
+      "dataSources": {
+        "primary": "ds_4"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_5": {
+      "type": "splunk.singlevalue",
+      "title": "Account modifications",
+      "dataSources": {
+        "primary": "ds_5"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_6": {
+      "type": "splunk.singlevalue",
+      "title": "Group membership changes",
+      "dataSources": {
+        "primary": "ds_6"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_7": {
+      "type": "splunk.singlevalue",
+      "title": "Actions performed BY the account",
+      "dataSources": {
+        "primary": "ds_7"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_8": {
+      "type": "splunk.singlevalue",
+      "title": "Off-hours logons",
+      "dataSources": {
+        "primary": "ds_8"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_9": {
+      "type": "splunk.column",
+      "title": "Break-glass activity over time (by action)",
+      "dataSources": {
+        "primary": "ds_9"
+      },
+      "options": {
+        "legendDisplay": "bottom",
+        "stackMode": "stacked"
+      }
+    },
+    "viz_10": {
+      "type": "splunk.table",
+      "title": "Change log: who changed the account, when, from where",
+      "dataSources": {
+        "primary": "ds_10"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true,
+        "columnFormat": {
+          "action": {
+            "rowBackgroundColors": "> table | seriesByName(\"action\") | matchValue(actionColorConfig)"
+          }
+        }
+      },
+      "context": {
+        "actionColorConfig": [
+          {
+            "match": "Password reset (by admin)",
+            "value": "#B0413E"
+          },
+          {
+            "match": "Password change attempt (self)",
+            "value": "#F8BE34"
+          }
+        ]
+      }
+    },
+    "viz_11": {
+      "type": "splunk.table",
+      "title": "Account usage: logons",
+      "dataSources": {
+        "primary": "ds_11"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true
+      }
+    },
+    "viz_12": {
+      "type": "splunk.table",
+      "title": "Failed attempts",
+      "dataSources": {
+        "primary": "ds_12"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true
+      }
+    },
+    "viz_13": {
+      "type": "splunk.table",
+      "title": "Actions performed BY the break-glass account",
+      "dataSources": {
+        "primary": "ds_13"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true
+      }
+    },
+    "viz_14": {
+      "type": "splunk.table",
+      "title": "Privileged sessions and explicit-credential use",
+      "dataSources": {
+        "primary": "ds_14"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true
+      }
+    },
+    "viz_15": {
+      "type": "splunk.bar",
+      "title": "Usage by source host / IP",
+      "dataSources": {
+        "primary": "ds_15"
+      },
+      "options": {
+        "legendDisplay": "off"
+      }
+    },
+    "viz_16": {
+      "type": "splunk.pie",
+      "title": "Who changes the account (actors)",
+      "dataSources": {
+        "primary": "ds_16"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_17": {
+      "type": "splunk.column",
+      "title": "Logons by hour of day",
+      "dataSources": {
+        "primary": "ds_17"
+      },
+      "options": {
+        "legendDisplay": "off"
+      }
+    },
+    "viz_18": {
+      "type": "splunk.table",
+      "title": "Source hosts seen for the first time (last 7 days vs 90-day baseline)",
+      "dataSources": {
+        "primary": "ds_18"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      },
+      "description": "Fixed 90-day lookback, independent of the time picker."
+    },
+    "viz_19": {
+      "type": "splunk.table",
+      "title": "Break-glass accounts configuration (lookup)",
+      "dataSources": {
+        "primary": "ds_19"
+      },
+      "options": {
+        "count": 5,
+        "wrap": true
+      }
+    }
+  },
+  "dataSources": {
+    "ds_1": {
+      "type": "ds.search",
+      "name": "Break-glass account state (from AD lookup)",
+      "options": {
+        "query": "| `adx_users` | lookup adx_breakglass_accounts account AS sam OUTPUT label | where isnotnull(label) | eval status=if(is_disabled=1,\"DISABLED\",\"ENABLED\"), locked=if(is_locked=1,\"LOCKED\",\"no\"), never_expires=if(pwd_never_expires=1,\"YES\",\"no\"), pwd_last_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), last_logon_replicated=strftime(last_logon,\"%Y-%m-%d %H:%M\"), privileged=if(is_privileged=1,\"YES\",\"no\") | table sam status locked pwd_last_set pwd_age_days never_expires last_logon_replicated privileged priv_groups",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_2": {
+      "type": "ds.search",
+      "name": "Successful logons",
+      "options": {
+        "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_3": {
+      "type": "ds.search",
+      "name": "Failed logons",
+      "options": {
+        "query": "`adx_breakglass_events` | search (event_id=4625 OR event_id=4771) tgt_bg=* | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_4": {
+      "type": "ds.search",
+      "name": "Password changes / resets",
+      "options": {
+        "query": "`adx_breakglass_events` | search (event_id=4723 OR event_id=4724 OR event_id=4794) tgt_bg=* | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_5": {
+      "type": "ds.search",
+      "name": "Account modifications",
+      "options": {
+        "query": "`adx_breakglass_events` | search (event_id=4738 OR event_id=4722 OR event_id=4725 OR event_id=4726 OR event_id=4781 OR event_id=4767 OR event_id=4740 OR event_id=5136) tgt_bg=* | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_6": {
+      "type": "ds.search",
+      "name": "Group membership changes",
+      "options": {
+        "query": "`adx_breakglass_events` | search is_group_event=1 tgt_bg=* | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_7": {
+      "type": "ds.search",
+      "name": "Actions performed BY the account",
+      "options": {
+        "query": "`adx_breakglass_events` | search act_bg=* (category=\"Account Management\" OR category=\"Group Management\" OR category=\"Directory Service Changes\") | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_8": {
+      "type": "ds.search",
+      "name": "Off-hours logons",
+      "options": {
+        "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | `adx_offhours_filter` | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_9": {
+      "type": "ds.search",
+      "name": "Break-glass activity over time (by action)",
+      "options": {
+        "query": "`adx_breakglass_events` | timechart count by action",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_10": {
+      "type": "ds.search",
+      "name": "Change log: who changed the account, when, from where",
+      "options": {
+        "query": "`adx_breakglass_events` | search tgt_bg=* (category=\"Account Management\" OR category=\"Group Management\" OR category=\"Directory Service Changes\") | eval changed_by=actor_user, group=group_name, object_attribute=if(event_id=\"5136\", AttributeLDAPDisplayName.\" = \".coalesce(AttributeValue,\"\"), null()) | sort - _time | table _time action target_user changed_by group object_attribute src_host src_ip dc event_id",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_11": {
+      "type": "ds.search",
+      "name": "Account usage: logons",
+      "options": {
+        "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | lookup adx_logon_types logon_type OUTPUT logon_type_label | eval auth_package=coalesce(AuthenticationPackageName, Authentication_Package), process=coalesce(LogonProcessName, Logon_Process) | sort - _time | table _time target_user logon_type_label src_ip src_host dc auth_package process",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_12": {
+      "type": "ds.search",
+      "name": "Failed attempts",
+      "options": {
+        "query": "`adx_breakglass_events` | search (event_id=4625 OR event_id=4771) tgt_bg=* | eval code=coalesce(Sub_Status, SubStatus, Failure_Code, Status) | lookup adx_failure_codes code OUTPUT reason | sort - _time | table _time action target_user reason code src_ip src_host dc",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_13": {
+      "type": "ds.search",
+      "name": "Actions performed BY the break-glass account",
+      "options": {
+        "query": "`adx_breakglass_events` | search act_bg=* (category=\"Account Management\" OR category=\"Group Management\" OR category=\"Directory Service Changes\") | eval affected_object=coalesce(group_name.\" <- \".target_user, target_user) | sort - _time | table _time action actor_user affected_object src_host src_ip dc",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_14": {
+      "type": "ds.search",
+      "name": "Privileged sessions and explicit-credential use",
+      "options": {
+        "query": "`adx_breakglass_events` | search (event_id=4672 OR event_id=4648) | eval privileges=coalesce(PrivilegeList, Privileges) | sort - _time | table _time action target_user actor_user src_host dc privileges",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_15": {
+      "type": "ds.search",
+      "name": "Usage by source host / IP",
+      "options": {
+        "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | eval source=coalesce(src_host, src_ip, \"local / unknown\") | stats count by source | sort - count | head 15",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_16": {
+      "type": "ds.search",
+      "name": "Who changes the account (actors)",
+      "options": {
+        "query": "`adx_breakglass_events` | search tgt_bg=* (category=\"Account Management\" OR category=\"Group Management\") | stats count by actor_user | sort - count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_17": {
+      "type": "ds.search",
+      "name": "Logons by hour of day",
+      "options": {
+        "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | eval hour=strftime(_time,\"%H\") | stats count by hour | sort hour",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_18": {
+      "type": "ds.search",
+      "name": "Source hosts seen for the first time (last 7 days vs 90-day baseline)",
+      "options": {
+        "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | eval source=coalesce(src_host, src_ip, \"local / unknown\") | stats min(_time) as first_seen, max(_time) as last_seen, count by source | where first_seen>relative_time(now(),\"-7d\") | eval first_seen=strftime(first_seen,\"%Y-%m-%d %H:%M\"), last_seen=strftime(last_seen,\"%Y-%m-%d %H:%M\")",
+        "queryParameters": {
+          "earliest": "-90d@d",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_19": {
+      "type": "ds.search",
+      "name": "Break-glass accounts configuration (lookup)",
+      "options": {
+        "query": "| inputlookup adx_breakglass_accounts.csv",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    }
+  },
+  "layout": {
+    "type": "grid",
+    "options": {
+      "width": 1440,
+      "height": 2849,
+      "display": "auto-scale"
+    },
+    "structure": [
+      {
+        "item": "viz_1",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 1440,
+          "h": 285
+        }
+      },
+      {
+        "item": "viz_2",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 285,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_3",
+        "type": "block",
+        "position": {
+          "x": 206,
+          "y": 285,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_4",
+        "type": "block",
+        "position": {
+          "x": 412,
+          "y": 285,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_5",
+        "type": "block",
+        "position": {
+          "x": 618,
+          "y": 285,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_6",
+        "type": "block",
+        "position": {
+          "x": 824,
+          "y": 285,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_7",
+        "type": "block",
+        "position": {
+          "x": 1030,
+          "y": 285,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_8",
+        "type": "block",
+        "position": {
+          "x": 1236,
+          "y": 285,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_9",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 415,
+          "w": 1440,
+          "h": 340
+        }
+      },
+      {
+        "item": "viz_10",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 755,
+          "w": 1440,
+          "h": 450
+        }
+      },
+      {
+        "item": "viz_11",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1205,
+          "w": 720,
+          "h": 450
+        }
+      },
+      {
+        "item": "viz_12",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 1205,
+          "w": 720,
+          "h": 450
+        }
+      },
+      {
+        "item": "viz_13",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1655,
+          "w": 720,
+          "h": 450
+        }
+      },
+      {
+        "item": "viz_14",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 1655,
+          "w": 720,
+          "h": 450
+        }
+      },
+      {
+        "item": "viz_15",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 2105,
+          "w": 480,
+          "h": 360
+        }
+      },
+      {
+        "item": "viz_16",
+        "type": "block",
+        "position": {
+          "x": 480,
+          "y": 2105,
+          "w": 480,
+          "h": 360
+        }
+      },
+      {
+        "item": "viz_17",
+        "type": "block",
+        "position": {
+          "x": 960,
+          "y": 2105,
+          "w": 480,
+          "h": 360
+        }
+      },
+      {
+        "item": "viz_18",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 2465,
+          "w": 720,
+          "h": 384
+        }
+      },
+      {
+        "item": "viz_19",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 2465,
+          "w": 720,
+          "h": 384
+        }
+      }
+    ],
+    "globalInputs": [
+      "input_global_trp"
+    ]
+  }
+}
+  ]]></definition>
+</dashboard>

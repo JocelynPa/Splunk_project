@@ -17,6 +17,8 @@ password change, modification, actions performed by the account,
 privileged group changes, audit log cleared, failing replication links, and
 a daily KPI snapshot for the trend panel.
 
+All dashboards are **Dashboard Studio** (`version="2"`, dark theme, grid layout) and require Splunk Enterprise 8.2+ (9.x recommended). They can be edited in the Dashboard Studio UI after install.
+
 ## Data prerequisites
 
 1. **Windows Security event logs from the domain controllers** (via

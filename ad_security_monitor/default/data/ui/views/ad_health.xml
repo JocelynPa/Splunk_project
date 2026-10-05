@@ -1,301 +1,698 @@
-<form version="1.1">
+<dashboard version="2" theme="dark">
   <label>AD Health &amp; Performance</label>
   <description>Domain controller health and performance: AD health-check, Netlogon and DNS-health events flagging problems, data freshness per DC, and Perfmon counters for NTDS (LDAP, replication queue, threads), CPU, DNS and DFS replicated folders. Problem events are detected by keywords (macro adx_problem_terms) because the free-text health sources have no fixed schema.</description>
-  <fieldset submitButton="false" autoRun="true">
-    <input type="time" token="time">
-      <label>Time range</label>
-      <default>
-        <earliest>-7d@h</earliest>
-        <latest>now</latest>
-      </default>
-    </input>
-    <input type="dropdown" token="pm_st">
-      <label>Perfmon sourcetype</label>
-      <choice value="Perfmon:NTDS">NTDS</choice>
-      <choice value="Perfmon:DNS">DNS</choice>
-      <choice value="Perfmon:DFS_Replicated_Folders">DFS Replicated Folders</choice>
-      <choice value="Perfmon:Network_Interface">Network Interface</choice>
-      <choice value="Perfmon:Processor">Processor</choice>
-      <default>Perfmon:NTDS</default>
-      <change><unset token="form.pm_counter"></unset></change>
-    </input>
-    <input type="dropdown" token="pm_counter" searchWhenChanged="true">
-      <label>Counter</label>
-      <fieldForLabel>counter</fieldForLabel>
-      <fieldForValue>counter</fieldForValue>
-      <search>
-        <query>`adx_perfmon_index` sourcetype="$pm_st$" | stats count by counter | sort counter</query>
-        <earliest>-24h</earliest>
-        <latest>now</latest>
-      </search>
-    </input>
-  </fieldset>
-
-  <row>
-    <panel>
-      <title>DCs sending health data</title>
-      <single>
-        <search>
-          <query>`adx_msad_index` sourcetype="MSAD:NT6:Health" | stats dc(host)</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="height">100</option>
-      </single>
-    </panel>
-    <panel>
-      <title>Health events flagging a problem</title>
-      <single>
-        <search>
-          <query>`adx_msad_index` sourcetype="MSAD:NT6:Health" `adx_problem_terms` | stats count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="height">100</option>
-        <option name="colorMode">block</option>
-        <option name="useColors">1</option>
-        <option name="rangeValues">[1,10]</option>
-        <option name="rangeColors">["#65A637","#FFC300","#B0413E"]</option>
-      </single>
-    </panel>
-    <panel>
-      <title>Netlogon problem events</title>
-      <single>
-        <search>
-          <query>`adx_msad_index` sourcetype="MSAD:NT6:Netlogon" `adx_problem_terms` | stats count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="height">100</option>
-        <option name="colorMode">block</option>
-        <option name="useColors">1</option>
-        <option name="rangeValues">[1,50]</option>
-        <option name="rangeColors">["#65A637","#FFC300","#B0413E"]</option>
-      </single>
-    </panel>
-    <panel>
-      <title>DNS health problem events</title>
-      <single>
-        <search>
-          <query>`adx_msad_index` sourcetype="MSAD:NT6:DNS-Health" `adx_problem_terms` | stats count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="height">100</option>
-        <option name="colorMode">block</option>
-        <option name="useColors">1</option>
-        <option name="rangeValues">[1,10]</option>
-        <option name="rangeColors">["#65A637","#FFC300","#B0413E"]</option>
-      </single>
-    </panel>
-    <panel>
-      <title>Silent sources (no data &gt; 60 min)</title>
-      <single>
-        <search>
-          <query>| multisearch [search `adx_msad_index` (sourcetype="MSAD:NT6:Health" OR sourcetype="MSAD:NT6:Replication" OR sourcetype="MSAD:NT6:Netlogon" OR sourcetype="MSAD:NT6:DNS-Health") | fields host sourcetype _time] [search `adx_perfmon_index` (sourcetype="Perfmon:NTDS" OR sourcetype="Perfmon:Processor") | fields host sourcetype _time] | stats max(_time) as last by host sourcetype | where last&lt;now()-3600 | stats count</query>
-          <earliest>-24h</earliest>
-          <latest>now</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="height">100</option>
-        <option name="colorMode">block</option>
-        <option name="useColors">1</option>
-        <option name="rangeValues">[1]</option>
-        <option name="rangeColors">["#65A637","#B0413E"]</option>
-      </single>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>Data freshness per DC and source (last event seen)</title>
-      <html><p>Minutes since the last event for each DC and each AD data source. Empty cell = that DC never sent that source in the last 24h.</p></html>
-      <table>
-        <search>
-          <query>| multisearch [search `adx_msad_index` (sourcetype="MSAD:NT6:Health" OR sourcetype="MSAD:NT6:Replication" OR sourcetype="MSAD:NT6:Netlogon" OR sourcetype="MSAD:NT6:DNS-Health") | fields host sourcetype _time] [search `adx_perfmon_index` (sourcetype="Perfmon:NTDS" OR sourcetype="Perfmon:Processor" OR sourcetype="Perfmon:DNS" OR sourcetype="Perfmon:DFS_Replicated_Folders") | fields host sourcetype _time] | stats max(_time) as last by host sourcetype | eval minutes_ago=round((now()-last)/60,0), last=strftime(last,"%Y-%m-%d %H:%M"), status=if(minutes_ago&gt;60,"SILENT","OK") | chart latest(minutes_ago) as m over host by sourcetype</query>
-          <earliest>-24h</earliest>
-          <latest>now</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">15</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-      </table>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>AD health check events flagging a problem</title>
-      <table>
-        <search>
-          <query>`adx_msad_index` sourcetype="MSAD:NT6:Health" `adx_problem_terms` | eval message=substr(_raw,1,400) | sort - _time | table _time host sourcetype message</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">10</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-      </table>
-    </panel>
-    <panel>
-      <title>Netlogon problem events</title>
-      <table>
-        <search>
-          <query>`adx_msad_index` sourcetype="MSAD:NT6:Netlogon" `adx_problem_terms` | eval message=substr(_raw,1,400) | sort - _time | table _time host sourcetype message</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">10</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-      </table>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>DNS health problem events</title>
-      <table>
-        <search>
-          <query>`adx_msad_index` sourcetype="MSAD:NT6:DNS-Health" `adx_problem_terms` | eval message=substr(_raw,1,400) | sort - _time | table _time host sourcetype message</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">10</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-      </table>
-    </panel>
-    <panel>
-      <title>Problem events over time by source</title>
-      <chart>
-        <search>
-          <query>`adx_msad_index` (sourcetype="MSAD:NT6:Health" OR sourcetype="MSAD:NT6:Netlogon" OR sourcetype="MSAD:NT6:DNS-Health") `adx_problem_terms` | timechart count by sourcetype</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="charting.chart">column</option>
-        <option name="charting.chart.stackMode">stacked</option>
-        <option name="charting.legend.placement">bottom</option>
-        <option name="charting.drilldown">none</option>
-        <option name="height">300</option>
-      </chart>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>NTDS - LDAP searches/sec</title>
-      <chart>
-        <search>
-          <query>`adx_perfmon_index` sourcetype="Perfmon:NTDS" counter="LDAP Searches/sec" | timechart span=5m avg(Value) by host limit=15</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="charting.chart">line</option>
-        <option name="charting.legend.placement">bottom</option>
-        <option name="charting.drilldown">none</option>
-        <option name="height">260</option>
-      </chart>
-    </panel>
-    <panel>
-      <title>NTDS - pending replication operations</title>
-      <chart>
-        <search>
-          <query>`adx_perfmon_index` sourcetype="Perfmon:NTDS" counter="DRA Pending Replication Operations" | timechart span=5m avg(Value) by host limit=15</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="charting.chart">line</option>
-        <option name="charting.legend.placement">bottom</option>
-        <option name="charting.drilldown">none</option>
-        <option name="height">260</option>
-      </chart>
-    </panel>
-    <panel>
-      <title>NTDS - DS threads in use</title>
-      <chart>
-        <search>
-          <query>`adx_perfmon_index` sourcetype="Perfmon:NTDS" counter="DS Threads in Use" | timechart span=5m avg(Value) by host limit=15</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="charting.chart">line</option>
-        <option name="charting.legend.placement">bottom</option>
-        <option name="charting.drilldown">none</option>
-        <option name="height">260</option>
-      </chart>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>CPU - % Processor Time (_Total)</title>
-      <chart>
-        <search>
-          <query>`adx_perfmon_index` sourcetype="Perfmon:Processor" counter="% Processor Time" instance="_Total" | timechart span=5m avg(Value) by host limit=15</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="charting.chart">line</option>
-        <option name="charting.legend.placement">bottom</option>
-        <option name="charting.drilldown">none</option>
-        <option name="height">260</option>
-      </chart>
-    </panel>
-    <panel>
-      <title>DNS - queries received/sec</title>
-      <chart>
-        <search>
-          <query>`adx_perfmon_index` sourcetype="Perfmon:DNS" counter="Total Query Received/sec" | timechart span=5m avg(Value) by host limit=15</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="charting.chart">line</option>
-        <option name="charting.legend.placement">bottom</option>
-        <option name="charting.drilldown">none</option>
-        <option name="height">260</option>
-      </chart>
-    </panel>
-    <panel>
-      <title>DNS - recursive query failures/sec</title>
-      <chart>
-        <search>
-          <query>`adx_perfmon_index` sourcetype="Perfmon:DNS" counter="Recursive Query Failure/sec" | timechart span=5m avg(Value) by host limit=15</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="charting.chart">line</option>
-        <option name="charting.legend.placement">bottom</option>
-        <option name="charting.drilldown">none</option>
-        <option name="height">260</option>
-      </chart>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>Perfmon explorer: pick any counter</title>
-      <html><p>Choose a Perfmon sourcetype then a counter (NTDS, DNS, DFS Replicated Folders, Network Interface, Processor).</p></html>
-      <chart>
-        <search>
-          <query>`adx_perfmon_index` sourcetype="$pm_st$" counter="$pm_counter$" | eval series=host." ".coalesce(instance,"") | timechart span=5m avg(Value) by series limit=15</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="charting.chart">line</option>
-        <option name="charting.legend.placement">bottom</option>
-        <option name="charting.drilldown">none</option>
-        <option name="height">320</option>
-      </chart>
-    </panel>
-  </row>
-</form>
+  <definition><![CDATA[
+{
+  "title": "AD Health & Performance",
+  "description": "Domain controller health and performance: AD health-check, Netlogon and DNS-health events flagging problems, data freshness per DC, and Perfmon counters for NTDS (LDAP, replication queue, threads), CPU, DNS and DFS replicated folders. Problem events are detected by keywords (macro adx_problem_terms) because the free-text health sources have no fixed schema.",
+  "inputs": {
+    "input_global_trp": {
+      "type": "input.timerange",
+      "title": "Time range",
+      "options": {
+        "token": "global_time",
+        "defaultValue": "-7d@h,now"
+      }
+    },
+    "input_pm_st": {
+      "type": "input.dropdown",
+      "title": "Perfmon sourcetype",
+      "options": {
+        "token": "pm_st",
+        "defaultValue": "Perfmon:NTDS",
+        "items": [
+          {
+            "label": "NTDS",
+            "value": "Perfmon:NTDS"
+          },
+          {
+            "label": "DNS",
+            "value": "Perfmon:DNS"
+          },
+          {
+            "label": "DFS Replicated Folders",
+            "value": "Perfmon:DFS_Replicated_Folders"
+          },
+          {
+            "label": "Network Interface",
+            "value": "Perfmon:Network_Interface"
+          },
+          {
+            "label": "Processor",
+            "value": "Perfmon:Processor"
+          }
+        ]
+      }
+    },
+    "input_pm_counter": {
+      "type": "input.dropdown",
+      "title": "Counter",
+      "options": {
+        "token": "pm_counter",
+        "selectFirstSearchResult": true
+      },
+      "dataSources": {
+        "primary": "ds_counters"
+      }
+    }
+  },
+  "defaults": {},
+  "visualizations": {
+    "viz_1": {
+      "type": "splunk.singlevalue",
+      "title": "DCs sending health data",
+      "dataSources": {
+        "primary": "ds_1"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_2": {
+      "type": "splunk.singlevalue",
+      "title": "Health events flagging a problem",
+      "dataSources": {
+        "primary": "ds_2"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#FFC300",
+            "from": 1,
+            "to": 10
+          },
+          {
+            "value": "#B0413E",
+            "from": 10
+          }
+        ]
+      }
+    },
+    "viz_3": {
+      "type": "splunk.singlevalue",
+      "title": "Netlogon problem events",
+      "dataSources": {
+        "primary": "ds_3"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#FFC300",
+            "from": 1,
+            "to": 50
+          },
+          {
+            "value": "#B0413E",
+            "from": 50
+          }
+        ]
+      }
+    },
+    "viz_4": {
+      "type": "splunk.singlevalue",
+      "title": "DNS health problem events",
+      "dataSources": {
+        "primary": "ds_4"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#FFC300",
+            "from": 1,
+            "to": 10
+          },
+          {
+            "value": "#B0413E",
+            "from": 10
+          }
+        ]
+      }
+    },
+    "viz_5": {
+      "type": "splunk.singlevalue",
+      "title": "Silent sources (no data > 60 min)",
+      "dataSources": {
+        "primary": "ds_5"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_6": {
+      "type": "splunk.table",
+      "title": "Data freshness per DC and source (last event seen)",
+      "dataSources": {
+        "primary": "ds_6"
+      },
+      "options": {
+        "count": 15,
+        "wrap": true
+      },
+      "description": "Minutes since the last event for each DC and each AD data source. Empty cell = that DC never sent that source in the last 24h."
+    },
+    "viz_7": {
+      "type": "splunk.table",
+      "title": "AD health check events flagging a problem",
+      "dataSources": {
+        "primary": "ds_7"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true
+      }
+    },
+    "viz_8": {
+      "type": "splunk.table",
+      "title": "Netlogon problem events",
+      "dataSources": {
+        "primary": "ds_8"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true
+      }
+    },
+    "viz_9": {
+      "type": "splunk.table",
+      "title": "DNS health problem events",
+      "dataSources": {
+        "primary": "ds_9"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true
+      }
+    },
+    "viz_10": {
+      "type": "splunk.column",
+      "title": "Problem events over time by source",
+      "dataSources": {
+        "primary": "ds_10"
+      },
+      "options": {
+        "legendDisplay": "bottom",
+        "stackMode": "stacked"
+      }
+    },
+    "viz_11": {
+      "type": "splunk.line",
+      "title": "NTDS - LDAP searches/sec",
+      "dataSources": {
+        "primary": "ds_11"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_12": {
+      "type": "splunk.line",
+      "title": "NTDS - pending replication operations",
+      "dataSources": {
+        "primary": "ds_12"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_13": {
+      "type": "splunk.line",
+      "title": "NTDS - DS threads in use",
+      "dataSources": {
+        "primary": "ds_13"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_14": {
+      "type": "splunk.line",
+      "title": "CPU - % Processor Time (_Total)",
+      "dataSources": {
+        "primary": "ds_14"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_15": {
+      "type": "splunk.line",
+      "title": "DNS - queries received/sec",
+      "dataSources": {
+        "primary": "ds_15"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_16": {
+      "type": "splunk.line",
+      "title": "DNS - recursive query failures/sec",
+      "dataSources": {
+        "primary": "ds_16"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_17": {
+      "type": "splunk.line",
+      "title": "Perfmon explorer: pick any counter",
+      "dataSources": {
+        "primary": "ds_17"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      },
+      "description": "Choose a Perfmon sourcetype then a counter (NTDS, DNS, DFS Replicated Folders, Network Interface, Processor)."
+    }
+  },
+  "dataSources": {
+    "ds_1": {
+      "type": "ds.search",
+      "name": "DCs sending health data",
+      "options": {
+        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Health\" | stats dc(host)",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_2": {
+      "type": "ds.search",
+      "name": "Health events flagging a problem",
+      "options": {
+        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Health\" `adx_problem_terms` | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_3": {
+      "type": "ds.search",
+      "name": "Netlogon problem events",
+      "options": {
+        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Netlogon\" `adx_problem_terms` | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_4": {
+      "type": "ds.search",
+      "name": "DNS health problem events",
+      "options": {
+        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:DNS-Health\" `adx_problem_terms` | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_5": {
+      "type": "ds.search",
+      "name": "Silent sources (no data > 60 min)",
+      "options": {
+        "query": "| multisearch [search `adx_msad_index` (sourcetype=\"MSAD:NT6:Health\" OR sourcetype=\"MSAD:NT6:Replication\" OR sourcetype=\"MSAD:NT6:Netlogon\" OR sourcetype=\"MSAD:NT6:DNS-Health\") | fields host sourcetype _time] [search `adx_perfmon_index` (sourcetype=\"Perfmon:NTDS\" OR sourcetype=\"Perfmon:Processor\") | fields host sourcetype _time] | stats max(_time) as last by host sourcetype | where last<now()-3600 | stats count",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_6": {
+      "type": "ds.search",
+      "name": "Data freshness per DC and source (last event seen)",
+      "options": {
+        "query": "| multisearch [search `adx_msad_index` (sourcetype=\"MSAD:NT6:Health\" OR sourcetype=\"MSAD:NT6:Replication\" OR sourcetype=\"MSAD:NT6:Netlogon\" OR sourcetype=\"MSAD:NT6:DNS-Health\") | fields host sourcetype _time] [search `adx_perfmon_index` (sourcetype=\"Perfmon:NTDS\" OR sourcetype=\"Perfmon:Processor\" OR sourcetype=\"Perfmon:DNS\" OR sourcetype=\"Perfmon:DFS_Replicated_Folders\") | fields host sourcetype _time] | stats max(_time) as last by host sourcetype | eval minutes_ago=round((now()-last)/60,0), last=strftime(last,\"%Y-%m-%d %H:%M\"), status=if(minutes_ago>60,\"SILENT\",\"OK\") | chart latest(minutes_ago) as m over host by sourcetype",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_7": {
+      "type": "ds.search",
+      "name": "AD health check events flagging a problem",
+      "options": {
+        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Health\" `adx_problem_terms` | eval message=substr(_raw,1,400) | sort - _time | table _time host sourcetype message",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_8": {
+      "type": "ds.search",
+      "name": "Netlogon problem events",
+      "options": {
+        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Netlogon\" `adx_problem_terms` | eval message=substr(_raw,1,400) | sort - _time | table _time host sourcetype message",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_9": {
+      "type": "ds.search",
+      "name": "DNS health problem events",
+      "options": {
+        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:DNS-Health\" `adx_problem_terms` | eval message=substr(_raw,1,400) | sort - _time | table _time host sourcetype message",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_10": {
+      "type": "ds.search",
+      "name": "Problem events over time by source",
+      "options": {
+        "query": "`adx_msad_index` (sourcetype=\"MSAD:NT6:Health\" OR sourcetype=\"MSAD:NT6:Netlogon\" OR sourcetype=\"MSAD:NT6:DNS-Health\") `adx_problem_terms` | timechart count by sourcetype",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_11": {
+      "type": "ds.search",
+      "name": "NTDS - LDAP searches/sec",
+      "options": {
+        "query": "`adx_perfmon_index` sourcetype=\"Perfmon:NTDS\" counter=\"LDAP Searches/sec\" | timechart span=5m avg(Value) by host limit=15",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_12": {
+      "type": "ds.search",
+      "name": "NTDS - pending replication operations",
+      "options": {
+        "query": "`adx_perfmon_index` sourcetype=\"Perfmon:NTDS\" counter=\"DRA Pending Replication Operations\" | timechart span=5m avg(Value) by host limit=15",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_13": {
+      "type": "ds.search",
+      "name": "NTDS - DS threads in use",
+      "options": {
+        "query": "`adx_perfmon_index` sourcetype=\"Perfmon:NTDS\" counter=\"DS Threads in Use\" | timechart span=5m avg(Value) by host limit=15",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_14": {
+      "type": "ds.search",
+      "name": "CPU - % Processor Time (_Total)",
+      "options": {
+        "query": "`adx_perfmon_index` sourcetype=\"Perfmon:Processor\" counter=\"% Processor Time\" instance=\"_Total\" | timechart span=5m avg(Value) by host limit=15",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_15": {
+      "type": "ds.search",
+      "name": "DNS - queries received/sec",
+      "options": {
+        "query": "`adx_perfmon_index` sourcetype=\"Perfmon:DNS\" counter=\"Total Query Received/sec\" | timechart span=5m avg(Value) by host limit=15",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_16": {
+      "type": "ds.search",
+      "name": "DNS - recursive query failures/sec",
+      "options": {
+        "query": "`adx_perfmon_index` sourcetype=\"Perfmon:DNS\" counter=\"Recursive Query Failure/sec\" | timechart span=5m avg(Value) by host limit=15",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_17": {
+      "type": "ds.search",
+      "name": "Perfmon explorer: pick any counter",
+      "options": {
+        "query": "`adx_perfmon_index` sourcetype=\"$pm_st$\" counter=\"$pm_counter$\" | eval series=host.\" \".coalesce(instance,\"\") | timechart span=5m avg(Value) by series limit=15",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_counters": {
+      "type": "ds.search",
+      "name": "Perfmon counters",
+      "options": {
+        "query": "`adx_perfmon_index` sourcetype=\"$pm_st$\" | stats count by counter | eval label=counter, value=counter | sort label | fields label value",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    }
+  },
+  "layout": {
+    "type": "grid",
+    "options": {
+      "width": 1440,
+      "height": 2566,
+      "display": "auto-scale"
+    },
+    "structure": [
+      {
+        "item": "viz_1",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 288,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_2",
+        "type": "block",
+        "position": {
+          "x": 288,
+          "y": 0,
+          "w": 288,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_3",
+        "type": "block",
+        "position": {
+          "x": 576,
+          "y": 0,
+          "w": 288,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_4",
+        "type": "block",
+        "position": {
+          "x": 864,
+          "y": 0,
+          "w": 288,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_5",
+        "type": "block",
+        "position": {
+          "x": 1152,
+          "y": 0,
+          "w": 288,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_6",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 130,
+          "w": 1440,
+          "h": 516
+        }
+      },
+      {
+        "item": "viz_7",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 646,
+          "w": 720,
+          "h": 450
+        }
+      },
+      {
+        "item": "viz_8",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 646,
+          "w": 720,
+          "h": 450
+        }
+      },
+      {
+        "item": "viz_9",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1096,
+          "w": 720,
+          "h": 450
+        }
+      },
+      {
+        "item": "viz_10",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 1096,
+          "w": 720,
+          "h": 450
+        }
+      },
+      {
+        "item": "viz_11",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1546,
+          "w": 480,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_12",
+        "type": "block",
+        "position": {
+          "x": 480,
+          "y": 1546,
+          "w": 480,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_13",
+        "type": "block",
+        "position": {
+          "x": 960,
+          "y": 1546,
+          "w": 480,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_14",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1866,
+          "w": 480,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_15",
+        "type": "block",
+        "position": {
+          "x": 480,
+          "y": 1866,
+          "w": 480,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_16",
+        "type": "block",
+        "position": {
+          "x": 960,
+          "y": 1866,
+          "w": 480,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_17",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 2186,
+          "w": 1440,
+          "h": 380
+        }
+      }
+    ],
+    "globalInputs": [
+      "input_global_trp",
+      "input_pm_st",
+      "input_pm_counter"
+    ]
+  }
+}
+  ]]></definition>
+</dashboard>

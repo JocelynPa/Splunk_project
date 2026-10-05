@@ -1,283 +1,661 @@
-<form version="1.1">
+<dashboard version="2" theme="dark">
   <label>AD Account Activity &amp; Threat Detection</label>
   <description>Day-to-day Active Directory administration activity (account creation/deletion/disable, password resets, lockouts, privileged group changes) and detections of common attack techniques: password spray, Kerberoasting, DCSync, audit log clearing, audit policy tampering, DSRM and SID History changes. Based on Windows Security events from the domain controllers.</description>
-  <fieldset submitButton="false" autoRun="true">
-    <input type="time" token="time">
-      <label>Time range</label>
-      <default>
-        <earliest>-7d@h</earliest>
-        <latest>now</latest>
-      </default>
-    </input>
-  </fieldset>
-
-  <row>
-    <panel>
-      <title>Accounts created</title>
-      <single>
-        <search>
-          <query>`adx_security_events` EventCode IN (4720) | stats count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="height">100</option>
-      </single>
-    </panel>
-    <panel>
-      <title>Accounts deleted</title>
-      <single>
-        <search>
-          <query>`adx_security_events` EventCode IN (4726) | stats count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="height">100</option>
-      </single>
-    </panel>
-    <panel>
-      <title>Accounts disabled</title>
-      <single>
-        <search>
-          <query>`adx_security_events` EventCode IN (4725) | stats count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="height">100</option>
-      </single>
-    </panel>
-    <panel>
-      <title>Accounts enabled</title>
-      <single>
-        <search>
-          <query>`adx_security_events` EventCode IN (4722) | stats count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="height">100</option>
-      </single>
-    </panel>
-    <panel>
-      <title>Password resets by admins</title>
-      <single>
-        <search>
-          <query>`adx_security_events` EventCode IN (4724) | stats count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="height">100</option>
-      </single>
-    </panel>
-    <panel>
-      <title>Lockouts</title>
-      <single>
-        <search>
-          <query>`adx_security_events` EventCode IN (4740) | stats count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="height">100</option>
-        <option name="colorMode">block</option>
-        <option name="useColors">1</option>
-        <option name="rangeValues">[10,50]</option>
-        <option name="rangeColors">["#65A637","#FFC300","#B0413E"]</option>
-      </single>
-    </panel>
-    <panel>
-      <title>Privileged group changes</title>
-      <single>
-        <search>
-          <query>`adx_security_events` `adx_normalize` | search is_group_event=1 | where match(group_name,"(?i)^(`adx_priv_group_names`)(?![\w -])") | stats count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="height">100</option>
-        <option name="colorMode">block</option>
-        <option name="useColors">1</option>
-        <option name="rangeValues">[1]</option>
-        <option name="rangeColors">["#65A637","#B0413E"]</option>
-      </single>
-    </panel>
-    <panel>
-      <title>Audit log cleared / policy changed</title>
-      <single>
-        <search>
-          <query>`adx_security_events` EventCode IN (1102,4719) | stats count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="height">100</option>
-        <option name="colorMode">block</option>
-        <option name="useColors">1</option>
-        <option name="rangeValues">[1]</option>
-        <option name="rangeColors">["#65A637","#B0413E"]</option>
-      </single>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>Account lifecycle and credential events over time</title>
-      <chart>
-        <search>
-          <query>`adx_security_events` `adx_normalize` | search event_id IN (4720,4722,4723,4724,4725,4726,4738,4740,4767,4781) | lookup adx_event_catalog event_id OUTPUT action | timechart count by action</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="charting.chart">column</option>
-        <option name="charting.chart.stackMode">stacked</option>
-        <option name="charting.legend.placement">bottom</option>
-        <option name="charting.drilldown">none</option>
-        <option name="height">280</option>
-      </chart>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>Privileged group membership changes</title>
-      <table>
-        <search>
-          <query>`adx_security_events` `adx_normalize` | search is_group_event=1 | where match(group_name,"(?i)^(`adx_priv_group_names`)(?![\w -])") | lookup adx_event_catalog event_id OUTPUT action | rename actor_user as changed_by, target_user as member | sort - _time | table _time action group_name member changed_by dc</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">10</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-      </table>
-    </panel>
-    <panel>
-      <title>Critical security-control events</title>
-      <html><p>Audit log cleared (1102), audit policy changed (4719), DSRM password set (4794), SID History added (4765/4766).</p></html>
-      <table>
-        <search>
-          <query>`adx_security_events` `adx_normalize` | search event_id IN (1102,4719,4794,4765,4766) | lookup adx_event_catalog event_id OUTPUT action severity | sort - _time | table _time action severity actor_user target_user dc</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">10</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-      </table>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>Password resets by administrators</title>
-      <table>
-        <search>
-          <query>`adx_security_events` `adx_normalize` | search event_id=4724 | stats count, dc(target_user) as accounts, latest(_time) as last by actor_user | eval last=strftime(last,"%Y-%m-%d %H:%M") | sort - count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">8</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-      </table>
-    </panel>
-    <panel>
-      <title>Account lockouts - top accounts and callers</title>
-      <table>
-        <search>
-          <query>`adx_security_events` `adx_normalize` | search event_id=4740 | stats count, values(src_host) as caller_computers, latest(_time) as last by target_user | eval last=strftime(last,"%Y-%m-%d %H:%M") | sort - count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">8</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-      </table>
-    </panel>
-    <panel>
-      <title>Accounts created / deleted / disabled</title>
-      <table>
-        <search>
-          <query>`adx_security_events` `adx_normalize` | search event_id IN (4720,4726,4725) | lookup adx_event_catalog event_id OUTPUT action | rename actor_user as by_admin | sort - _time | table _time action target_user by_admin dc</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">8</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-      </table>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>Password spray / brute force suspects</title>
-      <html><p>One source failing against many distinct accounts (threshold: macro adx_spray_threshold).</p></html>
-      <table>
-        <search>
-          <query>`adx_security_events` (EventCode=4625 OR EventCode=4771 OR (EventCode=4776 NOT Error_Code=0x0)) `adx_normalize` | stats count as attempts, dc(target_user) as accounts, min(_time) as first, max(_time) as last, values(target_user) as sample by src_ip src_host | where accounts&gt;=`adx_spray_threshold` | eval sample=mvindex(sample,0,4), first=strftime(first,"%Y-%m-%d %H:%M"), last=strftime(last,"%Y-%m-%d %H:%M") | sort - accounts</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">8</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-      </table>
-    </panel>
-    <panel>
-      <title>Failed logon reasons</title>
-      <table>
-        <search>
-          <query>`adx_security_events` EventCode=4625 | eval code=coalesce(Sub_Status, SubStatus, Status) | lookup adx_failure_codes code OUTPUT reason | stats count by code reason | sort - count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">8</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-      </table>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>Kerberoasting suspects (RC4 service tickets for many SPNs)</title>
-      <table>
-        <search>
-          <query>`adx_security_events` EventCode=4769 `adx_normalize` | eval enc=coalesce(TicketEncryptionType, Ticket_Encryption_Type), svc=coalesce(ServiceName, Service_Name) | where enc="0x17" AND lower(svc)!="krbtgt" AND substr(svc,-1)!="$$" | stats dc(svc) as spns, count, values(svc) as sample by target_user src_ip | where spns&gt;=5 | eval sample=mvindex(sample,0,4) | sort - spns</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">8</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-      </table>
-    </panel>
-    <panel>
-      <title>DCSync suspects (directory replication rights used by a non-DC account)</title>
-      <html><p>Requires "Audit Directory Service Access" and SACL on the domain root; machine accounts (DC$) are excluded.</p></html>
-      <table>
-        <search>
-          <query>`adx_security_events` EventCode=4662 ("1131f6aa-9c07-11d1-f79f-00c04fc2dcd2" OR "1131f6ad-9c07-11d1-f79f-00c04fc2dcd2" OR "89e95b76-444d-4c62-991a-0facbeda640c") `adx_normalize` | where substr(actor_user,-1)!="$$" | stats count, latest(_time) as last by actor_user dc | eval last=strftime(last,"%Y-%m-%d %H:%M")</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">8</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-      </table>
-    </panel>
-  </row>
-</form>
+  <definition><![CDATA[
+{
+  "title": "AD Account Activity & Threat Detection",
+  "description": "Day-to-day Active Directory administration activity (account creation/deletion/disable, password resets, lockouts, privileged group changes) and detections of common attack techniques: password spray, Kerberoasting, DCSync, audit log clearing, audit policy tampering, DSRM and SID History changes. Based on Windows Security events from the domain controllers.",
+  "inputs": {
+    "input_global_trp": {
+      "type": "input.timerange",
+      "title": "Time range",
+      "options": {
+        "token": "global_time",
+        "defaultValue": "-7d@h,now"
+      }
+    }
+  },
+  "defaults": {},
+  "visualizations": {
+    "viz_1": {
+      "type": "splunk.singlevalue",
+      "title": "Accounts created",
+      "dataSources": {
+        "primary": "ds_1"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_2": {
+      "type": "splunk.singlevalue",
+      "title": "Accounts deleted",
+      "dataSources": {
+        "primary": "ds_2"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_3": {
+      "type": "splunk.singlevalue",
+      "title": "Accounts disabled",
+      "dataSources": {
+        "primary": "ds_3"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_4": {
+      "type": "splunk.singlevalue",
+      "title": "Accounts enabled",
+      "dataSources": {
+        "primary": "ds_4"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_5": {
+      "type": "splunk.singlevalue",
+      "title": "Password resets by admins",
+      "dataSources": {
+        "primary": "ds_5"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_6": {
+      "type": "splunk.singlevalue",
+      "title": "Lockouts",
+      "dataSources": {
+        "primary": "ds_6"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 10
+          },
+          {
+            "value": "#FFC300",
+            "from": 10,
+            "to": 50
+          },
+          {
+            "value": "#B0413E",
+            "from": 50
+          }
+        ]
+      }
+    },
+    "viz_7": {
+      "type": "splunk.singlevalue",
+      "title": "Privileged group changes",
+      "dataSources": {
+        "primary": "ds_7"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_8": {
+      "type": "splunk.singlevalue",
+      "title": "Audit log cleared / policy changed",
+      "dataSources": {
+        "primary": "ds_8"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_9": {
+      "type": "splunk.column",
+      "title": "Account lifecycle and credential events over time",
+      "dataSources": {
+        "primary": "ds_9"
+      },
+      "options": {
+        "legendDisplay": "bottom",
+        "stackMode": "stacked"
+      }
+    },
+    "viz_10": {
+      "type": "splunk.table",
+      "title": "Privileged group membership changes",
+      "dataSources": {
+        "primary": "ds_10"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true
+      }
+    },
+    "viz_11": {
+      "type": "splunk.table",
+      "title": "Critical security-control events",
+      "dataSources": {
+        "primary": "ds_11"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true
+      },
+      "description": "Audit log cleared (1102), audit policy changed (4719), DSRM password set (4794), SID History added (4765/4766)."
+    },
+    "viz_12": {
+      "type": "splunk.table",
+      "title": "Password resets by administrators",
+      "dataSources": {
+        "primary": "ds_12"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      }
+    },
+    "viz_13": {
+      "type": "splunk.table",
+      "title": "Account lockouts - top accounts and callers",
+      "dataSources": {
+        "primary": "ds_13"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      }
+    },
+    "viz_14": {
+      "type": "splunk.table",
+      "title": "Accounts created / deleted / disabled",
+      "dataSources": {
+        "primary": "ds_14"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      }
+    },
+    "viz_15": {
+      "type": "splunk.table",
+      "title": "Password spray / brute force suspects",
+      "dataSources": {
+        "primary": "ds_15"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      },
+      "description": "One source failing against many distinct accounts (threshold: macro adx_spray_threshold)."
+    },
+    "viz_16": {
+      "type": "splunk.table",
+      "title": "Failed logon reasons",
+      "dataSources": {
+        "primary": "ds_16"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      }
+    },
+    "viz_17": {
+      "type": "splunk.table",
+      "title": "Kerberoasting suspects (RC4 service tickets for many SPNs)",
+      "dataSources": {
+        "primary": "ds_17"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      }
+    },
+    "viz_18": {
+      "type": "splunk.table",
+      "title": "DCSync suspects (directory replication rights used by a non-DC account)",
+      "dataSources": {
+        "primary": "ds_18"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      },
+      "description": "Requires \"Audit Directory Service Access\" and SACL on the domain root; machine accounts (DC$) are excluded."
+    }
+  },
+  "dataSources": {
+    "ds_1": {
+      "type": "ds.search",
+      "name": "Accounts created",
+      "options": {
+        "query": "`adx_security_events` EventCode IN (4720) | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_2": {
+      "type": "ds.search",
+      "name": "Accounts deleted",
+      "options": {
+        "query": "`adx_security_events` EventCode IN (4726) | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_3": {
+      "type": "ds.search",
+      "name": "Accounts disabled",
+      "options": {
+        "query": "`adx_security_events` EventCode IN (4725) | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_4": {
+      "type": "ds.search",
+      "name": "Accounts enabled",
+      "options": {
+        "query": "`adx_security_events` EventCode IN (4722) | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_5": {
+      "type": "ds.search",
+      "name": "Password resets by admins",
+      "options": {
+        "query": "`adx_security_events` EventCode IN (4724) | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_6": {
+      "type": "ds.search",
+      "name": "Lockouts",
+      "options": {
+        "query": "`adx_security_events` EventCode IN (4740) | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_7": {
+      "type": "ds.search",
+      "name": "Privileged group changes",
+      "options": {
+        "query": "`adx_security_events` `adx_normalize` | search is_group_event=1 | where match(group_name,\"(?i)^(`adx_priv_group_names`)(?![\\w -])\") | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_8": {
+      "type": "ds.search",
+      "name": "Audit log cleared / policy changed",
+      "options": {
+        "query": "`adx_security_events` EventCode IN (1102,4719) | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_9": {
+      "type": "ds.search",
+      "name": "Account lifecycle and credential events over time",
+      "options": {
+        "query": "`adx_security_events` `adx_normalize` | search event_id IN (4720,4722,4723,4724,4725,4726,4738,4740,4767,4781) | lookup adx_event_catalog event_id OUTPUT action | timechart count by action",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_10": {
+      "type": "ds.search",
+      "name": "Privileged group membership changes",
+      "options": {
+        "query": "`adx_security_events` `adx_normalize` | search is_group_event=1 | where match(group_name,\"(?i)^(`adx_priv_group_names`)(?![\\w -])\") | lookup adx_event_catalog event_id OUTPUT action | rename actor_user as changed_by, target_user as member | sort - _time | table _time action group_name member changed_by dc",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_11": {
+      "type": "ds.search",
+      "name": "Critical security-control events",
+      "options": {
+        "query": "`adx_security_events` `adx_normalize` | search event_id IN (1102,4719,4794,4765,4766) | lookup adx_event_catalog event_id OUTPUT action severity | sort - _time | table _time action severity actor_user target_user dc",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_12": {
+      "type": "ds.search",
+      "name": "Password resets by administrators",
+      "options": {
+        "query": "`adx_security_events` `adx_normalize` | search event_id=4724 | stats count, dc(target_user) as accounts, latest(_time) as last by actor_user | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_13": {
+      "type": "ds.search",
+      "name": "Account lockouts - top accounts and callers",
+      "options": {
+        "query": "`adx_security_events` `adx_normalize` | search event_id=4740 | stats count, values(src_host) as caller_computers, latest(_time) as last by target_user | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_14": {
+      "type": "ds.search",
+      "name": "Accounts created / deleted / disabled",
+      "options": {
+        "query": "`adx_security_events` `adx_normalize` | search event_id IN (4720,4726,4725) | lookup adx_event_catalog event_id OUTPUT action | rename actor_user as by_admin | sort - _time | table _time action target_user by_admin dc",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_15": {
+      "type": "ds.search",
+      "name": "Password spray / brute force suspects",
+      "options": {
+        "query": "`adx_security_events` (EventCode=4625 OR EventCode=4771 OR (EventCode=4776 NOT Error_Code=0x0)) `adx_normalize` | stats count as attempts, dc(target_user) as accounts, min(_time) as first, max(_time) as last, values(target_user) as sample by src_ip src_host | where accounts>=`adx_spray_threshold` | eval sample=mvindex(sample,0,4), first=strftime(first,\"%Y-%m-%d %H:%M\"), last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - accounts",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_16": {
+      "type": "ds.search",
+      "name": "Failed logon reasons",
+      "options": {
+        "query": "`adx_security_events` EventCode=4625 | eval code=coalesce(Sub_Status, SubStatus, Status) | lookup adx_failure_codes code OUTPUT reason | stats count by code reason | sort - count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_17": {
+      "type": "ds.search",
+      "name": "Kerberoasting suspects (RC4 service tickets for many SPNs)",
+      "options": {
+        "query": "`adx_security_events` EventCode=4769 `adx_normalize` | eval enc=coalesce(TicketEncryptionType, Ticket_Encryption_Type), svc=coalesce(ServiceName, Service_Name) | where enc=\"0x17\" AND lower(svc)!=\"krbtgt\" AND substr(svc,-1)!=\"$$\" | stats dc(svc) as spns, count, values(svc) as sample by target_user src_ip | where spns>=5 | eval sample=mvindex(sample,0,4) | sort - spns",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_18": {
+      "type": "ds.search",
+      "name": "DCSync suspects (directory replication rights used by a non-DC account)",
+      "options": {
+        "query": "`adx_security_events` EventCode=4662 (\"1131f6aa-9c07-11d1-f79f-00c04fc2dcd2\" OR \"1131f6ad-9c07-11d1-f79f-00c04fc2dcd2\" OR \"89e95b76-444d-4c62-991a-0facbeda640c\") `adx_normalize` | where substr(actor_user,-1)!=\"$$\" | stats count, latest(_time) as last by actor_user dc | eval last=strftime(last,\"%Y-%m-%d %H:%M\")",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    }
+  },
+  "layout": {
+    "type": "grid",
+    "options": {
+      "width": 1440,
+      "height": 2072,
+      "display": "auto-scale"
+    },
+    "structure": [
+      {
+        "item": "viz_1",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 180,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_2",
+        "type": "block",
+        "position": {
+          "x": 180,
+          "y": 0,
+          "w": 180,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_3",
+        "type": "block",
+        "position": {
+          "x": 360,
+          "y": 0,
+          "w": 180,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_4",
+        "type": "block",
+        "position": {
+          "x": 540,
+          "y": 0,
+          "w": 180,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_5",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 0,
+          "w": 180,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_6",
+        "type": "block",
+        "position": {
+          "x": 900,
+          "y": 0,
+          "w": 180,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_7",
+        "type": "block",
+        "position": {
+          "x": 1080,
+          "y": 0,
+          "w": 180,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_8",
+        "type": "block",
+        "position": {
+          "x": 1260,
+          "y": 0,
+          "w": 180,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_9",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 130,
+          "w": 1440,
+          "h": 340
+        }
+      },
+      {
+        "item": "viz_10",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 470,
+          "w": 720,
+          "h": 450
+        }
+      },
+      {
+        "item": "viz_11",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 470,
+          "w": 720,
+          "h": 450
+        }
+      },
+      {
+        "item": "viz_12",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 920,
+          "w": 480,
+          "h": 384
+        }
+      },
+      {
+        "item": "viz_13",
+        "type": "block",
+        "position": {
+          "x": 480,
+          "y": 920,
+          "w": 480,
+          "h": 384
+        }
+      },
+      {
+        "item": "viz_14",
+        "type": "block",
+        "position": {
+          "x": 960,
+          "y": 920,
+          "w": 480,
+          "h": 384
+        }
+      },
+      {
+        "item": "viz_15",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1304,
+          "w": 720,
+          "h": 384
+        }
+      },
+      {
+        "item": "viz_16",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 1304,
+          "w": 720,
+          "h": 384
+        }
+      },
+      {
+        "item": "viz_17",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1688,
+          "w": 720,
+          "h": 384
+        }
+      },
+      {
+        "item": "viz_18",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 1688,
+          "w": 720,
+          "h": 384
+        }
+      }
+    ],
+    "globalInputs": [
+      "input_global_trp"
+    ]
+  }
+}
+  ]]></definition>
+</dashboard>
