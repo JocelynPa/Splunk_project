@@ -17,7 +17,7 @@
       <html><p>Break-glass accounts are listed in lookups/adx_breakglass_accounts.csv. Normal state: ENABLED/DISABLED according to your policy, password rotated after each use, never used outside an incident. lastLogonTimestamp is replicated only every ~9-14 days: use the event panels below for real-time usage.</p></html>
       <table>
         <search>
-          <query>`adx_users` | lookup adx_breakglass_accounts account AS sam OUTPUT label | where isnotnull(label) | eval status=if(is_disabled=1,"DISABLED","ENABLED"), locked=if(is_locked=1,"LOCKED","no"), never_expires=if(pwd_never_expires=1,"YES","no"), pwd_last_set=strftime(pwd_last_set,"%Y-%m-%d %H:%M"), last_logon_replicated=strftime(last_logon,"%Y-%m-%d %H:%M"), privileged=if(is_privileged=1,"YES","no") | table sam status locked pwd_last_set pwd_age_days never_expires last_logon_replicated privileged memberOf</query>
+          <query>| `adx_users` | lookup adx_breakglass_accounts account AS sam OUTPUT label | where isnotnull(label) | eval status=if(is_disabled=1,"DISABLED","ENABLED"), locked=if(is_locked=1,"LOCKED","no"), never_expires=if(pwd_never_expires=1,"YES","no"), pwd_last_set=strftime(pwd_last_set,"%Y-%m-%d %H:%M"), last_logon_replicated=strftime(last_logon,"%Y-%m-%d %H:%M"), privileged=if(is_privileged=1,"YES","no") | table sam status locked pwd_last_set pwd_age_days never_expires last_logon_replicated privileged memberOf</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>

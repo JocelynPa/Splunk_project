@@ -7,7 +7,7 @@
       <title>User accounts</title>
       <single>
         <search>
-          <query>`adx_users` | stats count</query>
+          <query>| `adx_users` | stats count</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -19,7 +19,7 @@
       <title>Enabled</title>
       <single>
         <search>
-          <query>`adx_users` | where is_disabled=0 | stats count</query>
+          <query>| `adx_users` | where is_disabled=0 | stats count</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -31,7 +31,7 @@
       <title>Disabled</title>
       <single>
         <search>
-          <query>`adx_users` | where is_disabled=1 | stats count</query>
+          <query>| `adx_users` | where is_disabled=1 | stats count</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -43,7 +43,7 @@
       <title>Password never expires (enabled)</title>
       <single>
         <search>
-          <query>`adx_users` | where is_disabled=0 AND pwd_never_expires=1 | stats count</query>
+          <query>| `adx_users` | where is_disabled=0 AND pwd_never_expires=1 | stats count</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -59,7 +59,7 @@
       <title>Locked out</title>
       <single>
         <search>
-          <query>`adx_users` | where is_locked=1 | stats count</query>
+          <query>| `adx_users` | where is_locked=1 | stats count</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -78,7 +78,7 @@
       <title>Password not required (enabled)</title>
       <single>
         <search>
-          <query>`adx_users` | where is_disabled=0 AND pwd_not_required=1 | stats count</query>
+          <query>| `adx_users` | where is_disabled=0 AND pwd_not_required=1 | stats count</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -94,7 +94,7 @@
       <title>Expired but still enabled</title>
       <single>
         <search>
-          <query>`adx_users` | where is_disabled=0 AND is_expired=1 | stats count</query>
+          <query>| `adx_users` | where is_disabled=0 AND is_expired=1 | stats count</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -110,7 +110,7 @@
       <title>Stale enabled accounts</title>
       <single>
         <search>
-          <query>`adx_users` | where is_disabled=0 AND days_since_logon&gt;`adx_stale_days` | stats count</query>
+          <query>| `adx_users` | where is_disabled=0 AND days_since_logon&gt;`adx_stale_days` | stats count</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -127,7 +127,7 @@
       <title>Privileged accounts (enabled)</title>
       <single>
         <search>
-          <query>`adx_users` | where is_disabled=0 AND is_privileged=1 | stats count</query>
+          <query>| `adx_users` | where is_disabled=0 AND is_privileged=1 | stats count</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -139,7 +139,7 @@
       <title>krbtgt password age (days)</title>
       <single>
         <search>
-          <query>`adx_users` | where sam="krbtgt" | stats max(pwd_age_days) as age</query>
+          <query>| `adx_users` | where sam="krbtgt" | stats max(pwd_age_days) as age</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -158,7 +158,7 @@
       <title>Enabled vs disabled</title>
       <chart>
         <search>
-          <query>`adx_users` | eval state=if(is_disabled=1,"Disabled","Enabled") | stats count by state</query>
+          <query>| `adx_users` | eval state=if(is_disabled=1,"Disabled","Enabled") | stats count by state</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -172,7 +172,7 @@
       <title>Password posture of enabled accounts</title>
       <chart>
         <search>
-          <query>`adx_users` | where is_disabled=0 | eval posture=case(pwd_never_expires=1,"Never expires", pwd_age_days&gt;`adx_max_pwd_age_days`,"Older than policy age", isnull(pwd_age_days),"Unknown", true(),"Within policy age") | stats count by posture</query>
+          <query>| `adx_users` | where is_disabled=0 | eval posture=case(pwd_never_expires=1,"Never expires", pwd_age_days&gt;`adx_max_pwd_age_days`,"Older than policy age", isnull(pwd_age_days),"Unknown", true(),"Within policy age") | stats count by posture</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -186,7 +186,7 @@
       <title>Password age of enabled accounts</title>
       <chart>
         <search>
-          <query>`adx_users` | where is_disabled=0 AND isnotnull(pwd_age_days) | eval b=case(pwd_age_days&lt;=30,"1) 0-30 d", pwd_age_days&lt;=90,"2) 31-90 d", pwd_age_days&lt;=180,"3) 91-180 d", pwd_age_days&lt;=365,"4) 181-365 d", true(),"5) &gt; 1 year") | stats count by b | sort b</query>
+          <query>| `adx_users` | where is_disabled=0 AND isnotnull(pwd_age_days) | eval b=case(pwd_age_days&lt;=30,"1) 0-30 d", pwd_age_days&lt;=90,"2) 31-90 d", pwd_age_days&lt;=180,"3) 91-180 d", pwd_age_days&lt;=365,"4) 181-365 d", true(),"5) &gt; 1 year") | stats count by b | sort b</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -200,7 +200,7 @@
       <title>Last logon of enabled accounts</title>
       <chart>
         <search>
-          <query>`adx_users` | where is_disabled=0 | eval b=case(isnull(days_since_logon),"6) Never / unknown", days_since_logon&lt;=7,"1) &lt;= 7 d", days_since_logon&lt;=30,"2) 8-30 d", days_since_logon&lt;=90,"3) 31-90 d", days_since_logon&lt;=180,"4) 91-180 d", true(),"5) &gt; 180 d") | stats count by b | sort b</query>
+          <query>| `adx_users` | where is_disabled=0 | eval b=case(isnull(days_since_logon),"6) Never / unknown", days_since_logon&lt;=7,"1) &lt;= 7 d", days_since_logon&lt;=30,"2) 8-30 d", days_since_logon&lt;=90,"3) 31-90 d", days_since_logon&lt;=180,"4) 91-180 d", true(),"5) &gt; 180 d") | stats count by b | sort b</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -217,7 +217,7 @@
       <title>Password never expires - by OU (top 15, enabled)</title>
       <chart>
         <search>
-          <query>`adx_users` | where is_disabled=0 AND pwd_never_expires=1 | stats count by ou | sort - count | head 15</query>
+          <query>| `adx_users` | where is_disabled=0 AND pwd_never_expires=1 | stats count by ou | sort - count | head 15</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -231,7 +231,7 @@
       <title>Password never expires - enabled accounts</title>
       <table>
         <search>
-          <query>`adx_users` | where is_disabled=0 AND pwd_never_expires=1 | eval privileged=if(is_privileged=1,"YES","no"), last_logon=strftime(last_logon,"%Y-%m-%d") | sort - is_privileged, - pwd_age_days | table sam display_name ou pwd_age_days last_logon privileged</query>
+          <query>| `adx_users` | where is_disabled=0 AND pwd_never_expires=1 | eval privileged=if(is_privileged=1,"YES","no"), last_logon=strftime(last_logon,"%Y-%m-%d") | sort - is_privileged, - pwd_age_days | table sam display_name ou pwd_age_days last_logon privileged</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -251,7 +251,7 @@
       <title>Risky account configurations (enabled)</title>
       <table>
         <search>
-          <query>`adx_users` | where is_disabled=0 | eval risk=mvappend(if(pwd_not_required=1,"PASSWD_NOTREQD",null()), if(no_preauth=1,"DONT_REQ_PREAUTH (AS-REP roastable)",null()), if(trusted_for_delegation=1,"Unconstrained delegation",null()), if(pwd_never_expires=1 AND is_privileged=1,"Privileged + password never expires",null()), if(is_privileged=1 AND days_since_logon&gt;`adx_stale_days`,"Privileged + stale",null())) | where isnotnull(risk) | table sam display_name risk ou pwd_age_days</query>
+          <query>| `adx_users` | where is_disabled=0 | eval risk=mvappend(if(pwd_not_required=1,"PASSWD_NOTREQD",null()), if(no_preauth=1,"DONT_REQ_PREAUTH (AS-REP roastable)",null()), if(trusted_for_delegation=1,"Unconstrained delegation",null()), if(pwd_never_expires=1 AND is_privileged=1,"Privileged + password never expires",null()), if(is_privileged=1 AND days_since_logon&gt;`adx_stale_days`,"Privileged + stale",null())) | where isnotnull(risk) | table sam display_name risk ou pwd_age_days</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -265,7 +265,7 @@
       <title>Accounts expiring in the next 30 days</title>
       <table>
         <search>
-          <query>`adx_users` | where is_disabled=0 AND isnotnull(acct_expires) AND acct_expires&gt;now() AND acct_expires&lt;now()+30*86400 | eval days_left=round((acct_expires-now())/86400,0), expires=strftime(acct_expires,"%Y-%m-%d") | sort days_left | table sam display_name expires days_left ou</query>
+          <query>| `adx_users` | where is_disabled=0 AND isnotnull(acct_expires) AND acct_expires&gt;now() AND acct_expires&lt;now()+30*86400 | eval days_left=round((acct_expires-now())/86400,0), expires=strftime(acct_expires,"%Y-%m-%d") | sort days_left | table sam display_name expires days_left ou</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -282,7 +282,7 @@
       <title>Enabled accounts past their expiry date</title>
       <table>
         <search>
-          <query>`adx_users` | where is_disabled=0 AND is_expired=1 | eval expired_on=strftime(acct_expires,"%Y-%m-%d") | table sam display_name expired_on ou</query>
+          <query>| `adx_users` | where is_disabled=0 AND is_expired=1 | eval expired_on=strftime(acct_expires,"%Y-%m-%d") | table sam display_name expired_on ou</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -296,7 +296,7 @@
       <title>Disabled accounts that still belong to a privileged group</title>
       <table>
         <search>
-          <query>`adx_users` | where is_disabled=1 AND is_privileged=1 | table sam display_name ou memberOf</query>
+          <query>| `adx_users` | where is_disabled=1 AND is_privileged=1 | table sam display_name ou memberOf</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -310,7 +310,7 @@
       <title>Stale enabled accounts (oldest logon first)</title>
       <table>
         <search>
-          <query>`adx_users` | where is_disabled=0 AND days_since_logon&gt;`adx_stale_days` | eval last_logon=strftime(last_logon,"%Y-%m-%d") | sort - days_since_logon | table sam display_name last_logon days_since_logon ou</query>
+          <query>| `adx_users` | where is_disabled=0 AND days_since_logon&gt;`adx_stale_days` | eval last_logon=strftime(last_logon,"%Y-%m-%d") | sort - days_since_logon | table sam display_name last_logon days_since_logon ou</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -342,7 +342,7 @@
       <title>Computers by operating system (top 10)</title>
       <chart>
         <search>
-          <query>`adx_computers` | where is_disabled=0 | stats count by os | sort - count | head 10</query>
+          <query>| `adx_computers` | where is_disabled=0 | stats count by os | sort - count | head 10</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -356,7 +356,7 @@
       <title>Stale enabled computers</title>
       <single>
         <search>
-          <query>`adx_computers` | where is_disabled=0 AND days_since_logon&gt;`adx_stale_days` | stats count</query>
+          <query>| `adx_computers` | where is_disabled=0 AND days_since_logon&gt;`adx_stale_days` | stats count</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
