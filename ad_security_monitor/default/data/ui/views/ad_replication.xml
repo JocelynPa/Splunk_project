@@ -1,0 +1,228 @@
+<form version="1.1">
+  <label>AD Replication &amp; Sync Health</label>
+  <description>State of Active Directory replication between domain controllers: per-link status (last success, lag, consecutive failures) from the scripted input, replication-related Directory Service and DFSR events (KCC, lingering objects, tombstone lifetime, DNS failures, USN rollback), sync start/end audit events, and Kerberos clock-skew failures.</description>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="time" token="time">
+      <label>Time range</label>
+      <default>
+        <earliest>-7d@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+
+  <row>
+    <panel>
+      <title>DCs reporting replication status</title>
+      <single>
+        <search>
+          <query>`adx_repl_data` | stats dc(source_dc)</query>
+          <earliest>-30m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Failing replication links</title>
+      <single>
+        <search>
+          <query>`adx_repl_data` | stats latest(_time) as seen, latest(consecutive_failures) as consecutive_failures, latest(last_result) as last_result, latest(last_result_text) as last_result_text, latest(last_success_epoch) as last_success_epoch, latest(last_attempt_epoch) as last_attempt_epoch, latest(transport) as transport by source_dc partner partition | eval lag_min=round((now()-last_success_epoch)/60,0) | where consecutive_failures&gt;0 | stats count</query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[1]</option>
+        <option name="rangeColors">["#65A637","#B0413E"]</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Max time since last success (min)</title>
+      <single>
+        <search>
+          <query>`adx_repl_data` | stats latest(_time) as seen, latest(consecutive_failures) as consecutive_failures, latest(last_result) as last_result, latest(last_result_text) as last_result_text, latest(last_success_epoch) as last_success_epoch, latest(last_attempt_epoch) as last_attempt_epoch, latest(transport) as transport by source_dc partner partition | eval lag_min=round((now()-last_success_epoch)/60,0) | stats max(lag_min)</query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[60,240]</option>
+        <option name="rangeColors">["#65A637","#FFC300","#B0413E"]</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Replication error events</title>
+      <single>
+        <search>
+          <query>`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) | stats count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[1,10]</option>
+        <option name="rangeColors">["#65A637","#FFC300","#B0413E"]</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Critical events (lingering objects, tombstone, USN rollback)</title>
+      <single>
+        <search>
+          <query>`adx_ds_events` EventCode IN (1388,1988,2042,2095,4012) | stats count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[1]</option>
+        <option name="rangeColors">["#65A637","#B0413E"]</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Minutes since last status collected</title>
+      <single>
+        <search>
+          <query>`adx_repl_data` | stats max(_time) as t | eval m=round((now()-t)/60,0) | fields m</query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[30]</option>
+        <option name="rangeColors">["#65A637","#B0413E"]</option>
+      </single>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Replication partners - current state</title>
+      <html><p>source_dc = DC that holds the inbound link, partner = replication source. Data comes from the scripted input in deploy_to_domain_controllers/TA_adx_replication (Get-ADReplicationPartnerMetadata). A stale "Minutes since last status collected" tile means the script is not running.</p></html>
+      <table>
+        <search>
+          <query>`adx_repl_data` | stats latest(_time) as seen, latest(consecutive_failures) as consecutive_failures, latest(last_result) as last_result, latest(last_result_text) as last_result_text, latest(last_success_epoch) as last_success_epoch, latest(last_attempt_epoch) as last_attempt_epoch, latest(transport) as transport by source_dc partner partition | eval lag_min=round((now()-last_success_epoch)/60,0) | eval last_success=strftime(last_success_epoch,"%Y-%m-%d %H:%M"), status=case(consecutive_failures&gt;0,"FAILING", lag_min&gt;240,"LATE", true(),"OK") | sort - consecutive_failures, - lag_min | table source_dc partner partition transport status last_success lag_min consecutive_failures last_result last_result_text</query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">15</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <format type="color" field="status">
+          <colorPalette type="map">{"OK":#65A637,"LATE":#F8BE34,"FAILING":#B0413E}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Consecutive replication failures by DC</title>
+      <chart>
+        <search>
+          <query>`adx_repl_data` | timechart span=1h max(consecutive_failures) by source_dc</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="charting.drilldown">none</option>
+        <option name="height">280</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Replication-related events over time</title>
+      <chart>
+        <search>
+          <query>`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) | timechart count by EventCode</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="charting.drilldown">none</option>
+        <option name="height">280</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Directory Service / DFSR replication events</title>
+      <table>
+        <search>
+          <query>`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description severity | eval dc=coalesce(Computer, ComputerName, host), message=substr(coalesce(Message, _raw),1,300) | sort - _time | table _time dc event_id severity description message</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">10</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <format type="color" field="severity">
+          <colorPalette type="map">{"critical":#B0413E,"high":#F1813F,"medium":#F8BE34}</colorPalette>
+        </format>
+      </table>
+    </panel>
+    <panel>
+      <title>Replication errors by DC and event</title>
+      <table>
+        <search>
+          <query>`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description | eval dc=coalesce(Computer, ComputerName, host) | stats count, latest(_time) as last by dc event_id description | eval last=strftime(last,"%Y-%m-%d %H:%M") | sort - count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">10</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Security 4932/4933: replica sync start/end</title>
+      <html><p>Requires the audit policy "Audit Detailed Directory Service Replication" (Security events 4932/4933).</p></html>
+      <table>
+        <search>
+          <query>`adx_security_events` (EventCode=4932 OR EventCode=4933) | eval dc=coalesce(Computer, ComputerName, host), status_code=coalesce(Status_Code, StatusCode, Status), naming_context=coalesce(Naming_Context, NamingContext), source_dra=coalesce(Source_DRA, SourceDRA) | stats count, sum(eval(if(EventCode=4933 AND status_code!="0",1,0))) as failed_syncs by dc naming_context | sort - failed_syncs</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">8</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Kerberos clock-skew failures (event 4771, code 0x25) - time sync</title>
+      <html><p>Clients whose clock drifts more than 5 minutes from the DC: a typical side effect of broken AD time synchronisation.</p></html>
+      <table>
+        <search>
+          <query>`adx_security_events` EventCode=4771 (Failure_Code=0x25 OR Result_Code=0x25) | eval client=coalesce(IpAddress, Client_Address, src_ip), user=coalesce(TargetUserName, Account_Name) | stats count, latest(_time) as last by client user | eval last=strftime(last,"%Y-%m-%d %H:%M") | sort - count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">8</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+      </table>
+    </panel>
+  </row>
+</form>

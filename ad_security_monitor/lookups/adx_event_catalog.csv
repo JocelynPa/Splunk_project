@@ -1,0 +1,32 @@
+event_id,action,category,severity
+4720,Account created,Account Management,medium
+4722,Account enabled,Account Management,high
+4723,Password change attempt (self),Account Management,high
+4724,Password reset (by admin),Account Management,high
+4725,Account disabled,Account Management,high
+4726,Account deleted,Account Management,high
+4738,Account attributes modified,Account Management,medium
+4740,Account locked out,Account Management,medium
+4767,Account unlocked,Account Management,medium
+4781,Account renamed,Account Management,medium
+4794,DSRM password set attempt,Account Management,critical
+4765,SID History added,Account Management,critical
+4766,SID History add failed,Account Management,high
+4728,Member added to global group,Group Management,high
+4729,Member removed from global group,Group Management,high
+4732,Member added to local group,Group Management,high
+4733,Member removed from local group,Group Management,high
+4756,Member added to universal group,Group Management,high
+4757,Member removed from universal group,Group Management,high
+5136,Directory object attribute modified,Directory Service Changes,medium
+4624,Logon success,Logon,info
+4625,Logon failure,Logon,medium
+4648,Logon with explicit credentials,Logon,medium
+4672,Special privileges assigned to logon,Logon,medium
+4768,Kerberos TGT requested,Kerberos,info
+4769,Kerberos service ticket requested,Kerberos,info
+4771,Kerberos pre-authentication failed,Kerberos,medium
+4776,NTLM credential validation,NTLM,info
+4662,Operation performed on directory object,Directory Service Access,info
+4719,System audit policy changed,Defense Evasion,critical
+1102,Security audit log cleared,Defense Evasion,critical

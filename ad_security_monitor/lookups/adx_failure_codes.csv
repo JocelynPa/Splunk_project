@@ -1,0 +1,18 @@
+code,reason
+0xC0000064,Unknown user name
+0xC000006A,Wrong password
+0xC000006D,Logon failure (generic)
+0xC000006E,Account restriction
+0xC000006F,Logon outside permitted hours
+0xC0000070,Workstation restriction
+0xC0000071,Password expired
+0xC0000072,Account disabled
+0xC0000133,Clock skew between DC and client
+0xC0000193,Account expired
+0xC0000224,Password must change at next logon
+0xC0000234,Account locked out
+0x6,Kerberos - client not found in database
+0x12,Kerberos - client account disabled / locked / expired
+0x17,Kerberos - password expired
+0x18,Kerberos - wrong password (pre-auth failed)
+0x25,Kerberos - clock skew too great
