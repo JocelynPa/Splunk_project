@@ -40,7 +40,7 @@ a daily KPI snapshot for the trend panel.
 | Macro | Purpose | Default |
 |---|---|---|
 | `adx_index` | Index of the Windows event logs | `index=idx_eventlog_win` |
-| `adx_users_lookup` / `adx_computers_lookup` | Lookup names from the AD Objects app | `AD_Obj_User_LDAP_list_kv` / `AD_Obj_Computer_LDAP_list_kv` |
+| `adx_users_lookup` / `adx_computers_lookup` | Lookup names from the AD Objects app | `AD_Obj_User` / `AD_Obj_Computer` (lookup definitions; group lookup `AD_Obj_Group` in `adx_groups_lookup`) |
 | `adx_repl_data` | Replication events | `MSAD:NT6:Replication` in `idx_msad_win` |
 | `adx_stale_days`, `adx_max_pwd_age_days`, `adx_krbtgt_max_age_days`, `adx_spray_threshold` | Thresholds | 90, 90, 180, 10 |
 | `adx_offhours_filter` | What counts as off-hours | before 07:00, from 19:00, weekends |
@@ -50,7 +50,7 @@ a daily KPI snapshot for the trend panel.
 
 **Check these two first** - they depend on your environment:
 
-* The lookup names and column names of the AD Objects app. Run
+* The lookup names and column names of the AD Objects app. (`AD_Obj_User` has no `memberOf`: privileged membership is derived from the `member` column of `AD_Obj_Group` - direct members only - plus `adminCount=1`, which AD sets on protected accounts including nested privileged members.) Run
   `| inputlookup <your lookup> | head 1` and adjust `adx_users_lookup` /
   `adx_users` if the columns differ. `userAccountControl` may be the numeric
   bitmask **or** text flags (`ACCOUNTDISABLE`, `DONT_EXPIRE_PASSWORD`, ...);
