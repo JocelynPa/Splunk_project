@@ -1,0 +1,301 @@
+<form version="1.1">
+  <label>AD Health &amp; Performance</label>
+  <description>Domain controller health and performance: AD health-check, Netlogon and DNS-health events flagging problems, data freshness per DC, and Perfmon counters for NTDS (LDAP, replication queue, threads), CPU, DNS and DFS replicated folders. Problem events are detected by keywords (macro adx_problem_terms) because the free-text health sources have no fixed schema.</description>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="time" token="time">
+      <label>Time range</label>
+      <default>
+        <earliest>-7d@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="pm_st">
+      <label>Perfmon sourcetype</label>
+      <choice value="Perfmon:NTDS">NTDS</choice>
+      <choice value="Perfmon:DNS">DNS</choice>
+      <choice value="Perfmon:DFS_Replicated_Folders">DFS Replicated Folders</choice>
+      <choice value="Perfmon:Network_Interface">Network Interface</choice>
+      <choice value="Perfmon:Processor">Processor</choice>
+      <default>Perfmon:NTDS</default>
+      <change><unset token="form.pm_counter"></unset></change>
+    </input>
+    <input type="dropdown" token="pm_counter" searchWhenChanged="true">
+      <label>Counter</label>
+      <fieldForLabel>counter</fieldForLabel>
+      <fieldForValue>counter</fieldForValue>
+      <search>
+        <query>`adx_perfmon_index` sourcetype="$pm_st$" | stats count by counter | sort counter</query>
+        <earliest>-24h</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+  </fieldset>
+
+  <row>
+    <panel>
+      <title>DCs sending health data</title>
+      <single>
+        <search>
+          <query>`adx_msad_index` sourcetype="MSAD:NT6:Health" | stats dc(host)</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Health events flagging a problem</title>
+      <single>
+        <search>
+          <query>`adx_msad_index` sourcetype="MSAD:NT6:Health" `adx_problem_terms` | stats count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[1,10]</option>
+        <option name="rangeColors">["#65A637","#FFC300","#B0413E"]</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Netlogon problem events</title>
+      <single>
+        <search>
+          <query>`adx_msad_index` sourcetype="MSAD:NT6:Netlogon" `adx_problem_terms` | stats count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[1,50]</option>
+        <option name="rangeColors">["#65A637","#FFC300","#B0413E"]</option>
+      </single>
+    </panel>
+    <panel>
+      <title>DNS health problem events</title>
+      <single>
+        <search>
+          <query>`adx_msad_index` sourcetype="MSAD:NT6:DNS-Health" `adx_problem_terms` | stats count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[1,10]</option>
+        <option name="rangeColors">["#65A637","#FFC300","#B0413E"]</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Silent sources (no data &gt; 60 min)</title>
+      <single>
+        <search>
+          <query>| multisearch [search `adx_msad_index` (sourcetype="MSAD:NT6:Health" OR sourcetype="MSAD:NT6:Replication" OR sourcetype="MSAD:NT6:Netlogon" OR sourcetype="MSAD:NT6:DNS-Health") | fields host sourcetype _time] [search `adx_perfmon_index` (sourcetype="Perfmon:NTDS" OR sourcetype="Perfmon:Processor") | fields host sourcetype _time] | stats max(_time) as last by host sourcetype | where last&lt;now()-3600 | stats count</query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[1]</option>
+        <option name="rangeColors">["#65A637","#B0413E"]</option>
+      </single>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Data freshness per DC and source (last event seen)</title>
+      <html><p>Minutes since the last event for each DC and each AD data source. Empty cell = that DC never sent that source in the last 24h.</p></html>
+      <table>
+        <search>
+          <query>| multisearch [search `adx_msad_index` (sourcetype="MSAD:NT6:Health" OR sourcetype="MSAD:NT6:Replication" OR sourcetype="MSAD:NT6:Netlogon" OR sourcetype="MSAD:NT6:DNS-Health") | fields host sourcetype _time] [search `adx_perfmon_index` (sourcetype="Perfmon:NTDS" OR sourcetype="Perfmon:Processor" OR sourcetype="Perfmon:DNS" OR sourcetype="Perfmon:DFS_Replicated_Folders") | fields host sourcetype _time] | stats max(_time) as last by host sourcetype | eval minutes_ago=round((now()-last)/60,0), last=strftime(last,"%Y-%m-%d %H:%M"), status=if(minutes_ago&gt;60,"SILENT","OK") | chart latest(minutes_ago) as m over host by sourcetype</query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">15</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>AD health check events flagging a problem</title>
+      <table>
+        <search>
+          <query>`adx_msad_index` sourcetype="MSAD:NT6:Health" `adx_problem_terms` | eval message=substr(_raw,1,400) | sort - _time | table _time host sourcetype message</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">10</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Netlogon problem events</title>
+      <table>
+        <search>
+          <query>`adx_msad_index` sourcetype="MSAD:NT6:Netlogon" `adx_problem_terms` | eval message=substr(_raw,1,400) | sort - _time | table _time host sourcetype message</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">10</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>DNS health problem events</title>
+      <table>
+        <search>
+          <query>`adx_msad_index` sourcetype="MSAD:NT6:DNS-Health" `adx_problem_terms` | eval message=substr(_raw,1,400) | sort - _time | table _time host sourcetype message</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">10</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Problem events over time by source</title>
+      <chart>
+        <search>
+          <query>`adx_msad_index` (sourcetype="MSAD:NT6:Health" OR sourcetype="MSAD:NT6:Netlogon" OR sourcetype="MSAD:NT6:DNS-Health") `adx_problem_terms` | timechart count by sourcetype</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="charting.drilldown">none</option>
+        <option name="height">300</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>NTDS - LDAP searches/sec</title>
+      <chart>
+        <search>
+          <query>`adx_perfmon_index` sourcetype="Perfmon:NTDS" counter="LDAP Searches/sec" | timechart span=5m avg(Value) by host limit=15</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="charting.drilldown">none</option>
+        <option name="height">260</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>NTDS - pending replication operations</title>
+      <chart>
+        <search>
+          <query>`adx_perfmon_index` sourcetype="Perfmon:NTDS" counter="DRA Pending Replication Operations" | timechart span=5m avg(Value) by host limit=15</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="charting.drilldown">none</option>
+        <option name="height">260</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>NTDS - DS threads in use</title>
+      <chart>
+        <search>
+          <query>`adx_perfmon_index` sourcetype="Perfmon:NTDS" counter="DS Threads in Use" | timechart span=5m avg(Value) by host limit=15</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="charting.drilldown">none</option>
+        <option name="height">260</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>CPU - % Processor Time (_Total)</title>
+      <chart>
+        <search>
+          <query>`adx_perfmon_index` sourcetype="Perfmon:Processor" counter="% Processor Time" instance="_Total" | timechart span=5m avg(Value) by host limit=15</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="charting.drilldown">none</option>
+        <option name="height">260</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>DNS - queries received/sec</title>
+      <chart>
+        <search>
+          <query>`adx_perfmon_index` sourcetype="Perfmon:DNS" counter="Total Query Received/sec" | timechart span=5m avg(Value) by host limit=15</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="charting.drilldown">none</option>
+        <option name="height">260</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>DNS - recursive query failures/sec</title>
+      <chart>
+        <search>
+          <query>`adx_perfmon_index` sourcetype="Perfmon:DNS" counter="Recursive Query Failure/sec" | timechart span=5m avg(Value) by host limit=15</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="charting.drilldown">none</option>
+        <option name="height">260</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Perfmon explorer: pick any counter</title>
+      <html><p>Choose a Perfmon sourcetype then a counter (NTDS, DNS, DFS Replicated Folders, Network Interface, Processor).</p></html>
+      <chart>
+        <search>
+          <query>`adx_perfmon_index` sourcetype="$pm_st$" counter="$pm_counter$" | eval series=host." ".coalesce(instance,"") | timechart span=5m avg(Value) by series limit=15</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="charting.drilldown">none</option>
+        <option name="height">320</option>
+      </chart>
+    </panel>
+  </row>
+</form>
