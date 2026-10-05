@@ -296,7 +296,7 @@
       <title>Disabled accounts that still belong to a privileged group</title>
       <table>
         <search>
-          <query>| `adx_users` | where is_disabled=1 AND is_privileged=1 | table sam display_name ou memberOf</query>
+          <query>| `adx_users` | where is_disabled=1 AND is_privileged=1 | table sam display_name ou priv_groups</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>

@@ -50,7 +50,7 @@ a daily KPI snapshot for the trend panel.
 
 **Check these two first** - they depend on your environment:
 
-* The lookup names and column names of the AD Objects app. Run
+* The lookup names and column names of the AD Objects app. (`AD_Obj_User` has no `memberOf`: privileged membership is derived from the `member` column of `AD_Obj_Group` - direct members only - plus `adminCount=1`, which AD sets on protected accounts including nested privileged members.) Run
   `| inputlookup <your lookup> | head 1` and adjust `adx_users_lookup` /
   `adx_users` if the columns differ. `userAccountControl` may be the numeric
   bitmask **or** text flags (`ACCOUNTDISABLE`, `DONT_EXPIRE_PASSWORD`, ...);
