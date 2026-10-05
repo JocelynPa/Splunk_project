@@ -1,0 +1,329 @@
+<form version="1.1">
+  <label>Break-Glass Account (secadm)</label>
+  <description>Centralised view of every change made to, and every use of, the break-glass account(s) listed in adx_breakglass_accounts.csv, built from Windows Security events collected on the domain controllers (4624/4625, 4723/4724, 4738, 4722/4725, 4740/4767, 4728/4732/4756, 5136, 4672, 4648, 4768/4769/4771). Any non-zero red tile is an event worth correlating with an incident ticket.</description>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="time" token="time">
+      <label>Time range</label>
+      <default>
+        <earliest>-7d@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+
+  <row>
+    <panel>
+      <title>Break-glass account state (from AD lookup)</title>
+      <html><p>Break-glass accounts are listed in lookups/adx_breakglass_accounts.csv. Normal state: ENABLED/DISABLED according to your policy, password rotated after each use, never used outside an incident. lastLogonTimestamp is replicated only every ~9-14 days: use the event panels below for real-time usage.</p></html>
+      <table>
+        <search>
+          <query>`adx_users` | lookup adx_breakglass_accounts account AS sam OUTPUT label | where isnotnull(label) | eval status=if(is_disabled=1,"DISABLED","ENABLED"), locked=if(is_locked=1,"LOCKED","no"), never_expires=if(pwd_never_expires=1,"YES","no"), pwd_last_set=strftime(pwd_last_set,"%Y-%m-%d %H:%M"), last_logon_replicated=strftime(last_logon,"%Y-%m-%d %H:%M"), privileged=if(is_privileged=1,"YES","no") | table sam status locked pwd_last_set pwd_age_days never_expires last_logon_replicated privileged memberOf</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">5</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <format type="color" field="status">
+          <colorPalette type="map">{"DISABLED":#65A637,"ENABLED":#F8BE34}</colorPalette>
+        </format>
+        <format type="color" field="locked">
+          <colorPalette type="map">{"LOCKED":#B0413E}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Successful logons</title>
+      <single>
+        <search>
+          <query>`adx_breakglass_events` | search event_id=4624 tgt_bg=* | stats count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[1]</option>
+        <option name="rangeColors">["#5385ce","#B0413E"]</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Failed logons</title>
+      <single>
+        <search>
+          <query>`adx_breakglass_events` | search (event_id=4625 OR event_id=4771) tgt_bg=* | stats count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[1]</option>
+        <option name="rangeColors">["#65A637","#B0413E"]</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Password changes / resets</title>
+      <single>
+        <search>
+          <query>`adx_breakglass_events` | search (event_id=4723 OR event_id=4724 OR event_id=4794) tgt_bg=* | stats count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[1]</option>
+        <option name="rangeColors">["#65A637","#B0413E"]</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Account modifications</title>
+      <single>
+        <search>
+          <query>`adx_breakglass_events` | search (event_id=4738 OR event_id=4722 OR event_id=4725 OR event_id=4726 OR event_id=4781 OR event_id=4767 OR event_id=4740 OR event_id=5136) tgt_bg=* | stats count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[1]</option>
+        <option name="rangeColors">["#65A637","#B0413E"]</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Group membership changes</title>
+      <single>
+        <search>
+          <query>`adx_breakglass_events` | search is_group_event=1 tgt_bg=* | stats count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[1]</option>
+        <option name="rangeColors">["#65A637","#B0413E"]</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Actions performed BY the account</title>
+      <single>
+        <search>
+          <query>`adx_breakglass_events` | search act_bg=* (category="Account Management" OR category="Group Management" OR category="Directory Service Changes") | stats count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[1]</option>
+        <option name="rangeColors">["#65A637","#B0413E"]</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Off-hours logons</title>
+      <single>
+        <search>
+          <query>`adx_breakglass_events` | search event_id=4624 tgt_bg=* | `adx_offhours_filter` | stats count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">100</option>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[1]</option>
+        <option name="rangeColors">["#65A637","#B0413E"]</option>
+      </single>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Break-glass activity over time (by action)</title>
+      <chart>
+        <search>
+          <query>`adx_breakglass_events` | timechart count by action</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="charting.drilldown">none</option>
+        <option name="height">280</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Change log: who changed the account, when, from where</title>
+      <table>
+        <search>
+          <query>`adx_breakglass_events` | search tgt_bg=* (category="Account Management" OR category="Group Management" OR category="Directory Service Changes") | eval changed_by=actor_user, group=group_name, object_attribute=if(event_id="5136", AttributeLDAPDisplayName." = ".coalesce(AttributeValue,""), null()) | sort - _time | table _time action target_user changed_by group object_attribute src_host src_ip dc event_id</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">10</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <format type="color" field="action">
+          <colorPalette type="map">{"Password reset (by admin)":#B0413E,"Password change attempt (self)":#F8BE34}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Account usage: logons</title>
+      <table>
+        <search>
+          <query>`adx_breakglass_events` | search event_id=4624 tgt_bg=* | lookup adx_logon_types logon_type OUTPUT logon_type_label | eval auth_package=coalesce(AuthenticationPackageName, Authentication_Package), process=coalesce(LogonProcessName, Logon_Process) | sort - _time | table _time target_user logon_type_label src_ip src_host dc auth_package process</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">10</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Failed attempts</title>
+      <table>
+        <search>
+          <query>`adx_breakglass_events` | search (event_id=4625 OR event_id=4771) tgt_bg=* | eval code=coalesce(Sub_Status, SubStatus, Failure_Code, Status) | lookup adx_failure_codes code OUTPUT reason | sort - _time | table _time action target_user reason code src_ip src_host dc</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">10</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Actions performed BY the break-glass account</title>
+      <table>
+        <search>
+          <query>`adx_breakglass_events` | search act_bg=* (category="Account Management" OR category="Group Management" OR category="Directory Service Changes") | eval affected_object=coalesce(group_name." &lt;- ".target_user, target_user) | sort - _time | table _time action actor_user affected_object src_host src_ip dc</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">10</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Privileged sessions and explicit-credential use</title>
+      <table>
+        <search>
+          <query>`adx_breakglass_events` | search (event_id=4672 OR event_id=4648) | eval privileges=coalesce(PrivilegeList, Privileges) | sort - _time | table _time action target_user actor_user src_host dc privileges</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">10</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Usage by source host / IP</title>
+      <chart>
+        <search>
+          <query>`adx_breakglass_events` | search event_id=4624 tgt_bg=* | eval source=coalesce(src_host, src_ip, "local / unknown") | stats count by source | sort - count | head 15</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="charting.drilldown">none</option>
+        <option name="height">300</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Who changes the account (actors)</title>
+      <chart>
+        <search>
+          <query>`adx_breakglass_events` | search tgt_bg=* (category="Account Management" OR category="Group Management") | stats count by actor_user | sort - count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="charting.drilldown">none</option>
+        <option name="height">300</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Logons by hour of day</title>
+      <chart>
+        <search>
+          <query>`adx_breakglass_events` | search event_id=4624 tgt_bg=* | eval hour=strftime(_time,"%H") | stats count by hour | sort hour</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="charting.drilldown">none</option>
+        <option name="height">300</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Source hosts seen for the first time (last 7 days vs 90-day baseline)</title>
+      <html><p>Fixed 90-day lookback, independent of the time picker.</p></html>
+      <table>
+        <search>
+          <query>`adx_breakglass_events` | search event_id=4624 tgt_bg=* | eval source=coalesce(src_host, src_ip, "local / unknown") | stats min(_time) as first_seen, max(_time) as last_seen, count by source | where first_seen&gt;relative_time(now(),"-7d") | eval first_seen=strftime(first_seen,"%Y-%m-%d %H:%M"), last_seen=strftime(last_seen,"%Y-%m-%d %H:%M")</query>
+          <earliest>-90d@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">8</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Break-glass accounts configuration (lookup)</title>
+      <table>
+        <search>
+          <query>| inputlookup adx_breakglass_accounts.csv</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">5</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+      </table>
+    </panel>
+  </row>
+</form>

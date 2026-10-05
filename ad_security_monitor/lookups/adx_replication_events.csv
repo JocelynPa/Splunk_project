@@ -1,0 +1,14 @@
+event_id,description,severity
+1308,KCC detected consecutive replication failures,high
+1311,KCC: replication topology cannot span all sites,high
+1388,Lingering object detected (replication source has deleted objects),critical
+1566,KCC: no DC available in a site for replication,high
+1865,KCC: no complete site connectivity path,high
+1925,Failed to establish replication link,high
+1988,Lingering object - replication blocked (strict consistency),critical
+2042,Too long since last replication (tombstone lifetime risk),critical
+2087,DNS lookup failure for replication partner,high
+2088,DNS lookup OK but replication RPC failed,medium
+2095,USN rollback detected,critical
+2213,DFSR: database dirty shutdown - SYSVOL replication paused,high
+4012,DFSR: replication stopped (exceeded MaxOfflineTimeInDays),critical

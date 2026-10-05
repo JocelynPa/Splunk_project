@@ -31,6 +31,19 @@ on Splunk's own internal indexes and REST endpoints - no add-on required.
 See [`infra_security_audit/README.md`](infra_security_audit/README.md)
 for details and install steps.
 
+## ad_security_monitor
+
+A Splunk app for Active Directory administrators: a dedicated view of the
+`secadm` break-glass account (password changes, usage, who/where/when),
+an account-hygiene overview (enabled/disabled, password never expires,
+stale, expired, privileged) built on the Microsoft Windows Active
+Directory Objects lookups, AD replication health, and account-activity /
+attack-technique detections. See
+[`ad_security_monitor/README.md`](ad_security_monitor/README.md) for
+details, prerequisites and install steps. The optional replication
+scripted input lives in
+[`deploy_to_domain_controllers/TA_adx_replication`](deploy_to_domain_controllers/TA_adx_replication).
+
 ## GitDeploy_for_Splunk
 
 A Splunk app plus companion SH Deployer agent that pushes Splunk apps to a
