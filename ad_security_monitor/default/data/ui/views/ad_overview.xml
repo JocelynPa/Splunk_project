@@ -5,7 +5,16 @@
 {
   "title": "AD Accounts Overview",
   "description": "Account-hygiene view of Active Directory built on the lookups of the Microsoft Windows Active Directory Objects app (see README for the lookup names/macros to adjust): enabled vs disabled, password-never-expires, locked, expired, stale, privileged and risky configurations. Figures reflect the last refresh of the lookups, not live LDAP.",
-  "inputs": {},
+  "inputs": {
+    "input_ou": {
+      "type": "input.text",
+      "title": "OU filter (regex, e.g. OU=Admins)",
+      "options": {
+        "token": "ou_f",
+        "defaultValue": ".*"
+      }
+    }
+  },
   "defaults": {},
   "visualizations": {
     "viz_1": {
@@ -579,7 +588,7 @@
       "type": "ds.search",
       "name": "User accounts",
       "options": {
-        "query": "| `adx_users` | stats count",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | stats count",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -590,7 +599,7 @@
       "type": "ds.search",
       "name": "Enabled",
       "options": {
-        "query": "| `adx_users` | where is_disabled=0 | stats count",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 | stats count",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -601,7 +610,7 @@
       "type": "ds.search",
       "name": "Disabled",
       "options": {
-        "query": "| `adx_users` | where is_disabled=1 | stats count",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=1 | stats count",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -612,7 +621,7 @@
       "type": "ds.search",
       "name": "Password never expires (enabled)",
       "options": {
-        "query": "| `adx_users` | where is_disabled=0 AND pwd_never_expires=1 | stats count",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND pwd_never_expires=1 | stats count",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -623,7 +632,7 @@
       "type": "ds.search",
       "name": "Locked out",
       "options": {
-        "query": "| `adx_users` | where is_locked=1 | stats count",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_locked=1 | stats count",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -634,7 +643,7 @@
       "type": "ds.search",
       "name": "Password not required (enabled)",
       "options": {
-        "query": "| `adx_users` | where is_disabled=0 AND pwd_not_required=1 | stats count",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND pwd_not_required=1 | stats count",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -645,7 +654,7 @@
       "type": "ds.search",
       "name": "Expired but still enabled",
       "options": {
-        "query": "| `adx_users` | where is_disabled=0 AND is_expired=1 | stats count",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND is_expired=1 | stats count",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -656,7 +665,7 @@
       "type": "ds.search",
       "name": "Stale enabled accounts",
       "options": {
-        "query": "| `adx_users` | where is_disabled=0 AND days_since_logon>`adx_stale_days` | stats count",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND days_since_logon>`adx_stale_days` | stats count",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -667,7 +676,7 @@
       "type": "ds.search",
       "name": "Privileged accounts (enabled)",
       "options": {
-        "query": "| `adx_users` | where is_disabled=0 AND is_privileged=1 | stats count",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND is_privileged=1 | stats count",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -689,7 +698,7 @@
       "type": "ds.search",
       "name": "Password expired (enabled)",
       "options": {
-        "query": "| `adx_users` | where is_disabled=0 AND pwd_expired=1 | stats count",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND pwd_expired=1 | stats count",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -700,7 +709,7 @@
       "type": "ds.search",
       "name": "Password expires within 14 days",
       "options": {
-        "query": "| `adx_users` | where is_disabled=0 AND isnotnull(pwd_days_left) AND pwd_days_left>=0 AND pwd_days_left<=14 | stats count",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND isnotnull(pwd_days_left) AND pwd_days_left>=0 AND pwd_days_left<=14 | stats count",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -711,7 +720,7 @@
       "type": "ds.search",
       "name": "Must change password at next logon",
       "options": {
-        "query": "| `adx_users` | where is_disabled=0 AND must_change_pwd=1 | stats count",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND must_change_pwd=1 | stats count",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -722,7 +731,7 @@
       "type": "ds.search",
       "name": "Accounts not compliant with password rules",
       "options": {
-        "query": "| `adx_users` | `adx_pwd_violations` | where isnotnull(violations) | stats count",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_pwd_violations` | where isnotnull(violations) | stats count",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -733,7 +742,7 @@
       "type": "ds.search",
       "name": "Privileged passwords too old",
       "options": {
-        "query": "| `adx_users` | where is_disabled=0 AND is_privileged=1 AND pwd_age_days>`adx_priv_max_pwd_age_days` | stats count",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND is_privileged=1 AND pwd_age_days>`adx_priv_max_pwd_age_days` | stats count",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -744,7 +753,7 @@
       "type": "ds.search",
       "name": "Password rule violations (enabled accounts)",
       "options": {
-        "query": "| `adx_users` | `adx_pwd_violations` | mvexpand violations | stats count by violations | sort - count",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_pwd_violations` | mvexpand violations | stats count by violations | sort - count",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -755,7 +764,7 @@
       "type": "ds.search",
       "name": "Accounts not compliant with password rules",
       "options": {
-        "query": "| `adx_users` | `adx_pwd_violations` | where isnotnull(violations) | eval n=mvcount(violations), privileged=if(is_privileged=1,\"YES\",\"no\"), last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort - n, - pwd_age_days | table sam display_name violations pwd_age_days last_logon privileged ou",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_pwd_violations` | where isnotnull(violations) | eval n=mvcount(violations), privileged=if(is_privileged=1,\"YES\",\"no\"), last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort - n, - pwd_age_days | table sam display_name violations pwd_age_days last_logon privileged ou",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -766,7 +775,7 @@
       "type": "ds.search",
       "name": "Passwords expired or expiring within 14 days",
       "options": {
-        "query": "| `adx_users` | where is_disabled=0 AND isnotnull(pwd_days_left) AND pwd_days_left<=14 | eval status=if(pwd_days_left<0,\"EXPIRED\",\"EXPIRING\"), days_overdue_or_left=pwd_days_left, last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort pwd_days_left | table sam display_name status days_overdue_or_left pwd_age_days last_logon ou",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND isnotnull(pwd_days_left) AND pwd_days_left<=14 | eval status=if(pwd_days_left<0,\"EXPIRED\",\"EXPIRING\"), days_overdue_or_left=pwd_days_left, last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort pwd_days_left | table sam display_name status days_overdue_or_left pwd_age_days last_logon ou",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -777,7 +786,7 @@
       "type": "ds.search",
       "name": "Enabled vs disabled",
       "options": {
-        "query": "| `adx_users` | eval state=if(is_disabled=1,\"Disabled\",\"Enabled\") | stats count by state",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | eval state=if(is_disabled=1,\"Disabled\",\"Enabled\") | stats count by state",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -788,7 +797,7 @@
       "type": "ds.search",
       "name": "Password posture of enabled accounts",
       "options": {
-        "query": "| `adx_users` | where is_disabled=0 | eval posture=case(pwd_never_expires=1,\"Never expires\", pwd_age_days>`adx_max_pwd_age_days`,\"Older than policy age\", isnull(pwd_age_days),\"Unknown\", true(),\"Within policy age\") | stats count by posture",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 | eval posture=case(pwd_never_expires=1,\"Never expires\", pwd_age_days>`adx_max_pwd_age_days`,\"Older than policy age\", isnull(pwd_age_days),\"Unknown\", true(),\"Within policy age\") | stats count by posture",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -799,7 +808,7 @@
       "type": "ds.search",
       "name": "Password age of enabled accounts",
       "options": {
-        "query": "| `adx_users` | where is_disabled=0 AND isnotnull(pwd_age_days) | eval b=case(pwd_age_days<=30,\"1) 0-30 d\", pwd_age_days<=90,\"2) 31-90 d\", pwd_age_days<=180,\"3) 91-180 d\", pwd_age_days<=365,\"4) 181-365 d\", true(),\"5) > 1 year\") | stats count by b | sort b",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND isnotnull(pwd_age_days) | eval b=case(pwd_age_days<=30,\"1) 0-30 d\", pwd_age_days<=90,\"2) 31-90 d\", pwd_age_days<=180,\"3) 91-180 d\", pwd_age_days<=365,\"4) 181-365 d\", true(),\"5) > 1 year\") | stats count by b | sort b",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -810,7 +819,7 @@
       "type": "ds.search",
       "name": "Last logon of enabled accounts",
       "options": {
-        "query": "| `adx_users` | where is_disabled=0 | eval b=case(isnull(days_since_logon),\"6) Never / unknown\", days_since_logon<=7,\"1) <= 7 d\", days_since_logon<=30,\"2) 8-30 d\", days_since_logon<=90,\"3) 31-90 d\", days_since_logon<=180,\"4) 91-180 d\", true(),\"5) > 180 d\") | stats count by b | sort b",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 | eval b=case(isnull(days_since_logon),\"6) Never / unknown\", days_since_logon<=7,\"1) <= 7 d\", days_since_logon<=30,\"2) 8-30 d\", days_since_logon<=90,\"3) 31-90 d\", days_since_logon<=180,\"4) 91-180 d\", true(),\"5) > 180 d\") | stats count by b | sort b",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -821,7 +830,7 @@
       "type": "ds.search",
       "name": "Password never expires - by OU (top 15, enabled)",
       "options": {
-        "query": "| `adx_users` | where is_disabled=0 AND pwd_never_expires=1 | stats count by ou | sort - count | head 15",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND pwd_never_expires=1 | stats count by ou | sort - count | head 15",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -832,7 +841,7 @@
       "type": "ds.search",
       "name": "Password never expires - enabled accounts",
       "options": {
-        "query": "| `adx_users` | where is_disabled=0 AND pwd_never_expires=1 | eval privileged=if(is_privileged=1,\"YES\",\"no\"), last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort - is_privileged, - pwd_age_days | table sam display_name ou pwd_age_days last_logon privileged",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND pwd_never_expires=1 | eval privileged=if(is_privileged=1,\"YES\",\"no\"), last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort - is_privileged, - pwd_age_days | table sam display_name ou pwd_age_days last_logon privileged",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -843,7 +852,7 @@
       "type": "ds.search",
       "name": "Risky account configurations (enabled)",
       "options": {
-        "query": "| `adx_users` | where is_disabled=0 | eval risk=mvappend(if(pwd_not_required=1,\"PASSWD_NOTREQD\",null()), if(no_preauth=1,\"DONT_REQ_PREAUTH (AS-REP roastable)\",null()), if(trusted_for_delegation=1,\"Unconstrained delegation\",null()), if(pwd_never_expires=1 AND is_privileged=1,\"Privileged + password never expires\",null()), if(is_privileged=1 AND days_since_logon>`adx_stale_days`,\"Privileged + stale\",null())) | where isnotnull(risk) | table sam display_name risk ou pwd_age_days",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 | eval risk=mvappend(if(pwd_not_required=1,\"PASSWD_NOTREQD\",null()), if(no_preauth=1,\"DONT_REQ_PREAUTH (AS-REP roastable)\",null()), if(trusted_for_delegation=1,\"Unconstrained delegation\",null()), if(pwd_never_expires=1 AND is_privileged=1,\"Privileged + password never expires\",null()), if(is_privileged=1 AND days_since_logon>`adx_stale_days`,\"Privileged + stale\",null())) | where isnotnull(risk) | table sam display_name risk ou pwd_age_days",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -854,7 +863,7 @@
       "type": "ds.search",
       "name": "Accounts expiring in the next 30 days",
       "options": {
-        "query": "| `adx_users` | where is_disabled=0 AND isnotnull(acct_expires) AND acct_expires>now() AND acct_expires<now()+30*86400 | eval days_left=round((acct_expires-now())/86400,0), expires=strftime(acct_expires,\"%Y-%m-%d\") | sort days_left | table sam display_name expires days_left ou",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND isnotnull(acct_expires) AND acct_expires>now() AND acct_expires<now()+30*86400 | eval days_left=round((acct_expires-now())/86400,0), expires=strftime(acct_expires,\"%Y-%m-%d\") | sort days_left | table sam display_name expires days_left ou",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -865,7 +874,7 @@
       "type": "ds.search",
       "name": "Enabled accounts past their expiry date",
       "options": {
-        "query": "| `adx_users` | where is_disabled=0 AND is_expired=1 | eval expired_on=strftime(acct_expires,\"%Y-%m-%d\") | table sam display_name expired_on ou",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND is_expired=1 | eval expired_on=strftime(acct_expires,\"%Y-%m-%d\") | table sam display_name expired_on ou",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -876,7 +885,7 @@
       "type": "ds.search",
       "name": "Disabled accounts that still belong to a privileged group",
       "options": {
-        "query": "| `adx_users` | where is_disabled=1 AND is_privileged=1 | table sam display_name ou priv_groups",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=1 AND is_privileged=1 | table sam display_name ou priv_groups",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -887,7 +896,7 @@
       "type": "ds.search",
       "name": "Stale enabled accounts (oldest logon first)",
       "options": {
-        "query": "| `adx_users` | where is_disabled=0 AND days_since_logon>`adx_stale_days` | eval last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort - days_since_logon | table sam display_name last_logon days_since_logon ou",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND days_since_logon>`adx_stale_days` | eval last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort - days_since_logon | table sam display_name last_logon days_since_logon ou",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -1257,7 +1266,9 @@
         }
       }
     ],
-    "globalInputs": []
+    "globalInputs": [
+      "input_ou"
+    ]
   }
 }
   ]]></definition>

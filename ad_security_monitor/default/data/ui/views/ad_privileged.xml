@@ -1,0 +1,517 @@
+<dashboard version="2" theme="dark">
+  <label>AD Privileged Accounts</label>
+  <description>Everything about privileged access: members of Domain/Enterprise/Schema Admins and other sensitive groups (EN + FR names), their password age, expiry and last logon, adminCount leftovers, Kerberoastable service accounts, and recent changes to privileged group membership.</description>
+  <definition><![CDATA[
+{
+  "title": "AD Privileged Accounts",
+  "description": "Everything about privileged access: members of Domain/Enterprise/Schema Admins and other sensitive groups (EN + FR names), their password age, expiry and last logon, adminCount leftovers, Kerberoastable service accounts, and recent changes to privileged group membership.",
+  "inputs": {
+    "input_global_trp": {
+      "type": "input.timerange",
+      "title": "Time range",
+      "options": {
+        "token": "global_time",
+        "defaultValue": "-7d@h,now"
+      }
+    }
+  },
+  "defaults": {},
+  "visualizations": {
+    "viz_1": {
+      "type": "splunk.singlevalue",
+      "title": "Privileged accounts (enabled)",
+      "dataSources": {
+        "primary": "ds_1"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_2": {
+      "type": "splunk.singlevalue",
+      "title": "Password never expires",
+      "dataSources": {
+        "primary": "ds_2"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_3": {
+      "type": "splunk.singlevalue",
+      "title": "Password older than privileged limit",
+      "dataSources": {
+        "primary": "ds_3"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_4": {
+      "type": "splunk.singlevalue",
+      "title": "No logon for more than adx_stale_days days",
+      "dataSources": {
+        "primary": "ds_4"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_5": {
+      "type": "splunk.singlevalue",
+      "title": "adminCount=1 but not in a privileged group",
+      "dataSources": {
+        "primary": "ds_5"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#FFC300",
+            "from": 1,
+            "to": 20
+          },
+          {
+            "value": "#B0413E",
+            "from": 20
+          }
+        ]
+      }
+    },
+    "viz_6": {
+      "type": "splunk.singlevalue",
+      "title": "Service accounts (user with SPN)",
+      "dataSources": {
+        "primary": "ds_6"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_7": {
+      "type": "splunk.bar",
+      "title": "Members per privileged group",
+      "dataSources": {
+        "primary": "ds_7"
+      },
+      "options": {
+        "legendDisplay": "off"
+      }
+    },
+    "viz_8": {
+      "type": "splunk.table",
+      "title": "Privileged groups",
+      "dataSources": {
+        "primary": "ds_8"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true
+      },
+      "description": "Direct members as reported by the group lookup (nested groups not expanded; adminCount covers indirect members)."
+    },
+    "viz_9": {
+      "type": "splunk.table",
+      "title": "Privileged accounts (enabled)",
+      "dataSources": {
+        "primary": "ds_9"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "columnFormat": {
+          "never_expires": {
+            "rowBackgroundColors": "> table | seriesByName(\"never_expires\") | matchValue(never_expiresColorConfig)"
+          }
+        }
+      },
+      "context": {
+        "never_expiresColorConfig": [
+          {
+            "match": "YES",
+            "value": "#B0413E"
+          }
+        ]
+      }
+    },
+    "viz_10": {
+      "type": "splunk.table",
+      "title": "adminCount=1 without privileged membership (AdminSDHolder leftovers)",
+      "dataSources": {
+        "primary": "ds_10"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      },
+      "description": "Accounts that were once privileged: AD keeps adminCount=1 and blocks permission inheritance. Clean up with SDProp after review."
+    },
+    "viz_11": {
+      "type": "splunk.table",
+      "title": "Service accounts (SPN) - oldest passwords first",
+      "dataSources": {
+        "primary": "ds_11"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true,
+        "columnFormat": {
+          "privileged": {
+            "rowBackgroundColors": "> table | seriesByName(\"privileged\") | matchValue(privilegedColorConfig)"
+          },
+          "never_expires": {
+            "rowBackgroundColors": "> table | seriesByName(\"never_expires\") | matchValue(never_expiresColorConfig)"
+          }
+        }
+      },
+      "description": "User accounts with an SPN are Kerberoasting targets: long random passwords or gMSA recommended.",
+      "context": {
+        "privilegedColorConfig": [
+          {
+            "match": "YES",
+            "value": "#F8BE34"
+          }
+        ],
+        "never_expiresColorConfig": [
+          {
+            "match": "YES",
+            "value": "#B0413E"
+          }
+        ]
+      }
+    },
+    "viz_12": {
+      "type": "splunk.table",
+      "title": "Recent privileged group membership changes",
+      "dataSources": {
+        "primary": "ds_12"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true
+      },
+      "description": "Follows the time range selector."
+    }
+  },
+  "dataSources": {
+    "ds_1": {
+      "type": "ds.search",
+      "name": "Privileged accounts (enabled)",
+      "options": {
+        "query": "| `adx_users` | where is_disabled=0 AND is_privileged=1 | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_2": {
+      "type": "ds.search",
+      "name": "Password never expires",
+      "options": {
+        "query": "| `adx_users` | where is_disabled=0 AND is_privileged=1 AND pwd_never_expires=1 | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_3": {
+      "type": "ds.search",
+      "name": "Password older than privileged limit",
+      "options": {
+        "query": "| `adx_users` | where is_disabled=0 AND is_privileged=1 AND pwd_age_days>`adx_priv_max_pwd_age_days` | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_4": {
+      "type": "ds.search",
+      "name": "No logon for more than adx_stale_days days",
+      "options": {
+        "query": "| `adx_users` | where is_disabled=0 AND is_privileged=1 AND days_since_logon>`adx_stale_days` | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_5": {
+      "type": "ds.search",
+      "name": "adminCount=1 but not in a privileged group",
+      "options": {
+        "query": "| `adx_users` | where is_disabled=0 AND tonumber(mvindex(adminCount,0))=1 AND isnull(priv_groups) AND sam!=\"krbtgt\" | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_6": {
+      "type": "ds.search",
+      "name": "Service accounts (user with SPN)",
+      "options": {
+        "query": "| `adx_users` | where is_disabled=0 AND isnotnull(servicePrincipalName) AND sam!=\"krbtgt\" | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_7": {
+      "type": "ds.search",
+      "name": "Members per privileged group",
+      "options": {
+        "query": "| inputlookup `adx_groups_lookup` | eval grp=coalesce(cn, sAMAccountName, name) | where match(grp,\"(?i)^(`adx_priv_group_names`)(?![\\\\w -])\") | stats max(membercount) as members by grp | sort - members",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_8": {
+      "type": "ds.search",
+      "name": "Privileged groups",
+      "options": {
+        "query": "| inputlookup `adx_groups_lookup` | eval grp=coalesce(cn, sAMAccountName, name) | where match(grp,\"(?i)^(`adx_priv_group_names`)(?![\\\\w -])\") | eval members=membercount | sort - members | table grp members groupType_Name OU",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_9": {
+      "type": "ds.search",
+      "name": "Privileged accounts (enabled)",
+      "options": {
+        "query": "| `adx_users` | where is_disabled=0 AND is_privileged=1 | eval never_expires=if(pwd_never_expires=1,\"YES\",\"no\"), smartcard=if(smartcard_required=1,\"yes\",\"no\"), last_logon=strftime(last_logon,\"%Y-%m-%d\"), groups=mvjoin(priv_groups,\", \") | sort - pwd_age_days | table sam display_name groups pwd_age_days never_expires smartcard last_logon days_since_logon ou",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_10": {
+      "type": "ds.search",
+      "name": "adminCount=1 without privileged membership (AdminSDHolder leftovers)",
+      "options": {
+        "query": "| `adx_users` | where is_disabled=0 AND tonumber(mvindex(adminCount,0))=1 AND isnull(priv_groups) AND sam!=\"krbtgt\" | eval last_logon=strftime(last_logon,\"%Y-%m-%d\") | table sam display_name pwd_age_days last_logon ou",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_11": {
+      "type": "ds.search",
+      "name": "Service accounts (SPN) - oldest passwords first",
+      "options": {
+        "query": "| `adx_users` | where is_disabled=0 AND isnotnull(servicePrincipalName) AND sam!=\"krbtgt\" | eval spn_count=mvcount(servicePrincipalName), privileged=if(is_privileged=1,\"YES\",\"no\"), enc=coalesce('msDS-SupportedEncryptionTypes',\"default (RC4)\"), never_expires=if(pwd_never_expires=1,\"YES\",\"no\"), last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort - pwd_age_days | table sam display_name spn_count pwd_age_days never_expires privileged enc last_logon ou",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_12": {
+      "type": "ds.search",
+      "name": "Recent privileged group membership changes",
+      "options": {
+        "query": "`adx_security_events` `adx_normalize` | search is_group_event=1 | where match(group_name,\"(?i)^(`adx_priv_group_names`)(?![\\\\w -])\") | lookup adx_event_catalog event_id OUTPUT action | rename actor_user as changed_by, target_user as member | sort - _time | table _time action group_name member changed_by dc",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    }
+  },
+  "layout": {
+    "type": "grid",
+    "options": {
+      "width": 1440,
+      "height": 1930,
+      "display": "auto-scale"
+    },
+    "structure": [
+      {
+        "item": "viz_1",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_2",
+        "type": "block",
+        "position": {
+          "x": 240,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_3",
+        "type": "block",
+        "position": {
+          "x": 480,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_4",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_5",
+        "type": "block",
+        "position": {
+          "x": 960,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_6",
+        "type": "block",
+        "position": {
+          "x": 1200,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_7",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 130,
+          "w": 720,
+          "h": 450
+        }
+      },
+      {
+        "item": "viz_8",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 130,
+          "w": 720,
+          "h": 450
+        }
+      },
+      {
+        "item": "viz_9",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 580,
+          "w": 1440,
+          "h": 516
+        }
+      },
+      {
+        "item": "viz_10",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1096,
+          "w": 720,
+          "h": 384
+        }
+      },
+      {
+        "item": "viz_11",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 1096,
+          "w": 720,
+          "h": 384
+        }
+      },
+      {
+        "item": "viz_12",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1480,
+          "w": 1440,
+          "h": 450
+        }
+      }
+    ],
+    "globalInputs": [
+      "input_global_trp"
+    ]
+  }
+}
+  ]]></definition>
+</dashboard>
