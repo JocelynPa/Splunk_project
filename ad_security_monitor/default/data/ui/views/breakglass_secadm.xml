@@ -57,79 +57,40 @@
     },
     "viz_2": {
       "type": "splunk.singlevalue",
-      "title": "Successful logons",
+      "title": "Days since last logon (90 d lookback)",
       "dataSources": {
         "primary": "ds_2"
       },
       "options": {
         "sparklineDisplay": "off",
-        "trendDisplay": "off",
-        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
-      },
-      "context": {
-        "majorColorEditorConfig": [
-          {
-            "value": "#5385ce",
-            "to": 1
-          },
-          {
-            "value": "#B0413E",
-            "from": 1
-          }
-        ]
+        "trendDisplay": "off"
       }
     },
     "viz_3": {
       "type": "splunk.singlevalue",
-      "title": "Failed logons",
+      "title": "Days since last password change/reset (1 y lookback)",
       "dataSources": {
         "primary": "ds_3"
       },
       "options": {
         "sparklineDisplay": "off",
-        "trendDisplay": "off",
-        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
-      },
-      "context": {
-        "majorColorEditorConfig": [
-          {
-            "value": "#65A637",
-            "to": 1
-          },
-          {
-            "value": "#B0413E",
-            "from": 1
-          }
-        ]
+        "trendDisplay": "off"
       }
     },
     "viz_4": {
       "type": "splunk.singlevalue",
-      "title": "Password changes / resets",
+      "title": "Password age from AD lookup (days)",
       "dataSources": {
         "primary": "ds_4"
       },
       "options": {
         "sparklineDisplay": "off",
-        "trendDisplay": "off",
-        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
-      },
-      "context": {
-        "majorColorEditorConfig": [
-          {
-            "value": "#65A637",
-            "to": 1
-          },
-          {
-            "value": "#B0413E",
-            "from": 1
-          }
-        ]
+        "trendDisplay": "off"
       }
     },
     "viz_5": {
       "type": "splunk.singlevalue",
-      "title": "Account modifications",
+      "title": "Logons since the password was last set (90 d)",
       "dataSources": {
         "primary": "ds_5"
       },
@@ -153,7 +114,7 @@
     },
     "viz_6": {
       "type": "splunk.singlevalue",
-      "title": "Group membership changes",
+      "title": "Successful logons",
       "dataSources": {
         "primary": "ds_6"
       },
@@ -165,7 +126,7 @@
       "context": {
         "majorColorEditorConfig": [
           {
-            "value": "#65A637",
+            "value": "#5385ce",
             "to": 1
           },
           {
@@ -177,7 +138,7 @@
     },
     "viz_7": {
       "type": "splunk.singlevalue",
-      "title": "Actions performed BY the account",
+      "title": "Failed logons",
       "dataSources": {
         "primary": "ds_7"
       },
@@ -201,7 +162,7 @@
     },
     "viz_8": {
       "type": "splunk.singlevalue",
-      "title": "Off-hours logons",
+      "title": "Password changes / resets",
       "dataSources": {
         "primary": "ds_8"
       },
@@ -224,21 +185,117 @@
       }
     },
     "viz_9": {
+      "type": "splunk.singlevalue",
+      "title": "Account modifications",
+      "dataSources": {
+        "primary": "ds_9"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_10": {
+      "type": "splunk.singlevalue",
+      "title": "Group membership changes",
+      "dataSources": {
+        "primary": "ds_10"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_11": {
+      "type": "splunk.singlevalue",
+      "title": "Actions performed BY the account",
+      "dataSources": {
+        "primary": "ds_11"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_12": {
+      "type": "splunk.singlevalue",
+      "title": "Off-hours logons",
+      "dataSources": {
+        "primary": "ds_12"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_13": {
       "type": "splunk.column",
       "title": "Break-glass activity over time (by action)",
       "dataSources": {
-        "primary": "ds_9"
+        "primary": "ds_13"
       },
       "options": {
         "legendDisplay": "bottom",
         "stackMode": "stacked"
       }
     },
-    "viz_10": {
+    "viz_14": {
       "type": "splunk.table",
       "title": "Change log: who changed the account, when, from where",
       "dataSources": {
-        "primary": "ds_10"
+        "primary": "ds_14"
       },
       "options": {
         "count": 10,
@@ -262,85 +319,85 @@
         ]
       }
     },
-    "viz_11": {
+    "viz_15": {
       "type": "splunk.table",
       "title": "Account usage: logons",
       "dataSources": {
-        "primary": "ds_11"
+        "primary": "ds_15"
       },
       "options": {
         "count": 10,
         "wrap": true
       }
     },
-    "viz_12": {
+    "viz_16": {
       "type": "splunk.table",
       "title": "Failed attempts",
       "dataSources": {
-        "primary": "ds_12"
+        "primary": "ds_16"
       },
       "options": {
         "count": 10,
         "wrap": true
       }
     },
-    "viz_13": {
+    "viz_17": {
       "type": "splunk.table",
       "title": "Actions performed BY the break-glass account",
       "dataSources": {
-        "primary": "ds_13"
+        "primary": "ds_17"
       },
       "options": {
         "count": 10,
         "wrap": true
       }
     },
-    "viz_14": {
+    "viz_18": {
       "type": "splunk.table",
       "title": "Privileged sessions and explicit-credential use",
       "dataSources": {
-        "primary": "ds_14"
+        "primary": "ds_18"
       },
       "options": {
         "count": 10,
         "wrap": true
       }
     },
-    "viz_15": {
+    "viz_19": {
       "type": "splunk.bar",
       "title": "Usage by source host / IP",
       "dataSources": {
-        "primary": "ds_15"
+        "primary": "ds_19"
       },
       "options": {
         "legendDisplay": "off"
       }
     },
-    "viz_16": {
+    "viz_20": {
       "type": "splunk.pie",
       "title": "Who changes the account (actors)",
       "dataSources": {
-        "primary": "ds_16"
+        "primary": "ds_20"
       },
       "options": {
         "legendDisplay": "bottom"
       }
     },
-    "viz_17": {
+    "viz_21": {
       "type": "splunk.column",
       "title": "Logons by hour of day",
       "dataSources": {
-        "primary": "ds_17"
+        "primary": "ds_21"
       },
       "options": {
         "legendDisplay": "off"
       }
     },
-    "viz_18": {
+    "viz_22": {
       "type": "splunk.table",
       "title": "Source hosts seen for the first time (last 7 days vs 90-day baseline)",
       "dataSources": {
-        "primary": "ds_18"
+        "primary": "ds_22"
       },
       "options": {
         "count": 8,
@@ -348,11 +405,11 @@
       },
       "description": "Fixed 90-day lookback, independent of the time picker."
     },
-    "viz_19": {
+    "viz_23": {
       "type": "splunk.table",
       "title": "Break-glass accounts configuration (lookup)",
       "dataSources": {
-        "primary": "ds_19"
+        "primary": "ds_23"
       },
       "options": {
         "count": 5,
@@ -374,6 +431,50 @@
     },
     "ds_2": {
       "type": "ds.search",
+      "name": "Days since last logon (90 d lookback)",
+      "options": {
+        "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | stats max(_time) as t | eval days=if(isnull(t),\"none in 90 d\",floor((now()-t)/86400)) | fields days",
+        "queryParameters": {
+          "earliest": "-90d@d",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_3": {
+      "type": "ds.search",
+      "name": "Days since last password change/reset (1 y lookback)",
+      "options": {
+        "query": "`adx_breakglass_events` | search (event_id=4723 OR event_id=4724 OR event_id=4794) tgt_bg=* | stats max(_time) as t | eval days=if(isnull(t),\"none in 1 y\",floor((now()-t)/86400)) | fields days",
+        "queryParameters": {
+          "earliest": "-365d@d",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_4": {
+      "type": "ds.search",
+      "name": "Password age from AD lookup (days)",
+      "options": {
+        "query": "| `adx_users` | lookup adx_breakglass_accounts account AS sam OUTPUT label | where isnotnull(label) | stats max(pwd_age_days) as days",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_5": {
+      "type": "ds.search",
+      "name": "Logons since the password was last set (90 d)",
+      "options": {
+        "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | eval kind=\"logon\" | append [| `adx_users` | lookup adx_breakglass_accounts account AS sam OUTPUT label | where isnotnull(label) | stats max(pwd_last_set) as pls | eval _time=pls, kind=\"pwd\"] | eventstats max(eval(if(kind=\"pwd\",_time,null()))) as pls | where kind=\"logon\" AND _time>pls | stats count",
+        "queryParameters": {
+          "earliest": "-90d@d",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_6": {
+      "type": "ds.search",
       "name": "Successful logons",
       "options": {
         "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | stats count",
@@ -383,7 +484,7 @@
         }
       }
     },
-    "ds_3": {
+    "ds_7": {
       "type": "ds.search",
       "name": "Failed logons",
       "options": {
@@ -394,7 +495,7 @@
         }
       }
     },
-    "ds_4": {
+    "ds_8": {
       "type": "ds.search",
       "name": "Password changes / resets",
       "options": {
@@ -405,7 +506,7 @@
         }
       }
     },
-    "ds_5": {
+    "ds_9": {
       "type": "ds.search",
       "name": "Account modifications",
       "options": {
@@ -416,7 +517,7 @@
         }
       }
     },
-    "ds_6": {
+    "ds_10": {
       "type": "ds.search",
       "name": "Group membership changes",
       "options": {
@@ -427,7 +528,7 @@
         }
       }
     },
-    "ds_7": {
+    "ds_11": {
       "type": "ds.search",
       "name": "Actions performed BY the account",
       "options": {
@@ -438,7 +539,7 @@
         }
       }
     },
-    "ds_8": {
+    "ds_12": {
       "type": "ds.search",
       "name": "Off-hours logons",
       "options": {
@@ -449,7 +550,7 @@
         }
       }
     },
-    "ds_9": {
+    "ds_13": {
       "type": "ds.search",
       "name": "Break-glass activity over time (by action)",
       "options": {
@@ -460,7 +561,7 @@
         }
       }
     },
-    "ds_10": {
+    "ds_14": {
       "type": "ds.search",
       "name": "Change log: who changed the account, when, from where",
       "options": {
@@ -471,7 +572,7 @@
         }
       }
     },
-    "ds_11": {
+    "ds_15": {
       "type": "ds.search",
       "name": "Account usage: logons",
       "options": {
@@ -482,7 +583,7 @@
         }
       }
     },
-    "ds_12": {
+    "ds_16": {
       "type": "ds.search",
       "name": "Failed attempts",
       "options": {
@@ -493,7 +594,7 @@
         }
       }
     },
-    "ds_13": {
+    "ds_17": {
       "type": "ds.search",
       "name": "Actions performed BY the break-glass account",
       "options": {
@@ -504,7 +605,7 @@
         }
       }
     },
-    "ds_14": {
+    "ds_18": {
       "type": "ds.search",
       "name": "Privileged sessions and explicit-credential use",
       "options": {
@@ -515,7 +616,7 @@
         }
       }
     },
-    "ds_15": {
+    "ds_19": {
       "type": "ds.search",
       "name": "Usage by source host / IP",
       "options": {
@@ -526,7 +627,7 @@
         }
       }
     },
-    "ds_16": {
+    "ds_20": {
       "type": "ds.search",
       "name": "Who changes the account (actors)",
       "options": {
@@ -537,7 +638,7 @@
         }
       }
     },
-    "ds_17": {
+    "ds_21": {
       "type": "ds.search",
       "name": "Logons by hour of day",
       "options": {
@@ -548,7 +649,7 @@
         }
       }
     },
-    "ds_18": {
+    "ds_22": {
       "type": "ds.search",
       "name": "Source hosts seen for the first time (last 7 days vs 90-day baseline)",
       "options": {
@@ -559,7 +660,7 @@
         }
       }
     },
-    "ds_19": {
+    "ds_23": {
       "type": "ds.search",
       "name": "Break-glass accounts configuration (lookup)",
       "options": {
@@ -575,7 +676,7 @@
     "type": "grid",
     "options": {
       "width": 1440,
-      "height": 2849,
+      "height": 2979,
       "display": "auto-scale"
     },
     "structure": [
@@ -595,7 +696,7 @@
         "position": {
           "x": 0,
           "y": 285,
-          "w": 206,
+          "w": 360,
           "h": 130
         }
       },
@@ -603,9 +704,9 @@
         "item": "viz_3",
         "type": "block",
         "position": {
-          "x": 206,
+          "x": 360,
           "y": 285,
-          "w": 206,
+          "w": 360,
           "h": 130
         }
       },
@@ -613,9 +714,9 @@
         "item": "viz_4",
         "type": "block",
         "position": {
-          "x": 412,
+          "x": 720,
           "y": 285,
-          "w": 206,
+          "w": 360,
           "h": 130
         }
       },
@@ -623,9 +724,9 @@
         "item": "viz_5",
         "type": "block",
         "position": {
-          "x": 618,
+          "x": 1080,
           "y": 285,
-          "w": 206,
+          "w": 360,
           "h": 130
         }
       },
@@ -633,8 +734,8 @@
         "item": "viz_6",
         "type": "block",
         "position": {
-          "x": 824,
-          "y": 285,
+          "x": 0,
+          "y": 415,
           "w": 206,
           "h": 130
         }
@@ -643,8 +744,8 @@
         "item": "viz_7",
         "type": "block",
         "position": {
-          "x": 1030,
-          "y": 285,
+          "x": 206,
+          "y": 415,
           "w": 206,
           "h": 130
         }
@@ -653,8 +754,8 @@
         "item": "viz_8",
         "type": "block",
         "position": {
-          "x": 1236,
-          "y": 285,
+          "x": 412,
+          "y": 415,
           "w": 206,
           "h": 130
         }
@@ -663,40 +764,40 @@
         "item": "viz_9",
         "type": "block",
         "position": {
-          "x": 0,
+          "x": 618,
           "y": 415,
-          "w": 1440,
-          "h": 340
+          "w": 206,
+          "h": 130
         }
       },
       {
         "item": "viz_10",
         "type": "block",
         "position": {
-          "x": 0,
-          "y": 755,
-          "w": 1440,
-          "h": 450
+          "x": 824,
+          "y": 415,
+          "w": 206,
+          "h": 130
         }
       },
       {
         "item": "viz_11",
         "type": "block",
         "position": {
-          "x": 0,
-          "y": 1205,
-          "w": 720,
-          "h": 450
+          "x": 1030,
+          "y": 415,
+          "w": 206,
+          "h": 130
         }
       },
       {
         "item": "viz_12",
         "type": "block",
         "position": {
-          "x": 720,
-          "y": 1205,
-          "w": 720,
-          "h": 450
+          "x": 1236,
+          "y": 415,
+          "w": 206,
+          "h": 130
         }
       },
       {
@@ -704,18 +805,18 @@
         "type": "block",
         "position": {
           "x": 0,
-          "y": 1655,
-          "w": 720,
-          "h": 450
+          "y": 545,
+          "w": 1440,
+          "h": 340
         }
       },
       {
         "item": "viz_14",
         "type": "block",
         "position": {
-          "x": 720,
-          "y": 1655,
-          "w": 720,
+          "x": 0,
+          "y": 885,
+          "w": 1440,
           "h": 450
         }
       },
@@ -724,47 +825,87 @@
         "type": "block",
         "position": {
           "x": 0,
-          "y": 2105,
-          "w": 480,
-          "h": 360
+          "y": 1335,
+          "w": 720,
+          "h": 450
         }
       },
       {
         "item": "viz_16",
         "type": "block",
         "position": {
-          "x": 480,
-          "y": 2105,
-          "w": 480,
-          "h": 360
+          "x": 720,
+          "y": 1335,
+          "w": 720,
+          "h": 450
         }
       },
       {
         "item": "viz_17",
         "type": "block",
         "position": {
-          "x": 960,
-          "y": 2105,
-          "w": 480,
-          "h": 360
+          "x": 0,
+          "y": 1785,
+          "w": 720,
+          "h": 450
         }
       },
       {
         "item": "viz_18",
         "type": "block",
         "position": {
-          "x": 0,
-          "y": 2465,
+          "x": 720,
+          "y": 1785,
           "w": 720,
-          "h": 384
+          "h": 450
         }
       },
       {
         "item": "viz_19",
         "type": "block",
         "position": {
+          "x": 0,
+          "y": 2235,
+          "w": 480,
+          "h": 360
+        }
+      },
+      {
+        "item": "viz_20",
+        "type": "block",
+        "position": {
+          "x": 480,
+          "y": 2235,
+          "w": 480,
+          "h": 360
+        }
+      },
+      {
+        "item": "viz_21",
+        "type": "block",
+        "position": {
+          "x": 960,
+          "y": 2235,
+          "w": 480,
+          "h": 360
+        }
+      },
+      {
+        "item": "viz_22",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 2595,
+          "w": 720,
+          "h": 384
+        }
+      },
+      {
+        "item": "viz_23",
+        "type": "block",
+        "position": {
           "x": 720,
-          "y": 2465,
+          "y": 2595,
           "w": 720,
           "h": 384
         }
