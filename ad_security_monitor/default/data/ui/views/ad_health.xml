@@ -154,9 +154,38 @@
     },
     "viz_6": {
       "type": "splunk.singlevalue",
-      "title": "Silent sources (no data > 60 min)",
+      "title": "Clients without AD site (24h)",
       "dataSources": {
         "primary": "ds_6"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#FFC300",
+            "from": 1,
+            "to": 50
+          },
+          {
+            "value": "#B0413E",
+            "from": 50
+          }
+        ]
+      }
+    },
+    "viz_7": {
+      "type": "splunk.singlevalue",
+      "title": "Silent sources (no data > 60 min)",
+      "dataSources": {
+        "primary": "ds_7"
       },
       "options": {
         "sparklineDisplay": "off",
@@ -176,11 +205,11 @@
         ]
       }
     },
-    "viz_7": {
+    "viz_8": {
       "type": "splunk.table",
       "title": "Domain controllers - health, roles and inventory",
       "dataSources": {
-        "primary": "ds_7"
+        "primary": "ds_8"
       },
       "options": {
         "count": 12,
@@ -205,42 +234,42 @@
         ]
       }
     },
-    "viz_8": {
+    "viz_9": {
       "type": "splunk.pie",
       "title": "Domain controllers by operating system",
       "dataSources": {
-        "primary": "ds_8"
+        "primary": "ds_9"
       },
       "options": {
         "legendDisplay": "bottom"
       }
     },
-    "viz_9": {
+    "viz_10": {
       "type": "splunk.bar",
       "title": "Domain controllers by AD site",
       "dataSources": {
-        "primary": "ds_9"
+        "primary": "ds_10"
       },
       "options": {
         "legendDisplay": "off"
       }
     },
-    "viz_10": {
+    "viz_11": {
       "type": "splunk.table",
       "title": "FSMO role holders",
       "dataSources": {
-        "primary": "ds_10"
+        "primary": "ds_11"
       },
       "options": {
         "count": 6,
         "wrap": true
       }
     },
-    "viz_11": {
+    "viz_12": {
       "type": "splunk.table",
       "title": "DNS servers - health",
       "dataSources": {
-        "primary": "ds_11"
+        "primary": "ds_12"
       },
       "options": {
         "count": 8,
@@ -265,32 +294,55 @@
         ]
       }
     },
-    "viz_12": {
+    "viz_13": {
       "type": "splunk.line",
       "title": "Highest USN by DC (directory change activity)",
       "dataSources": {
-        "primary": "ds_12"
+        "primary": "ds_13"
       },
       "options": {
         "legendDisplay": "bottom"
       }
     },
-    "viz_13": {
-      "type": "splunk.table",
-      "title": "Netlogon problem events (keyword based)",
+    "viz_14": {
+      "type": "splunk.column",
+      "title": "Netlogon site affinity over time",
       "dataSources": {
-        "primary": "ds_13"
+        "primary": "ds_14"
       },
       "options": {
-        "count": 8,
+        "legendDisplay": "bottom",
+        "stackMode": "stacked"
+      }
+    },
+    "viz_15": {
+      "type": "splunk.table",
+      "title": "Subnets missing from AD Sites and Services (NO_CLIENT_SITE)",
+      "dataSources": {
+        "primary": "ds_15"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true
+      },
+      "description": "Clients authenticating from an IP that is not in any AD subnet (Netlogon NO_CLIENT_SITE): they may be served by a remote DC. Add these subnets to the right site in AD Sites and Services. The /24 grouping is an approximation."
+    },
+    "viz_16": {
+      "type": "splunk.table",
+      "title": "Clients without AD site - top hosts",
+      "dataSources": {
+        "primary": "ds_16"
+      },
+      "options": {
+        "count": 10,
         "wrap": true
       }
     },
-    "viz_14": {
+    "viz_17": {
       "type": "splunk.table",
       "title": "Data freshness per DC and source (minutes since last event)",
       "dataSources": {
-        "primary": "ds_14"
+        "primary": "ds_17"
       },
       "options": {
         "count": 15,
@@ -298,39 +350,9 @@
       },
       "description": "Empty cell = that DC never sent that source in the last 24h."
     },
-    "viz_15": {
-      "type": "splunk.line",
-      "title": "NTDS - LDAP searches/sec",
-      "dataSources": {
-        "primary": "ds_15"
-      },
-      "options": {
-        "legendDisplay": "bottom"
-      }
-    },
-    "viz_16": {
-      "type": "splunk.line",
-      "title": "NTDS - pending replication operations",
-      "dataSources": {
-        "primary": "ds_16"
-      },
-      "options": {
-        "legendDisplay": "bottom"
-      }
-    },
-    "viz_17": {
-      "type": "splunk.line",
-      "title": "NTDS - DS threads in use",
-      "dataSources": {
-        "primary": "ds_17"
-      },
-      "options": {
-        "legendDisplay": "bottom"
-      }
-    },
     "viz_18": {
       "type": "splunk.line",
-      "title": "CPU - % Processor Time (_Total)",
+      "title": "NTDS - LDAP searches/sec",
       "dataSources": {
         "primary": "ds_18"
       },
@@ -340,7 +362,7 @@
     },
     "viz_19": {
       "type": "splunk.line",
-      "title": "DNS - queries received/sec",
+      "title": "NTDS - pending replication operations",
       "dataSources": {
         "primary": "ds_19"
       },
@@ -350,7 +372,7 @@
     },
     "viz_20": {
       "type": "splunk.line",
-      "title": "DNS - recursive query failures/sec",
+      "title": "NTDS - DS threads in use",
       "dataSources": {
         "primary": "ds_20"
       },
@@ -360,9 +382,39 @@
     },
     "viz_21": {
       "type": "splunk.line",
-      "title": "Perfmon explorer: pick any counter",
+      "title": "CPU - % Processor Time (_Total)",
       "dataSources": {
         "primary": "ds_21"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_22": {
+      "type": "splunk.line",
+      "title": "DNS - queries received/sec",
+      "dataSources": {
+        "primary": "ds_22"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_23": {
+      "type": "splunk.line",
+      "title": "DNS - recursive query failures/sec",
+      "dataSources": {
+        "primary": "ds_23"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_24": {
+      "type": "splunk.line",
+      "title": "Perfmon explorer: pick any counter",
+      "dataSources": {
+        "primary": "ds_24"
       },
       "options": {
         "legendDisplay": "bottom"
@@ -428,6 +480,17 @@
     },
     "ds_6": {
       "type": "ds.search",
+      "name": "Clients without AD site (24h)",
+      "options": {
+        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Netlogon\" msad_affinity=NO_CLIENT_SITE | stats dc(src_ip)",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_7": {
+      "type": "ds.search",
       "name": "Silent sources (no data > 60 min)",
       "options": {
         "query": "| multisearch [search `adx_msad_index` (sourcetype=\"MSAD:NT6:Health\" OR sourcetype=\"MSAD:NT6:Replication\" OR sourcetype=\"MSAD:NT6:Netlogon\" OR sourcetype=\"MSAD:NT6:DNS-Health\") | fields host sourcetype _time] [search `adx_perfmon_index` (sourcetype=\"Perfmon:NTDS\" OR sourcetype=\"Perfmon:Processor\") | fields host sourcetype _time] | stats max(_time) as last by host sourcetype | where last<now()-3600 | stats count",
@@ -437,7 +500,7 @@
         }
       }
     },
-    "ds_7": {
+    "ds_8": {
       "type": "ds.search",
       "name": "Domain controllers - health, roles and inventory",
       "options": {
@@ -448,7 +511,7 @@
         }
       }
     },
-    "ds_8": {
+    "ds_9": {
       "type": "ds.search",
       "name": "Domain controllers by operating system",
       "options": {
@@ -459,7 +522,7 @@
         }
       }
     },
-    "ds_9": {
+    "ds_10": {
       "type": "ds.search",
       "name": "Domain controllers by AD site",
       "options": {
@@ -470,7 +533,7 @@
         }
       }
     },
-    "ds_10": {
+    "ds_11": {
       "type": "ds.search",
       "name": "FSMO role holders",
       "options": {
@@ -481,7 +544,7 @@
         }
       }
     },
-    "ds_11": {
+    "ds_12": {
       "type": "ds.search",
       "name": "DNS servers - health",
       "options": {
@@ -492,7 +555,7 @@
         }
       }
     },
-    "ds_12": {
+    "ds_13": {
       "type": "ds.search",
       "name": "Highest USN by DC (directory change activity)",
       "options": {
@@ -503,18 +566,40 @@
         }
       }
     },
-    "ds_13": {
+    "ds_14": {
       "type": "ds.search",
-      "name": "Netlogon problem events (keyword based)",
+      "name": "Netlogon site affinity over time",
       "options": {
-        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Netlogon\" `adx_problem_terms` | eval message=substr(_raw,1,400) | sort - _time | table _time host sourcetype message",
+        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Netlogon\" | fillnull value=\"OTHER\" msad_affinity | timechart span=1h count by msad_affinity",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"
         }
       }
     },
-    "ds_14": {
+    "ds_15": {
+      "type": "ds.search",
+      "name": "Subnets missing from AD Sites and Services (NO_CLIENT_SITE)",
+      "options": {
+        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Netlogon\" msad_affinity=NO_CLIENT_SITE | eval subnet=replace(src_ip,\"^(\\d+\\.\\d+\\.\\d+)\\.\\d+\",\"\\1.0/24\") | stats count as requests, dc(src_ip) as clients, dc(src_host) as hosts, values(host) as seen_by_dc, latest(src_host) as sample_host by subnet | sort - requests",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_16": {
+      "type": "ds.search",
+      "name": "Clients without AD site - top hosts",
+      "options": {
+        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Netlogon\" msad_affinity=NO_CLIENT_SITE | stats count as requests, latest(src_ip) as src_ip, latest(src_domain) as domain, values(host) as seen_by_dc by src_host | sort - requests",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_17": {
       "type": "ds.search",
       "name": "Data freshness per DC and source (minutes since last event)",
       "options": {
@@ -525,7 +610,7 @@
         }
       }
     },
-    "ds_15": {
+    "ds_18": {
       "type": "ds.search",
       "name": "NTDS - LDAP searches/sec",
       "options": {
@@ -536,7 +621,7 @@
         }
       }
     },
-    "ds_16": {
+    "ds_19": {
       "type": "ds.search",
       "name": "NTDS - pending replication operations",
       "options": {
@@ -547,7 +632,7 @@
         }
       }
     },
-    "ds_17": {
+    "ds_20": {
       "type": "ds.search",
       "name": "NTDS - DS threads in use",
       "options": {
@@ -558,7 +643,7 @@
         }
       }
     },
-    "ds_18": {
+    "ds_21": {
       "type": "ds.search",
       "name": "CPU - % Processor Time (_Total)",
       "options": {
@@ -569,7 +654,7 @@
         }
       }
     },
-    "ds_19": {
+    "ds_22": {
       "type": "ds.search",
       "name": "DNS - queries received/sec",
       "options": {
@@ -580,7 +665,7 @@
         }
       }
     },
-    "ds_20": {
+    "ds_23": {
       "type": "ds.search",
       "name": "DNS - recursive query failures/sec",
       "options": {
@@ -591,7 +676,7 @@
         }
       }
     },
-    "ds_21": {
+    "ds_24": {
       "type": "ds.search",
       "name": "Perfmon explorer: pick any counter",
       "options": {
@@ -618,7 +703,7 @@
     "type": "grid",
     "options": {
       "width": 1440,
-      "height": 3270,
+      "height": 3676,
       "display": "auto-scale"
     },
     "structure": [
@@ -628,7 +713,7 @@
         "position": {
           "x": 0,
           "y": 0,
-          "w": 240,
+          "w": 206,
           "h": 130
         }
       },
@@ -636,9 +721,9 @@
         "item": "viz_2",
         "type": "block",
         "position": {
-          "x": 240,
+          "x": 206,
           "y": 0,
-          "w": 240,
+          "w": 206,
           "h": 130
         }
       },
@@ -646,9 +731,9 @@
         "item": "viz_3",
         "type": "block",
         "position": {
-          "x": 480,
+          "x": 412,
           "y": 0,
-          "w": 240,
+          "w": 206,
           "h": 130
         }
       },
@@ -656,9 +741,9 @@
         "item": "viz_4",
         "type": "block",
         "position": {
-          "x": 720,
+          "x": 618,
           "y": 0,
-          "w": 240,
+          "w": 206,
           "h": 130
         }
       },
@@ -666,9 +751,9 @@
         "item": "viz_5",
         "type": "block",
         "position": {
-          "x": 960,
+          "x": 824,
           "y": 0,
-          "w": 240,
+          "w": 206,
           "h": 130
         }
       },
@@ -676,14 +761,24 @@
         "item": "viz_6",
         "type": "block",
         "position": {
-          "x": 1200,
+          "x": 1030,
           "y": 0,
-          "w": 240,
+          "w": 206,
           "h": 130
         }
       },
       {
         "item": "viz_7",
+        "type": "block",
+        "position": {
+          "x": 1236,
+          "y": 0,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_8",
         "type": "block",
         "position": {
           "x": 0,
@@ -693,20 +788,10 @@
         }
       },
       {
-        "item": "viz_8",
-        "type": "block",
-        "position": {
-          "x": 0,
-          "y": 646,
-          "w": 480,
-          "h": 320
-        }
-      },
-      {
         "item": "viz_9",
         "type": "block",
         "position": {
-          "x": 480,
+          "x": 0,
           "y": 646,
           "w": 480,
           "h": 320
@@ -716,7 +801,7 @@
         "item": "viz_10",
         "type": "block",
         "position": {
-          "x": 960,
+          "x": 480,
           "y": 646,
           "w": 480,
           "h": 320
@@ -726,10 +811,10 @@
         "item": "viz_11",
         "type": "block",
         "position": {
-          "x": 0,
-          "y": 966,
-          "w": 1440,
-          "h": 384
+          "x": 960,
+          "y": 646,
+          "w": 480,
+          "h": 320
         }
       },
       {
@@ -737,8 +822,8 @@
         "type": "block",
         "position": {
           "x": 0,
-          "y": 1350,
-          "w": 720,
+          "y": 966,
+          "w": 1440,
           "h": 384
         }
       },
@@ -746,20 +831,20 @@
         "item": "viz_13",
         "type": "block",
         "position": {
-          "x": 720,
+          "x": 0,
           "y": 1350,
           "w": 720,
-          "h": 384
+          "h": 340
         }
       },
       {
         "item": "viz_14",
         "type": "block",
         "position": {
-          "x": 0,
-          "y": 1734,
-          "w": 1440,
-          "h": 516
+          "x": 720,
+          "y": 1350,
+          "w": 720,
+          "h": 340
         }
       },
       {
@@ -767,29 +852,29 @@
         "type": "block",
         "position": {
           "x": 0,
-          "y": 2250,
-          "w": 480,
-          "h": 320
+          "y": 1690,
+          "w": 720,
+          "h": 450
         }
       },
       {
         "item": "viz_16",
         "type": "block",
         "position": {
-          "x": 480,
-          "y": 2250,
-          "w": 480,
-          "h": 320
+          "x": 720,
+          "y": 1690,
+          "w": 720,
+          "h": 450
         }
       },
       {
         "item": "viz_17",
         "type": "block",
         "position": {
-          "x": 960,
-          "y": 2250,
-          "w": 480,
-          "h": 320
+          "x": 0,
+          "y": 2140,
+          "w": 1440,
+          "h": 516
         }
       },
       {
@@ -797,7 +882,7 @@
         "type": "block",
         "position": {
           "x": 0,
-          "y": 2570,
+          "y": 2656,
           "w": 480,
           "h": 320
         }
@@ -807,7 +892,7 @@
         "type": "block",
         "position": {
           "x": 480,
-          "y": 2570,
+          "y": 2656,
           "w": 480,
           "h": 320
         }
@@ -817,7 +902,7 @@
         "type": "block",
         "position": {
           "x": 960,
-          "y": 2570,
+          "y": 2656,
           "w": 480,
           "h": 320
         }
@@ -827,7 +912,37 @@
         "type": "block",
         "position": {
           "x": 0,
-          "y": 2890,
+          "y": 2976,
+          "w": 480,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_22",
+        "type": "block",
+        "position": {
+          "x": 480,
+          "y": 2976,
+          "w": 480,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_23",
+        "type": "block",
+        "position": {
+          "x": 960,
+          "y": 2976,
+          "w": 480,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_24",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 3296,
           "w": 1440,
           "h": 380
         }
