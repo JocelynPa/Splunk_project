@@ -44,7 +44,7 @@ All dashboards are **Dashboard Studio** (`version="2"`, dark theme, grid layout)
 | `adx_index` | Index of the Windows event logs | `index=idx_eventlog_win` |
 | `adx_users_lookup` / `adx_computers_lookup` | Lookup names from the AD Objects app | `AD_Obj_User` / `AD_Obj_Computer` (lookup definitions; group lookup `AD_Obj_Group` in `adx_groups_lookup`) |
 | `adx_repl_data` | Replication events | `MSAD:NT6:Replication` in `idx_msad_win` |
-| `adx_stale_days`, `adx_max_pwd_age_days`, `adx_krbtgt_max_age_days`, `adx_spray_threshold` | Thresholds | 90, 90, 180, 10 |
+| `adx_stale_days`, `adx_max_pwd_age_days`, `adx_priv_max_pwd_age_days`, `adx_krbtgt_max_age_days`, `adx_spray_threshold` | Thresholds (`adx_max_pwd_age_days` should match your domain maximum password age) | 90, 90, 180, 180, 10 |
 | `adx_offhours_filter` | What counts as off-hours | before 07:00, from 19:00, weekends |
 | `adx_priv_group_names` | Privileged groups (EN + FR names) | Domain Admins, Admins du domaine, ... |
 | `adx_normalize` | Maps Splunk_TA_windows field names to `target_user`, `actor_user`, `src_ip`, `src_host`, ... | see file |
@@ -70,6 +70,8 @@ and alerts follow the file. An account is matched both when it is the
 (it is used to change other things).
 
 ## Notes and limits
+
+* **Password rules:** the overview flags enabled accounts with password never expires, password not required, expired password (older than `adx_max_pwd_age_days`), must-change-at-next-logon, reversible encryption, DES-only keys, and privileged passwords older than `adx_priv_max_pwd_age_days`. AD does not expose password contents, so weak, reused or leaked passwords cannot be detected from the lookups (use an offline audit such as DSInternals `Test-PasswordQuality`, or password-protection tooling). Fine-grained password policies are not taken into account.
 
 * The overview reflects the last refresh of the AD Objects lookups, not live
   LDAP. `lastLogonTimestamp` is replicated only every ~9-14 days, so use the

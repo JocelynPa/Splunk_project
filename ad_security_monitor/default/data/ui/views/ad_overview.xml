@@ -208,60 +208,247 @@
       }
     },
     "viz_11": {
-      "type": "splunk.pie",
-      "title": "Enabled vs disabled",
+      "type": "splunk.singlevalue",
+      "title": "Password expired (enabled)",
       "dataSources": {
         "primary": "ds_11"
       },
       "options": {
-        "legendDisplay": "bottom"
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)",
+        "underLabel": "older than adx_max_pwd_age_days"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#FFC300",
+            "from": 1,
+            "to": 50
+          },
+          {
+            "value": "#B0413E",
+            "from": 50
+          }
+        ]
       }
     },
     "viz_12": {
-      "type": "splunk.pie",
-      "title": "Password posture of enabled accounts",
+      "type": "splunk.singlevalue",
+      "title": "Password expires within 14 days",
       "dataSources": {
         "primary": "ds_12"
       },
       "options": {
-        "legendDisplay": "bottom"
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#FFC300",
+            "from": 1,
+            "to": 50
+          },
+          {
+            "value": "#B0413E",
+            "from": 50
+          }
+        ]
       }
     },
     "viz_13": {
-      "type": "splunk.column",
-      "title": "Password age of enabled accounts",
+      "type": "splunk.singlevalue",
+      "title": "Must change password at next logon",
       "dataSources": {
         "primary": "ds_13"
       },
       "options": {
-        "legendDisplay": "off"
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
       }
     },
     "viz_14": {
-      "type": "splunk.column",
-      "title": "Last logon of enabled accounts",
+      "type": "splunk.singlevalue",
+      "title": "Accounts not compliant with password rules",
       "dataSources": {
         "primary": "ds_14"
       },
       "options": {
-        "legendDisplay": "off"
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#FFC300",
+            "from": 1,
+            "to": 50
+          },
+          {
+            "value": "#B0413E",
+            "from": 50
+          }
+        ]
       }
     },
     "viz_15": {
-      "type": "splunk.bar",
-      "title": "Password never expires - by OU (top 15, enabled)",
+      "type": "splunk.singlevalue",
+      "title": "Privileged passwords too old",
       "dataSources": {
         "primary": "ds_15"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_16": {
+      "type": "splunk.bar",
+      "title": "Password rule violations (enabled accounts)",
+      "dataSources": {
+        "primary": "ds_16"
+      },
+      "options": {
+        "legendDisplay": "off"
+      },
+      "description": "Based on UAC flags, password age and privileged membership. AD does not expose password contents: weak, leaked or dictionary passwords need an offline audit (e.g. DSInternals Test-PasswordQuality) or Entra/AD password protection."
+    },
+    "viz_17": {
+      "type": "splunk.table",
+      "title": "Accounts not compliant with password rules",
+      "dataSources": {
+        "primary": "ds_17"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true,
+        "columnFormat": {
+          "privileged": {
+            "rowBackgroundColors": "> table | seriesByName(\"privileged\") | matchValue(privilegedColorConfig)"
+          }
+        }
+      },
+      "context": {
+        "privilegedColorConfig": [
+          {
+            "match": "YES",
+            "value": "#F8BE34"
+          }
+        ]
+      }
+    },
+    "viz_18": {
+      "type": "splunk.table",
+      "title": "Passwords expired or expiring within 14 days",
+      "dataSources": {
+        "primary": "ds_18"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true,
+        "columnFormat": {
+          "status": {
+            "rowBackgroundColors": "> table | seriesByName(\"status\") | matchValue(statusColorConfig)"
+          }
+        }
+      },
+      "description": "Negative value = days since the password expired (domain maximum password age = macro adx_max_pwd_age_days; fine-grained policies are not taken into account).",
+      "context": {
+        "statusColorConfig": [
+          {
+            "match": "EXPIRED",
+            "value": "#B0413E"
+          },
+          {
+            "match": "EXPIRING",
+            "value": "#F8BE34"
+          }
+        ]
+      }
+    },
+    "viz_19": {
+      "type": "splunk.pie",
+      "title": "Enabled vs disabled",
+      "dataSources": {
+        "primary": "ds_19"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_20": {
+      "type": "splunk.pie",
+      "title": "Password posture of enabled accounts",
+      "dataSources": {
+        "primary": "ds_20"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_21": {
+      "type": "splunk.column",
+      "title": "Password age of enabled accounts",
+      "dataSources": {
+        "primary": "ds_21"
       },
       "options": {
         "legendDisplay": "off"
       }
     },
-    "viz_16": {
+    "viz_22": {
+      "type": "splunk.column",
+      "title": "Last logon of enabled accounts",
+      "dataSources": {
+        "primary": "ds_22"
+      },
+      "options": {
+        "legendDisplay": "off"
+      }
+    },
+    "viz_23": {
+      "type": "splunk.bar",
+      "title": "Password never expires - by OU (top 15, enabled)",
+      "dataSources": {
+        "primary": "ds_23"
+      },
+      "options": {
+        "legendDisplay": "off"
+      }
+    },
+    "viz_24": {
       "type": "splunk.table",
       "title": "Password never expires - enabled accounts",
       "dataSources": {
-        "primary": "ds_16"
+        "primary": "ds_24"
       },
       "options": {
         "count": 12,
@@ -281,87 +468,87 @@
         ]
       }
     },
-    "viz_17": {
+    "viz_25": {
       "type": "splunk.table",
       "title": "Risky account configurations (enabled)",
       "dataSources": {
-        "primary": "ds_17"
+        "primary": "ds_25"
       },
       "options": {
         "count": 12,
         "wrap": true
       }
     },
-    "viz_18": {
+    "viz_26": {
       "type": "splunk.table",
       "title": "Accounts expiring in the next 30 days",
       "dataSources": {
-        "primary": "ds_18"
+        "primary": "ds_26"
       },
       "options": {
         "count": 12,
         "wrap": true
       }
     },
-    "viz_19": {
+    "viz_27": {
       "type": "splunk.table",
       "title": "Enabled accounts past their expiry date",
       "dataSources": {
-        "primary": "ds_19"
+        "primary": "ds_27"
       },
       "options": {
         "count": 8,
         "wrap": true
       }
     },
-    "viz_20": {
+    "viz_28": {
       "type": "splunk.table",
       "title": "Disabled accounts that still belong to a privileged group",
       "dataSources": {
-        "primary": "ds_20"
+        "primary": "ds_28"
       },
       "options": {
         "count": 8,
         "wrap": true
       }
     },
-    "viz_21": {
+    "viz_29": {
       "type": "splunk.table",
       "title": "Stale enabled accounts (oldest logon first)",
       "dataSources": {
-        "primary": "ds_21"
+        "primary": "ds_29"
       },
       "options": {
         "count": 8,
         "wrap": true
       }
     },
-    "viz_22": {
+    "viz_30": {
       "type": "splunk.line",
       "title": "Daily trend (needs the \"AD KPI Snapshot\" saved search enabled)",
       "dataSources": {
-        "primary": "ds_22"
+        "primary": "ds_30"
       },
       "options": {
         "legendDisplay": "bottom"
       },
       "description": "History is built by the disabled-by-default saved search \"AD - KPI Snapshot to Summary Index\". Enable it to see how these figures evolve."
     },
-    "viz_23": {
+    "viz_31": {
       "type": "splunk.bar",
       "title": "Computers by operating system (top 10)",
       "dataSources": {
-        "primary": "ds_23"
+        "primary": "ds_31"
       },
       "options": {
         "legendDisplay": "off"
       }
     },
-    "viz_24": {
+    "viz_32": {
       "type": "splunk.singlevalue",
       "title": "Stale enabled computers",
       "dataSources": {
-        "primary": "ds_24"
+        "primary": "ds_32"
       },
       "options": {
         "sparklineDisplay": "off",
@@ -500,6 +687,94 @@
     },
     "ds_11": {
       "type": "ds.search",
+      "name": "Password expired (enabled)",
+      "options": {
+        "query": "| `adx_users` | where is_disabled=0 AND pwd_expired=1 | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_12": {
+      "type": "ds.search",
+      "name": "Password expires within 14 days",
+      "options": {
+        "query": "| `adx_users` | where is_disabled=0 AND isnotnull(pwd_days_left) AND pwd_days_left>=0 AND pwd_days_left<=14 | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_13": {
+      "type": "ds.search",
+      "name": "Must change password at next logon",
+      "options": {
+        "query": "| `adx_users` | where is_disabled=0 AND must_change_pwd=1 | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_14": {
+      "type": "ds.search",
+      "name": "Accounts not compliant with password rules",
+      "options": {
+        "query": "| `adx_users` | `adx_pwd_violations` | where isnotnull(violations) | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_15": {
+      "type": "ds.search",
+      "name": "Privileged passwords too old",
+      "options": {
+        "query": "| `adx_users` | where is_disabled=0 AND is_privileged=1 AND pwd_age_days>`adx_priv_max_pwd_age_days` | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_16": {
+      "type": "ds.search",
+      "name": "Password rule violations (enabled accounts)",
+      "options": {
+        "query": "| `adx_users` | `adx_pwd_violations` | mvexpand violations | stats count by violations | sort - count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_17": {
+      "type": "ds.search",
+      "name": "Accounts not compliant with password rules",
+      "options": {
+        "query": "| `adx_users` | `adx_pwd_violations` | where isnotnull(violations) | eval n=mvcount(violations), privileged=if(is_privileged=1,\"YES\",\"no\"), last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort - n, - pwd_age_days | table sam display_name violations pwd_age_days last_logon privileged ou",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_18": {
+      "type": "ds.search",
+      "name": "Passwords expired or expiring within 14 days",
+      "options": {
+        "query": "| `adx_users` | where is_disabled=0 AND isnotnull(pwd_days_left) AND pwd_days_left<=14 | eval status=if(pwd_days_left<0,\"EXPIRED\",\"EXPIRING\"), days_overdue_or_left=pwd_days_left, last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort pwd_days_left | table sam display_name status days_overdue_or_left pwd_age_days last_logon ou",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_19": {
+      "type": "ds.search",
       "name": "Enabled vs disabled",
       "options": {
         "query": "| `adx_users` | eval state=if(is_disabled=1,\"Disabled\",\"Enabled\") | stats count by state",
@@ -509,7 +784,7 @@
         }
       }
     },
-    "ds_12": {
+    "ds_20": {
       "type": "ds.search",
       "name": "Password posture of enabled accounts",
       "options": {
@@ -520,7 +795,7 @@
         }
       }
     },
-    "ds_13": {
+    "ds_21": {
       "type": "ds.search",
       "name": "Password age of enabled accounts",
       "options": {
@@ -531,7 +806,7 @@
         }
       }
     },
-    "ds_14": {
+    "ds_22": {
       "type": "ds.search",
       "name": "Last logon of enabled accounts",
       "options": {
@@ -542,7 +817,7 @@
         }
       }
     },
-    "ds_15": {
+    "ds_23": {
       "type": "ds.search",
       "name": "Password never expires - by OU (top 15, enabled)",
       "options": {
@@ -553,7 +828,7 @@
         }
       }
     },
-    "ds_16": {
+    "ds_24": {
       "type": "ds.search",
       "name": "Password never expires - enabled accounts",
       "options": {
@@ -564,7 +839,7 @@
         }
       }
     },
-    "ds_17": {
+    "ds_25": {
       "type": "ds.search",
       "name": "Risky account configurations (enabled)",
       "options": {
@@ -575,7 +850,7 @@
         }
       }
     },
-    "ds_18": {
+    "ds_26": {
       "type": "ds.search",
       "name": "Accounts expiring in the next 30 days",
       "options": {
@@ -586,7 +861,7 @@
         }
       }
     },
-    "ds_19": {
+    "ds_27": {
       "type": "ds.search",
       "name": "Enabled accounts past their expiry date",
       "options": {
@@ -597,7 +872,7 @@
         }
       }
     },
-    "ds_20": {
+    "ds_28": {
       "type": "ds.search",
       "name": "Disabled accounts that still belong to a privileged group",
       "options": {
@@ -608,7 +883,7 @@
         }
       }
     },
-    "ds_21": {
+    "ds_29": {
       "type": "ds.search",
       "name": "Stale enabled accounts (oldest logon first)",
       "options": {
@@ -619,7 +894,7 @@
         }
       }
     },
-    "ds_22": {
+    "ds_30": {
       "type": "ds.search",
       "name": "Daily trend (needs the \"AD KPI Snapshot\" saved search enabled)",
       "options": {
@@ -630,7 +905,7 @@
         }
       }
     },
-    "ds_23": {
+    "ds_31": {
       "type": "ds.search",
       "name": "Computers by operating system (top 10)",
       "options": {
@@ -641,7 +916,7 @@
         }
       }
     },
-    "ds_24": {
+    "ds_32": {
       "type": "ds.search",
       "name": "Stale enabled computers",
       "options": {
@@ -657,7 +932,7 @@
     "type": "grid",
     "options": {
       "width": 1440,
-      "height": 2356,
+      "height": 3386,
       "display": "auto-scale"
     },
     "structure": [
@@ -767,78 +1042,78 @@
         "position": {
           "x": 0,
           "y": 260,
-          "w": 360,
-          "h": 320
+          "w": 288,
+          "h": 130
         }
       },
       {
         "item": "viz_12",
         "type": "block",
         "position": {
-          "x": 360,
+          "x": 288,
           "y": 260,
-          "w": 360,
-          "h": 320
+          "w": 288,
+          "h": 130
         }
       },
       {
         "item": "viz_13",
         "type": "block",
         "position": {
-          "x": 720,
+          "x": 576,
           "y": 260,
-          "w": 360,
-          "h": 320
+          "w": 288,
+          "h": 130
         }
       },
       {
         "item": "viz_14",
         "type": "block",
         "position": {
-          "x": 1080,
+          "x": 864,
           "y": 260,
-          "w": 360,
-          "h": 320
+          "w": 288,
+          "h": 130
         }
       },
       {
         "item": "viz_15",
         "type": "block",
         "position": {
-          "x": 0,
-          "y": 580,
-          "w": 720,
-          "h": 516
+          "x": 1152,
+          "y": 260,
+          "w": 288,
+          "h": 130
         }
       },
       {
         "item": "viz_16",
         "type": "block",
         "position": {
-          "x": 720,
-          "y": 580,
+          "x": 0,
+          "y": 390,
           "w": 720,
-          "h": 516
+          "h": 450
         }
       },
       {
         "item": "viz_17",
         "type": "block",
         "position": {
-          "x": 0,
-          "y": 1096,
+          "x": 720,
+          "y": 390,
           "w": 720,
-          "h": 516
+          "h": 450
         }
       },
       {
         "item": "viz_18",
         "type": "block",
         "position": {
-          "x": 720,
-          "y": 1096,
-          "w": 720,
-          "h": 516
+          "x": 0,
+          "y": 840,
+          "w": 1440,
+          "h": 450
         }
       },
       {
@@ -846,57 +1121,137 @@
         "type": "block",
         "position": {
           "x": 0,
-          "y": 1612,
-          "w": 480,
-          "h": 384
+          "y": 1290,
+          "w": 360,
+          "h": 320
         }
       },
       {
         "item": "viz_20",
         "type": "block",
         "position": {
-          "x": 480,
-          "y": 1612,
-          "w": 480,
-          "h": 384
+          "x": 360,
+          "y": 1290,
+          "w": 360,
+          "h": 320
         }
       },
       {
         "item": "viz_21",
         "type": "block",
         "position": {
-          "x": 960,
-          "y": 1612,
-          "w": 480,
-          "h": 384
+          "x": 720,
+          "y": 1290,
+          "w": 360,
+          "h": 320
         }
       },
       {
         "item": "viz_22",
         "type": "block",
         "position": {
-          "x": 0,
-          "y": 1996,
-          "w": 480,
-          "h": 360
+          "x": 1080,
+          "y": 1290,
+          "w": 360,
+          "h": 320
         }
       },
       {
         "item": "viz_23",
         "type": "block",
         "position": {
-          "x": 480,
-          "y": 1996,
-          "w": 480,
-          "h": 360
+          "x": 0,
+          "y": 1610,
+          "w": 720,
+          "h": 516
         }
       },
       {
         "item": "viz_24",
         "type": "block",
         "position": {
+          "x": 720,
+          "y": 1610,
+          "w": 720,
+          "h": 516
+        }
+      },
+      {
+        "item": "viz_25",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 2126,
+          "w": 720,
+          "h": 516
+        }
+      },
+      {
+        "item": "viz_26",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 2126,
+          "w": 720,
+          "h": 516
+        }
+      },
+      {
+        "item": "viz_27",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 2642,
+          "w": 480,
+          "h": 384
+        }
+      },
+      {
+        "item": "viz_28",
+        "type": "block",
+        "position": {
+          "x": 480,
+          "y": 2642,
+          "w": 480,
+          "h": 384
+        }
+      },
+      {
+        "item": "viz_29",
+        "type": "block",
+        "position": {
           "x": 960,
-          "y": 1996,
+          "y": 2642,
+          "w": 480,
+          "h": 384
+        }
+      },
+      {
+        "item": "viz_30",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 3026,
+          "w": 480,
+          "h": 360
+        }
+      },
+      {
+        "item": "viz_31",
+        "type": "block",
+        "position": {
+          "x": 480,
+          "y": 3026,
+          "w": 480,
+          "h": 360
+        }
+      },
+      {
+        "item": "viz_32",
+        "type": "block",
+        "position": {
+          "x": 960,
+          "y": 3026,
           "w": 480,
           "h": 360
         }
