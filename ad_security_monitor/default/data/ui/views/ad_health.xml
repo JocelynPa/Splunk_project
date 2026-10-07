@@ -60,7 +60,7 @@
   "visualizations": {
     "viz_1": {
       "type": "splunk.singlevalue",
-      "title": "DCs sending health data",
+      "title": "DCs reporting health",
       "dataSources": {
         "primary": "ds_1"
       },
@@ -71,96 +71,9 @@
     },
     "viz_2": {
       "type": "splunk.singlevalue",
-      "title": "Health events flagging a problem",
+      "title": "DCs with a problem",
       "dataSources": {
         "primary": "ds_2"
-      },
-      "options": {
-        "sparklineDisplay": "off",
-        "trendDisplay": "off",
-        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
-      },
-      "context": {
-        "majorColorEditorConfig": [
-          {
-            "value": "#65A637",
-            "to": 1
-          },
-          {
-            "value": "#FFC300",
-            "from": 1,
-            "to": 10
-          },
-          {
-            "value": "#B0413E",
-            "from": 10
-          }
-        ]
-      }
-    },
-    "viz_3": {
-      "type": "splunk.singlevalue",
-      "title": "Netlogon problem events",
-      "dataSources": {
-        "primary": "ds_3"
-      },
-      "options": {
-        "sparklineDisplay": "off",
-        "trendDisplay": "off",
-        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
-      },
-      "context": {
-        "majorColorEditorConfig": [
-          {
-            "value": "#65A637",
-            "to": 1
-          },
-          {
-            "value": "#FFC300",
-            "from": 1,
-            "to": 50
-          },
-          {
-            "value": "#B0413E",
-            "from": 50
-          }
-        ]
-      }
-    },
-    "viz_4": {
-      "type": "splunk.singlevalue",
-      "title": "DNS health problem events",
-      "dataSources": {
-        "primary": "ds_4"
-      },
-      "options": {
-        "sparklineDisplay": "off",
-        "trendDisplay": "off",
-        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
-      },
-      "context": {
-        "majorColorEditorConfig": [
-          {
-            "value": "#65A637",
-            "to": 1
-          },
-          {
-            "value": "#FFC300",
-            "from": 1,
-            "to": 10
-          },
-          {
-            "value": "#B0413E",
-            "from": 10
-          }
-        ]
-      }
-    },
-    "viz_5": {
-      "type": "splunk.singlevalue",
-      "title": "Silent sources (no data > 60 min)",
-      "dataSources": {
-        "primary": "ds_5"
       },
       "options": {
         "sparklineDisplay": "off",
@@ -180,75 +93,181 @@
         ]
       }
     },
+    "viz_3": {
+      "type": "splunk.singlevalue",
+      "title": "SYSVOL not shared",
+      "dataSources": {
+        "primary": "ds_3"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_4": {
+      "type": "splunk.singlevalue",
+      "title": "DNS servers with a problem",
+      "dataSources": {
+        "primary": "ds_4"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_5": {
+      "type": "splunk.singlevalue",
+      "title": "Global catalogs",
+      "dataSources": {
+        "primary": "ds_5"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
     "viz_6": {
-      "type": "splunk.table",
-      "title": "Data freshness per DC and source (last event seen)",
+      "type": "splunk.singlevalue",
+      "title": "Silent sources (no data > 60 min)",
       "dataSources": {
         "primary": "ds_6"
       },
       "options": {
-        "count": 15,
-        "wrap": true
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
       },
-      "description": "Minutes since the last event for each DC and each AD data source. Empty cell = that DC never sent that source in the last 24h."
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
     },
     "viz_7": {
       "type": "splunk.table",
-      "title": "AD health check events flagging a problem",
+      "title": "Domain controllers - health, roles and inventory",
       "dataSources": {
         "primary": "ds_7"
       },
       "options": {
-        "count": 10,
-        "wrap": true
+        "count": 12,
+        "wrap": true,
+        "columnFormat": {
+          "status": {
+            "rowBackgroundColors": "> table | seriesByName(\"status\") | matchValue(statusColorConfig)"
+          }
+        }
+      },
+      "description": "Latest MSAD:NT6:Health state of each DC. PROBLEM = SYSVOL not shared, processes not OK, DNS registration failed, or a monitored service down (ntfrs is ignored: expected stopped with DFSR). fsmo = FSMO roles held; istg = intersite topology generator.",
+      "context": {
+        "statusColorConfig": [
+          {
+            "match": "OK",
+            "value": "#65A637"
+          },
+          {
+            "match": "PROBLEM",
+            "value": "#B0413E"
+          }
+        ]
       }
     },
     "viz_8": {
-      "type": "splunk.table",
-      "title": "Netlogon problem events",
+      "type": "splunk.pie",
+      "title": "Domain controllers by operating system",
       "dataSources": {
         "primary": "ds_8"
-      },
-      "options": {
-        "count": 10,
-        "wrap": true
-      }
-    },
-    "viz_9": {
-      "type": "splunk.table",
-      "title": "DNS health problem events",
-      "dataSources": {
-        "primary": "ds_9"
-      },
-      "options": {
-        "count": 10,
-        "wrap": true
-      }
-    },
-    "viz_10": {
-      "type": "splunk.column",
-      "title": "Problem events over time by source",
-      "dataSources": {
-        "primary": "ds_10"
-      },
-      "options": {
-        "legendDisplay": "bottom",
-        "stackMode": "stacked"
-      }
-    },
-    "viz_11": {
-      "type": "splunk.line",
-      "title": "NTDS - LDAP searches/sec",
-      "dataSources": {
-        "primary": "ds_11"
       },
       "options": {
         "legendDisplay": "bottom"
       }
     },
+    "viz_9": {
+      "type": "splunk.bar",
+      "title": "Domain controllers by AD site",
+      "dataSources": {
+        "primary": "ds_9"
+      },
+      "options": {
+        "legendDisplay": "off"
+      }
+    },
+    "viz_10": {
+      "type": "splunk.table",
+      "title": "FSMO role holders",
+      "dataSources": {
+        "primary": "ds_10"
+      },
+      "options": {
+        "count": 6,
+        "wrap": true
+      }
+    },
+    "viz_11": {
+      "type": "splunk.table",
+      "title": "DNS servers - health",
+      "dataSources": {
+        "primary": "ds_11"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true,
+        "columnFormat": {
+          "status": {
+            "rowBackgroundColors": "> table | seriesByName(\"status\") | matchValue(statusColorConfig)"
+          }
+        }
+      },
+      "description": "Latest MSAD:NT6:DNS-Health state of each DNS server (service status, DNSSEC, recursion, scavenging interval, forwarders).",
+      "context": {
+        "statusColorConfig": [
+          {
+            "match": "OK",
+            "value": "#65A637"
+          },
+          {
+            "match": "PROBLEM",
+            "value": "#B0413E"
+          }
+        ]
+      }
+    },
     "viz_12": {
       "type": "splunk.line",
-      "title": "NTDS - pending replication operations",
+      "title": "Highest USN by DC (directory change activity)",
       "dataSources": {
         "primary": "ds_12"
       },
@@ -257,28 +276,31 @@
       }
     },
     "viz_13": {
-      "type": "splunk.line",
-      "title": "NTDS - DS threads in use",
+      "type": "splunk.table",
+      "title": "Netlogon problem events (keyword based)",
       "dataSources": {
         "primary": "ds_13"
       },
       "options": {
-        "legendDisplay": "bottom"
+        "count": 8,
+        "wrap": true
       }
     },
     "viz_14": {
-      "type": "splunk.line",
-      "title": "CPU - % Processor Time (_Total)",
+      "type": "splunk.table",
+      "title": "Data freshness per DC and source (minutes since last event)",
       "dataSources": {
         "primary": "ds_14"
       },
       "options": {
-        "legendDisplay": "bottom"
-      }
+        "count": 15,
+        "wrap": true
+      },
+      "description": "Empty cell = that DC never sent that source in the last 24h."
     },
     "viz_15": {
       "type": "splunk.line",
-      "title": "DNS - queries received/sec",
+      "title": "NTDS - LDAP searches/sec",
       "dataSources": {
         "primary": "ds_15"
       },
@@ -288,7 +310,7 @@
     },
     "viz_16": {
       "type": "splunk.line",
-      "title": "DNS - recursive query failures/sec",
+      "title": "NTDS - pending replication operations",
       "dataSources": {
         "primary": "ds_16"
       },
@@ -298,9 +320,49 @@
     },
     "viz_17": {
       "type": "splunk.line",
-      "title": "Perfmon explorer: pick any counter",
+      "title": "NTDS - DS threads in use",
       "dataSources": {
         "primary": "ds_17"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_18": {
+      "type": "splunk.line",
+      "title": "CPU - % Processor Time (_Total)",
+      "dataSources": {
+        "primary": "ds_18"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_19": {
+      "type": "splunk.line",
+      "title": "DNS - queries received/sec",
+      "dataSources": {
+        "primary": "ds_19"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_20": {
+      "type": "splunk.line",
+      "title": "DNS - recursive query failures/sec",
+      "dataSources": {
+        "primary": "ds_20"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_21": {
+      "type": "splunk.line",
+      "title": "Perfmon explorer: pick any counter",
+      "dataSources": {
+        "primary": "ds_21"
       },
       "options": {
         "legendDisplay": "bottom"
@@ -311,49 +373,60 @@
   "dataSources": {
     "ds_1": {
       "type": "ds.search",
-      "name": "DCs sending health data",
+      "name": "DCs reporting health",
       "options": {
-        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Health\" | stats dc(host)",
+        "query": "`adx_dc_health` | stats count",
         "queryParameters": {
-          "earliest": "$global_time.earliest$",
-          "latest": "$global_time.latest$"
+          "earliest": "-24h",
+          "latest": "now"
         }
       }
     },
     "ds_2": {
       "type": "ds.search",
-      "name": "Health events flagging a problem",
+      "name": "DCs with a problem",
       "options": {
-        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Health\" `adx_problem_terms` | stats count",
+        "query": "`adx_dc_health` | where status=\"PROBLEM\" | stats count",
         "queryParameters": {
-          "earliest": "$global_time.earliest$",
-          "latest": "$global_time.latest$"
+          "earliest": "-24h",
+          "latest": "now"
         }
       }
     },
     "ds_3": {
       "type": "ds.search",
-      "name": "Netlogon problem events",
+      "name": "SYSVOL not shared",
       "options": {
-        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Netlogon\" `adx_problem_terms` | stats count",
+        "query": "`adx_dc_health` | where sysvol!=\"True\" | stats count",
         "queryParameters": {
-          "earliest": "$global_time.earliest$",
-          "latest": "$global_time.latest$"
+          "earliest": "-24h",
+          "latest": "now"
         }
       }
     },
     "ds_4": {
       "type": "ds.search",
-      "name": "DNS health problem events",
+      "name": "DNS servers with a problem",
       "options": {
-        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:DNS-Health\" `adx_problem_terms` | stats count",
+        "query": "`adx_dns_health` | where status=\"PROBLEM\" | stats count",
         "queryParameters": {
-          "earliest": "$global_time.earliest$",
-          "latest": "$global_time.latest$"
+          "earliest": "-24h",
+          "latest": "now"
         }
       }
     },
     "ds_5": {
+      "type": "ds.search",
+      "name": "Global catalogs",
+      "options": {
+        "query": "`adx_dc_health` | where gc=\"True\" | stats count",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_6": {
       "type": "ds.search",
       "name": "Silent sources (no data > 60 min)",
       "options": {
@@ -364,31 +437,75 @@
         }
       }
     },
-    "ds_6": {
+    "ds_7": {
       "type": "ds.search",
-      "name": "Data freshness per DC and source (last event seen)",
+      "name": "Domain controllers - health, roles and inventory",
       "options": {
-        "query": "| multisearch [search `adx_msad_index` (sourcetype=\"MSAD:NT6:Health\" OR sourcetype=\"MSAD:NT6:Replication\" OR sourcetype=\"MSAD:NT6:Netlogon\" OR sourcetype=\"MSAD:NT6:DNS-Health\") | fields host sourcetype _time] [search `adx_perfmon_index` (sourcetype=\"Perfmon:NTDS\" OR sourcetype=\"Perfmon:Processor\" OR sourcetype=\"Perfmon:DNS\" OR sourcetype=\"Perfmon:DFS_Replicated_Folders\") | fields host sourcetype _time] | stats max(_time) as last by host sourcetype | eval minutes_ago=round((now()-last)/60,0), last=strftime(last,\"%Y-%m-%d %H:%M\"), status=if(minutes_ago>60,\"SILENT\",\"OK\") | chart latest(minutes_ago) as m over host by sourcetype",
+        "query": "`adx_dc_health` | eval last_report=minutes_ago.\" min ago\", problem=coalesce(mvjoin(problem,\"; \"),\"-\") | sort - status, site, Server | table site Server status problem os gc rodc fsmo istg sysvol procs_ok dns_register svc_down usn forest_level domain_level schema last_report",
         "queryParameters": {
           "earliest": "-24h",
           "latest": "now"
         }
       }
     },
-    "ds_7": {
+    "ds_8": {
       "type": "ds.search",
-      "name": "AD health check events flagging a problem",
+      "name": "Domain controllers by operating system",
       "options": {
-        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Health\" `adx_problem_terms` | eval message=substr(_raw,1,400) | sort - _time | table _time host sourcetype message",
+        "query": "`adx_dc_health` | stats count by os",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_9": {
+      "type": "ds.search",
+      "name": "Domain controllers by AD site",
+      "options": {
+        "query": "`adx_dc_health` | stats count by site",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_10": {
+      "type": "ds.search",
+      "name": "FSMO role holders",
+      "options": {
+        "query": "`adx_dc_health` | where len(fsmo)>0 | table Server fsmo site",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_11": {
+      "type": "ds.search",
+      "name": "DNS servers - health",
+      "options": {
+        "query": "`adx_dns_health` | eval problem=coalesce(mvjoin(problem,\"; \"),\"-\"), forwarders=mvjoin(forwarders,\", \"), last_report=minutes_ago.\" min ago\" | sort - status, Server | table Server status problem dns_status started dnssec no_recursion scavenging_h forwarders os last_report",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_12": {
+      "type": "ds.search",
+      "name": "Highest USN by DC (directory change activity)",
+      "options": {
+        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Health\" | timechart span=1h max(HighestUSN) by Server limit=15",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"
         }
       }
     },
-    "ds_8": {
+    "ds_13": {
       "type": "ds.search",
-      "name": "Netlogon problem events",
+      "name": "Netlogon problem events (keyword based)",
       "options": {
         "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Netlogon\" `adx_problem_terms` | eval message=substr(_raw,1,400) | sort - _time | table _time host sourcetype message",
         "queryParameters": {
@@ -397,29 +514,18 @@
         }
       }
     },
-    "ds_9": {
+    "ds_14": {
       "type": "ds.search",
-      "name": "DNS health problem events",
+      "name": "Data freshness per DC and source (minutes since last event)",
       "options": {
-        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:DNS-Health\" `adx_problem_terms` | eval message=substr(_raw,1,400) | sort - _time | table _time host sourcetype message",
+        "query": "| multisearch [search `adx_msad_index` (sourcetype=\"MSAD:NT6:Health\" OR sourcetype=\"MSAD:NT6:Replication\" OR sourcetype=\"MSAD:NT6:Netlogon\" OR sourcetype=\"MSAD:NT6:DNS-Health\") | fields host sourcetype _time] [search `adx_perfmon_index` (sourcetype=\"Perfmon:NTDS\" OR sourcetype=\"Perfmon:Processor\" OR sourcetype=\"Perfmon:DNS\" OR sourcetype=\"Perfmon:DFS_Replicated_Folders\") | fields host sourcetype _time] | stats max(_time) as last by host sourcetype | eval minutes_ago=round((now()-last)/60,0) | chart latest(minutes_ago) as m over host by sourcetype",
         "queryParameters": {
-          "earliest": "$global_time.earliest$",
-          "latest": "$global_time.latest$"
+          "earliest": "-24h",
+          "latest": "now"
         }
       }
     },
-    "ds_10": {
-      "type": "ds.search",
-      "name": "Problem events over time by source",
-      "options": {
-        "query": "`adx_msad_index` (sourcetype=\"MSAD:NT6:Health\" OR sourcetype=\"MSAD:NT6:Netlogon\" OR sourcetype=\"MSAD:NT6:DNS-Health\") `adx_problem_terms` | timechart count by sourcetype",
-        "queryParameters": {
-          "earliest": "$global_time.earliest$",
-          "latest": "$global_time.latest$"
-        }
-      }
-    },
-    "ds_11": {
+    "ds_15": {
       "type": "ds.search",
       "name": "NTDS - LDAP searches/sec",
       "options": {
@@ -430,7 +536,7 @@
         }
       }
     },
-    "ds_12": {
+    "ds_16": {
       "type": "ds.search",
       "name": "NTDS - pending replication operations",
       "options": {
@@ -441,7 +547,7 @@
         }
       }
     },
-    "ds_13": {
+    "ds_17": {
       "type": "ds.search",
       "name": "NTDS - DS threads in use",
       "options": {
@@ -452,7 +558,7 @@
         }
       }
     },
-    "ds_14": {
+    "ds_18": {
       "type": "ds.search",
       "name": "CPU - % Processor Time (_Total)",
       "options": {
@@ -463,7 +569,7 @@
         }
       }
     },
-    "ds_15": {
+    "ds_19": {
       "type": "ds.search",
       "name": "DNS - queries received/sec",
       "options": {
@@ -474,7 +580,7 @@
         }
       }
     },
-    "ds_16": {
+    "ds_20": {
       "type": "ds.search",
       "name": "DNS - recursive query failures/sec",
       "options": {
@@ -485,7 +591,7 @@
         }
       }
     },
-    "ds_17": {
+    "ds_21": {
       "type": "ds.search",
       "name": "Perfmon explorer: pick any counter",
       "options": {
@@ -512,7 +618,7 @@
     "type": "grid",
     "options": {
       "width": 1440,
-      "height": 2566,
+      "height": 3270,
       "display": "auto-scale"
     },
     "structure": [
@@ -522,7 +628,7 @@
         "position": {
           "x": 0,
           "y": 0,
-          "w": 288,
+          "w": 240,
           "h": 130
         }
       },
@@ -530,9 +636,9 @@
         "item": "viz_2",
         "type": "block",
         "position": {
-          "x": 288,
+          "x": 240,
           "y": 0,
-          "w": 288,
+          "w": 240,
           "h": 130
         }
       },
@@ -540,9 +646,9 @@
         "item": "viz_3",
         "type": "block",
         "position": {
-          "x": 576,
+          "x": 480,
           "y": 0,
-          "w": 288,
+          "w": 240,
           "h": 130
         }
       },
@@ -550,9 +656,9 @@
         "item": "viz_4",
         "type": "block",
         "position": {
-          "x": 864,
+          "x": 720,
           "y": 0,
-          "w": 288,
+          "w": 240,
           "h": 130
         }
       },
@@ -560,14 +666,24 @@
         "item": "viz_5",
         "type": "block",
         "position": {
-          "x": 1152,
+          "x": 960,
           "y": 0,
-          "w": 288,
+          "w": 240,
           "h": 130
         }
       },
       {
         "item": "viz_6",
+        "type": "block",
+        "position": {
+          "x": 1200,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_7",
         "type": "block",
         "position": {
           "x": 0,
@@ -577,43 +693,33 @@
         }
       },
       {
-        "item": "viz_7",
+        "item": "viz_8",
         "type": "block",
         "position": {
           "x": 0,
           "y": 646,
-          "w": 720,
-          "h": 450
-        }
-      },
-      {
-        "item": "viz_8",
-        "type": "block",
-        "position": {
-          "x": 720,
-          "y": 646,
-          "w": 720,
-          "h": 450
+          "w": 480,
+          "h": 320
         }
       },
       {
         "item": "viz_9",
         "type": "block",
         "position": {
-          "x": 0,
-          "y": 1096,
-          "w": 720,
-          "h": 450
+          "x": 480,
+          "y": 646,
+          "w": 480,
+          "h": 320
         }
       },
       {
         "item": "viz_10",
         "type": "block",
         "position": {
-          "x": 720,
-          "y": 1096,
-          "w": 720,
-          "h": 450
+          "x": 960,
+          "y": 646,
+          "w": 480,
+          "h": 320
         }
       },
       {
@@ -621,29 +727,29 @@
         "type": "block",
         "position": {
           "x": 0,
-          "y": 1546,
-          "w": 480,
-          "h": 320
+          "y": 966,
+          "w": 1440,
+          "h": 384
         }
       },
       {
         "item": "viz_12",
         "type": "block",
         "position": {
-          "x": 480,
-          "y": 1546,
-          "w": 480,
-          "h": 320
+          "x": 0,
+          "y": 1350,
+          "w": 720,
+          "h": 384
         }
       },
       {
         "item": "viz_13",
         "type": "block",
         "position": {
-          "x": 960,
-          "y": 1546,
-          "w": 480,
-          "h": 320
+          "x": 720,
+          "y": 1350,
+          "w": 720,
+          "h": 384
         }
       },
       {
@@ -651,17 +757,17 @@
         "type": "block",
         "position": {
           "x": 0,
-          "y": 1866,
-          "w": 480,
-          "h": 320
+          "y": 1734,
+          "w": 1440,
+          "h": 516
         }
       },
       {
         "item": "viz_15",
         "type": "block",
         "position": {
-          "x": 480,
-          "y": 1866,
+          "x": 0,
+          "y": 2250,
           "w": 480,
           "h": 320
         }
@@ -670,8 +776,8 @@
         "item": "viz_16",
         "type": "block",
         "position": {
-          "x": 960,
-          "y": 1866,
+          "x": 480,
+          "y": 2250,
           "w": 480,
           "h": 320
         }
@@ -680,8 +786,48 @@
         "item": "viz_17",
         "type": "block",
         "position": {
+          "x": 960,
+          "y": 2250,
+          "w": 480,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_18",
+        "type": "block",
+        "position": {
           "x": 0,
-          "y": 2186,
+          "y": 2570,
+          "w": 480,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_19",
+        "type": "block",
+        "position": {
+          "x": 480,
+          "y": 2570,
+          "w": 480,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_20",
+        "type": "block",
+        "position": {
+          "x": 960,
+          "y": 2570,
+          "w": 480,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_21",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 2890,
           "w": 1440,
           "h": 380
         }
