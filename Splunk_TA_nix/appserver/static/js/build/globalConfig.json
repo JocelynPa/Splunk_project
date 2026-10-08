@@ -1,0 +1,11 @@
+{
+    "meta": {
+        "name": "Splunk_TA_nix",
+        "restRoot": "Splunk_TA_nix",
+        "displayName": "Splunk Add-on for Unix and Linux",
+        "version": "10.3.4",
+        "schemaVersion": "0.0.10",
+        "isVisible": true,
+        "_uccVersion": "6.5.2"
+    }
+}
