@@ -1,0 +1,634 @@
+<dashboard version="2" theme="dark">
+  <label>Linux Host Deep Dive</label>
+  <description>Single-server deep dive: CPU breakdown, memory, swap, load, disk I/O, network throughput, processes.</description>
+  <definition><![CDATA[
+{
+  "title": "Linux Host Deep Dive",
+  "description": "Single-server deep dive: CPU breakdown, memory, swap, load, disk I/O, network throughput, processes.",
+  "inputs": {
+    "input_global_trp": {
+      "type": "input.timerange",
+      "title": "Time range",
+      "options": {
+        "token": "global_time",
+        "defaultValue": "-24h@h,now"
+      }
+    },
+    "input_host": {
+      "type": "input.dropdown",
+      "title": "Host",
+      "options": {
+        "token": "host_f",
+        "items": [],
+        "selectFirstSearchResult": true
+      },
+      "dataSources": {
+        "primary": "dsi_host"
+      }
+    }
+  },
+  "dataSources": {
+    "dsi_host": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=vmstat | stats count by host | sort host | eval label=host, value=host | fields label value",
+        "queryParameters": {
+          "earliest": "-24h@h",
+          "latest": "now"
+        }
+      },
+      "name": "dsi_host"
+    },
+    "ds_1": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=cpu host=\"$host_f$\" (cpu=all OR CPU=all) | stats latest(cpu_load_percent) as v | eval v=round(v,1)",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_1"
+    },
+    "ds_2": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=vmstat host=\"$host_f$\" | stats latest(memUsedPct)",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_2"
+    },
+    "ds_3": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=vmstat host=\"$host_f$\" | stats latest(swapUsedPct)",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_3"
+    },
+    "ds_4": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=vmstat host=\"$host_f$\" | stats latest(loadAvg1mi)",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_4"
+    },
+    "ds_5": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=vmstat host=\"$host_f$\" | stats latest(memTotalMB) as m | eval m=round(m/1024,1)",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_5"
+    },
+    "ds_6": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=vmstat host=\"$host_f$\" | stats latest(processes)",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_6"
+    },
+    "ds_7": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` host=\"$host_f$\" | stats max(_time) as t | eval m=round((now()-t)/60,0) | fields m",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_7"
+    },
+    "ds_8": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=cpu host=\"$host_f$\" (cpu=all OR CPU=all) | timechart span=5m avg(pctUser) as user avg(pctSystem) as system avg(pctIowait) as iowait avg(pctNice) as nice",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_8"
+    },
+    "ds_9": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=vmstat host=\"$host_f$\" | timechart span=5m avg(memUsedPct) as mem avg(swapUsedPct) as swap",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_9"
+    },
+    "ds_10": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=vmstat host=\"$host_f$\" | timechart span=5m avg(loadAvg1mi) as load1",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_10"
+    },
+    "ds_11": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=iostat host=\"$host_f$\" | timechart span=5m sum(rKB_PS) as read sum(wKB_PS) as write",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_11"
+    },
+    "ds_12": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=bandwidth host=\"$host_f$\" | timechart span=5m sum(rxKB_PS) as rx sum(txKB_PS) as tx",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_12"
+    },
+    "ds_13": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_df_pct` | search host=\"$host_f$\" | table mount filesystem Type Size Avail pct | sort - pct",
+        "queryParameters": {
+          "earliest": "-4h@h",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_13"
+    },
+    "ds_14": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=ps host=\"$host_f$\" | stats latest(_time) as t avg(pctCPU) as cpu avg(pctMEM) as mem by USER COMMAND | eval cpu=round(cpu,1), mem=round(mem,1) | sort 15 - cpu | fields USER COMMAND cpu mem",
+        "queryParameters": {
+          "earliest": "-1h@h",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_14"
+    },
+    "ds_15": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=iostat host=\"$host_f$\" | stats avg(latency) as latency_ms avg(rKB_PS) as read_kbs avg(wKB_PS) as write_kbs by Device | eval latency_ms=round(latency_ms,2) | sort - latency_ms",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_15"
+    },
+    "ds_16": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=interfaces host=\"$host_f$\" | stats latest(inetAddr) as ip latest(MAC) as mac latest(RXbytes) as rx_bytes latest(TXbytes) as tx_bytes latest(RXerrors) as rx_err latest(TXerrors) as tx_err by Name",
+        "queryParameters": {
+          "earliest": "-4h@h",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_16"
+    }
+  },
+  "defaults": {},
+  "visualizations": {
+    "viz_1": {
+      "type": "splunk.singlevalue",
+      "title": "CPU % (now)",
+      "dataSources": {
+        "primary": "ds_1"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "unit": "%",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 70
+          },
+          {
+            "value": "#F8BE34",
+            "from": 70,
+            "to": 90
+          },
+          {
+            "value": "#B0413E",
+            "from": 90
+          }
+        ]
+      }
+    },
+    "viz_2": {
+      "type": "splunk.singlevalue",
+      "title": "Memory used %",
+      "dataSources": {
+        "primary": "ds_2"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "unit": "%",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 80
+          },
+          {
+            "value": "#F8BE34",
+            "from": 80,
+            "to": 90
+          },
+          {
+            "value": "#B0413E",
+            "from": 90
+          }
+        ]
+      }
+    },
+    "viz_3": {
+      "type": "splunk.singlevalue",
+      "title": "Swap used %",
+      "dataSources": {
+        "primary": "ds_3"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "unit": "%",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 10
+          },
+          {
+            "value": "#F8BE34",
+            "from": 10,
+            "to": 30
+          },
+          {
+            "value": "#B0413E",
+            "from": 30
+          }
+        ]
+      }
+    },
+    "viz_4": {
+      "type": "splunk.singlevalue",
+      "title": "Load 1 min",
+      "dataSources": {
+        "primary": "ds_4"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_5": {
+      "type": "splunk.singlevalue",
+      "title": "RAM (GB)",
+      "dataSources": {
+        "primary": "ds_5"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_6": {
+      "type": "splunk.singlevalue",
+      "title": "Processes",
+      "dataSources": {
+        "primary": "ds_6"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_7": {
+      "type": "splunk.singlevalue",
+      "title": "Last data (min ago)",
+      "dataSources": {
+        "primary": "ds_7"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 15
+          },
+          {
+            "value": "#B0413E",
+            "from": 15
+          }
+        ]
+      }
+    },
+    "viz_8": {
+      "type": "splunk.area",
+      "title": "CPU usage by mode",
+      "dataSources": {
+        "primary": "ds_8"
+      },
+      "options": {
+        "stackMode": "stacked",
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_9": {
+      "type": "splunk.line",
+      "title": "Memory & swap %",
+      "dataSources": {
+        "primary": "ds_9"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_10": {
+      "type": "splunk.line",
+      "title": "Load average (1 min)",
+      "dataSources": {
+        "primary": "ds_10"
+      },
+      "options": {}
+    },
+    "viz_11": {
+      "type": "splunk.line",
+      "title": "Disk throughput (KB/s)",
+      "dataSources": {
+        "primary": "ds_11"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_12": {
+      "type": "splunk.line",
+      "title": "Network throughput (KB/s)",
+      "dataSources": {
+        "primary": "ds_12"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_13": {
+      "type": "splunk.table",
+      "title": "Disk usage",
+      "dataSources": {
+        "primary": "ds_13"
+      },
+      "options": {
+        "count": 10
+      }
+    },
+    "viz_14": {
+      "type": "splunk.table",
+      "title": "Top processes (CPU)",
+      "dataSources": {
+        "primary": "ds_14"
+      },
+      "options": {
+        "count": 10
+      }
+    },
+    "viz_15": {
+      "type": "splunk.table",
+      "title": "I/O latency by device (ms)",
+      "dataSources": {
+        "primary": "ds_15"
+      },
+      "options": {
+        "count": 10
+      }
+    },
+    "viz_16": {
+      "type": "splunk.table",
+      "title": "Network interfaces",
+      "dataSources": {
+        "primary": "ds_16"
+      },
+      "options": {
+        "count": 10
+      }
+    }
+  },
+  "layout": {
+    "type": "grid",
+    "options": {
+      "width": 1440,
+      "height": 1330,
+      "display": "auto-scale"
+    },
+    "structure": [
+      {
+        "item": "viz_1",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_2",
+        "type": "block",
+        "position": {
+          "x": 206,
+          "y": 0,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_3",
+        "type": "block",
+        "position": {
+          "x": 412,
+          "y": 0,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_4",
+        "type": "block",
+        "position": {
+          "x": 618,
+          "y": 0,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_5",
+        "type": "block",
+        "position": {
+          "x": 824,
+          "y": 0,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_6",
+        "type": "block",
+        "position": {
+          "x": 1030,
+          "y": 0,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_7",
+        "type": "block",
+        "position": {
+          "x": 1236,
+          "y": 0,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_8",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 130,
+          "w": 720,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_9",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 130,
+          "w": 720,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_10",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 430,
+          "w": 480,
+          "h": 280
+        }
+      },
+      {
+        "item": "viz_11",
+        "type": "block",
+        "position": {
+          "x": 480,
+          "y": 430,
+          "w": 480,
+          "h": 280
+        }
+      },
+      {
+        "item": "viz_12",
+        "type": "block",
+        "position": {
+          "x": 960,
+          "y": 430,
+          "w": 480,
+          "h": 280
+        }
+      },
+      {
+        "item": "viz_13",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 710,
+          "w": 720,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_14",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 710,
+          "w": 720,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_15",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1030,
+          "w": 720,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_16",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 1030,
+          "w": 720,
+          "h": 300
+        }
+      }
+    ],
+    "globalInputs": [
+      "input_global_trp",
+      "input_host"
+    ]
+  }
+}
+  ]]></definition>
+</dashboard>

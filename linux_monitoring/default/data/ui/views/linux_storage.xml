@@ -1,0 +1,397 @@
+<dashboard version="2" theme="dark">
+  <label>Linux Storage &amp; Capacity</label>
+  <description>Filesystem usage, inode pressure, projected days until full, and disk I/O latency.</description>
+  <definition><![CDATA[
+{
+  "title": "Linux Storage & Capacity",
+  "description": "Filesystem usage, inode pressure, projected days until full, and disk I/O latency.",
+  "inputs": {
+    "input_global_trp": {
+      "type": "input.timerange",
+      "title": "Time range",
+      "options": {
+        "token": "global_time",
+        "defaultValue": "-24h@h,now"
+      }
+    },
+    "input_host": {
+      "type": "input.dropdown",
+      "title": "Host",
+      "options": {
+        "token": "host_f",
+        "defaultValue": "*",
+        "items": [
+          {
+            "label": "All",
+            "value": "*"
+          }
+        ]
+      },
+      "dataSources": {
+        "primary": "dsi_host"
+      }
+    },
+    "input_env": {
+      "type": "input.dropdown",
+      "title": "Host group (tag)",
+      "options": {
+        "token": "grp_f",
+        "defaultValue": "*",
+        "items": [
+          {
+            "label": "All",
+            "value": "*"
+          }
+        ]
+      },
+      "dataSources": {
+        "primary": "dsi_grp"
+      }
+    }
+  },
+  "dataSources": {
+    "ds_1": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_df_pct` | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_1"
+    },
+    "ds_2": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_df_pct` | where pct>85 | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_2"
+    },
+    "ds_3": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_df_pct` | where pct>95 | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_3"
+    },
+    "ds_4": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=iostat host=$host_f$ | stats avg(latency) as l by host | where l>50 | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_4"
+    },
+    "ds_5": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_df_pct` | eval pct=round(pct,1) | table host mount filesystem Type Size Avail pct | sort - pct",
+        "queryParameters": {
+          "earliest": "-4h@h",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_5"
+    },
+    "ds_6": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=df host=$host_f$ | eval pct=tonumber(replace(UsePct,\"%\",\"\")), mount=MountedOn | where NOT match(Type,\"tmpfs|devtmpfs|squashfs|overlay\") | bin _time span=1d | stats avg(pct) as pct by host mount _time | stats earliest(_time) as t0 earliest(pct) as p0 latest(_time) as t1 latest(pct) as p1 by host mount | eval days=(t1-t0)/86400, growth=if(days>0,(p1-p0)/days,0) | eval days_left=if(growth>0.05,round((100-p1)/growth,0),null()) | where isnotnull(days_left) | eval used_pct=round(p1,1), growth_pct_day=round(growth,2) | sort days_left | table host mount used_pct growth_pct_day days_left",
+        "queryParameters": {
+          "earliest": "-14d@d",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_6"
+    },
+    "ds_7": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=iostat host=$host_f$ | stats avg(latency) as ms by host Device | eval t=host.\":\".Device, ms=round(ms,2) | sort 10 - ms | table t ms",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_7"
+    },
+    "ds_8": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=iostat host=$host_f$ | timechart span=15m sum(rKB_PS) as read sum(wKB_PS) as write",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_8"
+    },
+    "dsi_host": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=vmstat | stats count by host | sort host | eval label=host, value=host | fields label value",
+        "queryParameters": {
+          "earliest": "-24h@h",
+          "latest": "now"
+        }
+      },
+      "name": "dsi_host"
+    },
+    "dsi_grp": {
+      "type": "ds.search",
+      "options": {
+        "query": "| inputlookup nix_host_groups.csv | stats count by group | eval label=group, value=group | fields label value",
+        "queryParameters": {
+          "earliest": "-24h@h",
+          "latest": "now"
+        }
+      },
+      "name": "dsi_grp"
+    }
+  },
+  "defaults": {},
+  "visualizations": {
+    "viz_1": {
+      "type": "splunk.singlevalue",
+      "title": "Filesystems monitored",
+      "dataSources": {
+        "primary": "ds_1"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_2": {
+      "type": "splunk.singlevalue",
+      "title": "> 85% used",
+      "dataSources": {
+        "primary": "ds_2"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#F8BE34",
+            "from": 1,
+            "to": 5
+          },
+          {
+            "value": "#B0413E",
+            "from": 5
+          }
+        ]
+      }
+    },
+    "viz_3": {
+      "type": "splunk.singlevalue",
+      "title": "> 95% used",
+      "dataSources": {
+        "primary": "ds_3"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_4": {
+      "type": "splunk.singlevalue",
+      "title": "Hosts with I/O latency > 50 ms",
+      "dataSources": {
+        "primary": "ds_4"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#F8BE34",
+            "from": 1,
+            "to": 3
+          },
+          {
+            "value": "#B0413E",
+            "from": 3
+          }
+        ]
+      }
+    },
+    "viz_5": {
+      "type": "splunk.table",
+      "title": "Filesystems sorted by usage",
+      "dataSources": {
+        "primary": "ds_5"
+      },
+      "options": {
+        "count": 12
+      }
+    },
+    "viz_6": {
+      "type": "splunk.table",
+      "title": "Projected days until full (linear trend, 14 d)",
+      "dataSources": {
+        "primary": "ds_6"
+      },
+      "options": {
+        "count": 10
+      }
+    },
+    "viz_7": {
+      "type": "splunk.bar",
+      "title": "Top 10 I/O latency (ms)",
+      "dataSources": {
+        "primary": "ds_7"
+      },
+      "options": {
+        "dataValuesDisplay": "all"
+      }
+    },
+    "viz_8": {
+      "type": "splunk.line",
+      "title": "Disk read/write throughput (KB/s, all hosts)",
+      "dataSources": {
+        "primary": "ds_8"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    }
+  },
+  "layout": {
+    "type": "grid",
+    "options": {
+      "width": 1440,
+      "height": 1170,
+      "display": "auto-scale"
+    },
+    "structure": [
+      {
+        "item": "viz_1",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 360,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_2",
+        "type": "block",
+        "position": {
+          "x": 360,
+          "y": 0,
+          "w": 360,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_3",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 0,
+          "w": 360,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_4",
+        "type": "block",
+        "position": {
+          "x": 1080,
+          "y": 0,
+          "w": 360,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_5",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 130,
+          "w": 1440,
+          "h": 380
+        }
+      },
+      {
+        "item": "viz_6",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 510,
+          "w": 960,
+          "h": 360
+        }
+      },
+      {
+        "item": "viz_7",
+        "type": "block",
+        "position": {
+          "x": 960,
+          "y": 510,
+          "w": 480,
+          "h": 360
+        }
+      },
+      {
+        "item": "viz_8",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 870,
+          "w": 1440,
+          "h": 300
+        }
+      }
+    ],
+    "globalInputs": [
+      "input_global_trp",
+      "input_host",
+      "input_env"
+    ]
+  }
+}
+  ]]></definition>
+</dashboard>

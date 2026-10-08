@@ -1,0 +1,491 @@
+<dashboard version="2" theme="dark">
+  <label>Linux Access &amp; Network Security</label>
+  <description>SSH / sudo authentication, failed logins, account changes, listening ports and logged-in users from linux_secure, who, lastlog and openPorts.</description>
+  <definition><![CDATA[
+{
+  "title": "Linux Access & Network Security",
+  "description": "SSH / sudo authentication, failed logins, account changes, listening ports and logged-in users from linux_secure, who, lastlog and openPorts.",
+  "inputs": {
+    "input_global_trp": {
+      "type": "input.timerange",
+      "title": "Time range",
+      "options": {
+        "token": "global_time",
+        "defaultValue": "-24h@h,now"
+      }
+    },
+    "input_host": {
+      "type": "input.dropdown",
+      "title": "Host",
+      "options": {
+        "token": "host_f",
+        "defaultValue": "*",
+        "items": [
+          {
+            "label": "All",
+            "value": "*"
+          }
+        ]
+      },
+      "dataSources": {
+        "primary": "dsi_host"
+      }
+    },
+    "input_env": {
+      "type": "input.dropdown",
+      "title": "Host group (tag)",
+      "options": {
+        "token": "grp_f",
+        "defaultValue": "*",
+        "items": [
+          {
+            "label": "All",
+            "value": "*"
+          }
+        ]
+      },
+      "dataSources": {
+        "primary": "dsi_grp"
+      }
+    }
+  },
+  "dataSources": {
+    "ds_1": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ action=success app IN (ssh,sshd,login) | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_1"
+    },
+    "ds_2": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ action=failure | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_2"
+    },
+    "ds_3": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ action=failure | stats dc(src)",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_3"
+    },
+    "ds_4": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ app IN (sudo,su) | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_4"
+    },
+    "ds_5": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ (command IN (useradd,userdel,groupadd,groupdel,passwd)) | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_5"
+    },
+    "ds_6": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ action IN (success,failure) app IN (ssh,sshd,login) | timechart span=1h count by action",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_6"
+    },
+    "ds_7": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ action=failure | stats count dc(user) as users dc(host) as hosts latest(_time) as last by src | sort 15 - count | eval last=strftime(last,\"%F %T\")",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_7"
+    },
+    "ds_8": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ action=failure | stats count dc(src) as sources by user | sort 15 - count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_8"
+    },
+    "ds_9": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ command IN (useradd,userdel,groupadd,groupdel,passwd) | table _time host command user vendor_action | sort - _time",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_9"
+    },
+    "ds_10": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=who host=$host_f$ | stats latest(_time) as t latest(_raw) as who by host | eval t=strftime(t,\"%F %T\") | table host t who",
+        "queryParameters": {
+          "earliest": "-1h@h",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_10"
+    },
+    "ds_11": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=openPorts host=$host_f$ | stats values(Proto) as proto dc(host) as hosts values(host) as host_list by Port | sort Port",
+        "queryParameters": {
+          "earliest": "-1d@d",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_11"
+    },
+    "ds_12": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=lastlog host=$host_f$ | stats latest(_raw) as lastlog by host | head 100",
+        "queryParameters": {
+          "earliest": "-1d@d",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_12"
+    },
+    "dsi_host": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=vmstat | stats count by host | sort host | eval label=host, value=host | fields label value",
+        "queryParameters": {
+          "earliest": "-24h@h",
+          "latest": "now"
+        }
+      },
+      "name": "dsi_host"
+    },
+    "dsi_grp": {
+      "type": "ds.search",
+      "options": {
+        "query": "| inputlookup nix_host_groups.csv | stats count by group | eval label=group, value=group | fields label value",
+        "queryParameters": {
+          "earliest": "-24h@h",
+          "latest": "now"
+        }
+      },
+      "name": "dsi_grp"
+    }
+  },
+  "defaults": {},
+  "visualizations": {
+    "viz_1": {
+      "type": "splunk.singlevalue",
+      "title": "Successful logins",
+      "dataSources": {
+        "primary": "ds_1"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_2": {
+      "type": "splunk.singlevalue",
+      "title": "Failed logins",
+      "dataSources": {
+        "primary": "ds_2"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 50
+          },
+          {
+            "value": "#F8BE34",
+            "from": 50,
+            "to": 500
+          },
+          {
+            "value": "#B0413E",
+            "from": 500
+          }
+        ]
+      }
+    },
+    "viz_3": {
+      "type": "splunk.singlevalue",
+      "title": "Distinct attackers (src)",
+      "dataSources": {
+        "primary": "ds_3"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_4": {
+      "type": "splunk.singlevalue",
+      "title": "sudo / su events",
+      "dataSources": {
+        "primary": "ds_4"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_5": {
+      "type": "splunk.singlevalue",
+      "title": "Account changes",
+      "dataSources": {
+        "primary": "ds_5"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_6": {
+      "type": "splunk.column",
+      "title": "Logins: success vs failure",
+      "dataSources": {
+        "primary": "ds_6"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_7": {
+      "type": "splunk.table",
+      "title": "Top failed-login sources",
+      "dataSources": {
+        "primary": "ds_7"
+      },
+      "options": {
+        "count": 8
+      }
+    },
+    "viz_8": {
+      "type": "splunk.table",
+      "title": "Failed logins by user",
+      "dataSources": {
+        "primary": "ds_8"
+      },
+      "options": {
+        "count": 8
+      }
+    },
+    "viz_9": {
+      "type": "splunk.table",
+      "title": "Account management",
+      "dataSources": {
+        "primary": "ds_9"
+      },
+      "options": {
+        "count": 8
+      }
+    },
+    "viz_10": {
+      "type": "splunk.table",
+      "title": "Currently logged-in users (who)",
+      "dataSources": {
+        "primary": "ds_10"
+      },
+      "options": {
+        "count": 8
+      }
+    },
+    "viz_11": {
+      "type": "splunk.table",
+      "title": "Listening ports",
+      "dataSources": {
+        "primary": "ds_11"
+      },
+      "options": {
+        "count": 10
+      }
+    },
+    "viz_12": {
+      "type": "splunk.table",
+      "title": "Last login per account (lastlog)",
+      "dataSources": {
+        "primary": "ds_12"
+      },
+      "options": {
+        "count": 10
+      }
+    }
+  },
+  "layout": {
+    "type": "grid",
+    "options": {
+      "width": 1440,
+      "height": 1050,
+      "display": "auto-scale"
+    },
+    "structure": [
+      {
+        "item": "viz_1",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 288,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_2",
+        "type": "block",
+        "position": {
+          "x": 288,
+          "y": 0,
+          "w": 288,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_3",
+        "type": "block",
+        "position": {
+          "x": 576,
+          "y": 0,
+          "w": 288,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_4",
+        "type": "block",
+        "position": {
+          "x": 864,
+          "y": 0,
+          "w": 288,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_5",
+        "type": "block",
+        "position": {
+          "x": 1152,
+          "y": 0,
+          "w": 288,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_6",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 130,
+          "w": 720,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_7",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 130,
+          "w": 720,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_8",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 430,
+          "w": 480,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_9",
+        "type": "block",
+        "position": {
+          "x": 480,
+          "y": 430,
+          "w": 480,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_10",
+        "type": "block",
+        "position": {
+          "x": 960,
+          "y": 430,
+          "w": 480,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_11",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 730,
+          "w": 720,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_12",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 730,
+          "w": 720,
+          "h": 320
+        }
+      }
+    ],
+    "globalInputs": [
+      "input_global_trp",
+      "input_host",
+      "input_env"
+    ]
+  }
+}
+  ]]></definition>
+</dashboard>
