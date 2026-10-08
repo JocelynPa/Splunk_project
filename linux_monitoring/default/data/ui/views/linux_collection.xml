@@ -1,0 +1,241 @@
+<dashboard version="2" theme="dark">
+  <label>Collection Health</label>
+  <description>Which Linux hosts and scripted inputs from Splunk_TA_nix are sending data, and which went silent.</description>
+  <definition><![CDATA[
+{
+  "title": "Collection Health",
+  "description": "Which Linux hosts and scripted inputs from Splunk_TA_nix are sending data, and which went silent.",
+  "inputs": {
+    "input_global_trp": {
+      "type": "input.timerange",
+      "title": "Time range",
+      "options": {
+        "token": "global_time",
+        "defaultValue": "-24h@h,now"
+      }
+    }
+  },
+  "dataSources": {
+    "ds_1": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` | stats dc(host)",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_1"
+    },
+    "ds_2": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_silent_hosts` | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_2"
+    },
+    "ds_3": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` | stats dc(sourcetype)",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_3"
+    },
+    "ds_4": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_silent_hosts` | sort - age_min",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_4"
+    },
+    "ds_5": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype IN (cpu,vmstat,df,iostat,ps,interfaces,bandwidth,linux_secure,openPorts) | stats latest(_time) as t by host sourcetype | eval age_min=round((now()-t)/60,0) | chart max(age_min) over host by sourcetype",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_5"
+    },
+    "ds_6": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` | timechart span=1h count by sourcetype limit=12",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_6"
+    }
+  },
+  "defaults": {},
+  "visualizations": {
+    "viz_1": {
+      "type": "splunk.singlevalue",
+      "title": "Hosts seen",
+      "dataSources": {
+        "primary": "ds_1"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_2": {
+      "type": "splunk.singlevalue",
+      "title": "Silent hosts (> 15 min)",
+      "dataSources": {
+        "primary": "ds_2"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_3": {
+      "type": "splunk.singlevalue",
+      "title": "Sourcetypes active",
+      "dataSources": {
+        "primary": "ds_3"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_4": {
+      "type": "splunk.table",
+      "title": "Silent hosts",
+      "dataSources": {
+        "primary": "ds_4"
+      },
+      "options": {
+        "count": 10
+      }
+    },
+    "viz_5": {
+      "type": "splunk.table",
+      "title": "Data freshness per host and sourcetype",
+      "dataSources": {
+        "primary": "ds_5"
+      },
+      "options": {
+        "count": 10
+      }
+    },
+    "viz_6": {
+      "type": "splunk.column",
+      "title": "Events per sourcetype",
+      "dataSources": {
+        "primary": "ds_6"
+      },
+      "options": {
+        "legendDisplay": "bottom",
+        "stackMode": "stacked"
+      }
+    }
+  },
+  "layout": {
+    "type": "grid",
+    "options": {
+      "width": 1440,
+      "height": 810,
+      "display": "auto-scale"
+    },
+    "structure": [
+      {
+        "item": "viz_1",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 480,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_2",
+        "type": "block",
+        "position": {
+          "x": 480,
+          "y": 0,
+          "w": 480,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_3",
+        "type": "block",
+        "position": {
+          "x": 960,
+          "y": 0,
+          "w": 480,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_4",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 130,
+          "w": 720,
+          "h": 360
+        }
+      },
+      {
+        "item": "viz_5",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 130,
+          "w": 720,
+          "h": 360
+        }
+      },
+      {
+        "item": "viz_6",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 490,
+          "w": 1440,
+          "h": 320
+        }
+      }
+    ],
+    "globalInputs": [
+      "input_global_trp"
+    ]
+  }
+}
+  ]]></definition>
+</dashboard>

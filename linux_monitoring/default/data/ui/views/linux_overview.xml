@@ -1,0 +1,614 @@
+<dashboard version="2" theme="dark">
+  <label>Linux Fleet Overview</label>
+  <description>Fleet-wide health of Linux servers collected by Splunk_TA_nix: hosts reporting, CPU / memory / swap / load / disk pressure, silent hosts and top consumers.</description>
+  <definition><![CDATA[
+{
+  "title": "Linux Fleet Overview",
+  "description": "Fleet-wide health of Linux servers collected by Splunk_TA_nix: hosts reporting, CPU / memory / swap / load / disk pressure, silent hosts and top consumers.",
+  "inputs": {
+    "input_global_trp": {
+      "type": "input.timerange",
+      "title": "Time range",
+      "options": {
+        "token": "global_time",
+        "defaultValue": "-24h@h,now"
+      }
+    },
+    "input_host": {
+      "type": "input.dropdown",
+      "title": "Host",
+      "options": {
+        "token": "host_f",
+        "defaultValue": "*",
+        "items": [
+          {
+            "label": "All",
+            "value": "*"
+          }
+        ]
+      },
+      "dataSources": {
+        "primary": "dsi_host"
+      }
+    },
+    "input_env": {
+      "type": "input.dropdown",
+      "title": "Host group (tag)",
+      "options": {
+        "token": "grp_f",
+        "defaultValue": "*",
+        "items": [
+          {
+            "label": "All",
+            "value": "*"
+          }
+        ]
+      },
+      "dataSources": {
+        "primary": "dsi_grp"
+      }
+    }
+  },
+  "dataSources": {
+    "ds_1": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=vmstat host=$host_f$ | stats dc(host)",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_1"
+    },
+    "ds_2": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_silent_hosts` | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_2"
+    },
+    "ds_3": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=cpu host=$host_f$ (cpu=all OR CPU=all) | stats avg(cpu_load_percent) as v | eval v=round(v,1)",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_3"
+    },
+    "ds_4": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=vmstat host=$host_f$ | stats avg(memUsedPct) as v | eval v=round(v,1)",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_4"
+    },
+    "ds_5": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=vmstat host=$host_f$ | stats latest(swapUsedPct) as s by host | where s>20 | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_5"
+    },
+    "ds_6": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_df_pct` | where pct>85 | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_6"
+    },
+    "ds_7": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_load_vs_cores` | where load1>cores | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_7"
+    },
+    "ds_8": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=cpu host=$host_f$ (cpu=all OR CPU=all) | timechart span=15m avg(cpu_load_percent) as avg max(cpu_load_percent) as max",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_8"
+    },
+    "ds_9": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=vmstat host=$host_f$ | timechart span=15m avg(memUsedPct) as avg max(memUsedPct) as max avg(swapUsedPct) as swap",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_9"
+    },
+    "ds_10": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=vmstat host=$host_f$ | stats latest(memUsedPct) as mem_pct latest(swapUsedPct) as swap_pct latest(loadAvg1mi) as load1 latest(memTotalMB) as mem_mb latest(_time) as last by host | join type=left host [search `nix_idx` sourcetype=cpu host=$host_f$ (cpu=all OR CPU=all) | stats latest(cpu_load_percent) as cpu_pct by host] | eval cpu_pct=round(cpu_pct,1), mem_pct=round(mem_pct,1), age_min=round((now()-last)/60,0), status=case(age_min>15,\"SILENT\",cpu_pct>90 OR mem_pct>90,\"CRITICAL\",cpu_pct>70 OR mem_pct>80,\"WARNING\",true(),\"OK\") | fields host status cpu_pct mem_pct swap_pct load1 mem_mb age_min | sort - cpu_pct",
+        "queryParameters": {
+          "earliest": "-4h@h",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_10"
+    },
+    "ds_11": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=cpu host=$host_f$ (cpu=all OR CPU=all) | stats avg(cpu_load_percent) as cpu by host | sort 10 - cpu | eval cpu=round(cpu,1)",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_11"
+    },
+    "ds_12": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=vmstat host=$host_f$ | stats avg(memUsedPct) as mem by host | sort 10 - mem | eval mem=round(mem,1)",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_12"
+    },
+    "ds_13": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_df_pct` | sort 10 - pct | eval target=host.\":\".mount | table target pct",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_13"
+    },
+    "dsi_host": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=vmstat | stats count by host | sort host | eval label=host, value=host | fields label value",
+        "queryParameters": {
+          "earliest": "-24h@h",
+          "latest": "now"
+        }
+      },
+      "name": "dsi_host"
+    },
+    "dsi_grp": {
+      "type": "ds.search",
+      "options": {
+        "query": "| inputlookup nix_host_groups.csv | stats count by group | eval label=group, value=group | fields label value",
+        "queryParameters": {
+          "earliest": "-24h@h",
+          "latest": "now"
+        }
+      },
+      "name": "dsi_grp"
+    }
+  },
+  "defaults": {},
+  "visualizations": {
+    "viz_1": {
+      "type": "splunk.singlevalue",
+      "title": "Hosts reporting",
+      "dataSources": {
+        "primary": "ds_1"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_2": {
+      "type": "splunk.singlevalue",
+      "title": "Silent hosts (> %d min)",
+      "dataSources": {
+        "primary": "ds_2"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_3": {
+      "type": "splunk.singlevalue",
+      "title": "Avg CPU %",
+      "dataSources": {
+        "primary": "ds_3"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "unit": "%",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 70
+          },
+          {
+            "value": "#F8BE34",
+            "from": 70,
+            "to": 90
+          },
+          {
+            "value": "#B0413E",
+            "from": 90
+          }
+        ]
+      }
+    },
+    "viz_4": {
+      "type": "splunk.singlevalue",
+      "title": "Avg memory used %",
+      "dataSources": {
+        "primary": "ds_4"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "unit": "%",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 80
+          },
+          {
+            "value": "#F8BE34",
+            "from": 80,
+            "to": 90
+          },
+          {
+            "value": "#B0413E",
+            "from": 90
+          }
+        ]
+      }
+    },
+    "viz_5": {
+      "type": "splunk.singlevalue",
+      "title": "Hosts swapping > 20%",
+      "dataSources": {
+        "primary": "ds_5"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#F8BE34",
+            "from": 1,
+            "to": 5
+          },
+          {
+            "value": "#B0413E",
+            "from": 5
+          }
+        ]
+      }
+    },
+    "viz_6": {
+      "type": "splunk.singlevalue",
+      "title": "Filesystems > 85%",
+      "dataSources": {
+        "primary": "ds_6"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#F8BE34",
+            "from": 1,
+            "to": 5
+          },
+          {
+            "value": "#B0413E",
+            "from": 5
+          }
+        ]
+      }
+    },
+    "viz_7": {
+      "type": "splunk.singlevalue",
+      "title": "Hosts load > cores",
+      "dataSources": {
+        "primary": "ds_7"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#F8BE34",
+            "from": 1,
+            "to": 5
+          },
+          {
+            "value": "#B0413E",
+            "from": 5
+          }
+        ]
+      }
+    },
+    "viz_8": {
+      "type": "splunk.line",
+      "title": "CPU % over time (avg / max across hosts)",
+      "dataSources": {
+        "primary": "ds_8"
+      },
+      "options": {
+        "yAxisTitleText": "%",
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_9": {
+      "type": "splunk.line",
+      "title": "Memory used % over time",
+      "dataSources": {
+        "primary": "ds_9"
+      },
+      "options": {
+        "yAxisTitleText": "%",
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_10": {
+      "type": "splunk.table",
+      "title": "Host status (latest values)",
+      "dataSources": {
+        "primary": "ds_10"
+      },
+      "options": {
+        "count": 10,
+        "drilldown": "none"
+      }
+    },
+    "viz_11": {
+      "type": "splunk.bar",
+      "title": "Top 10 CPU hosts",
+      "dataSources": {
+        "primary": "ds_11"
+      },
+      "options": {
+        "dataValuesDisplay": "all"
+      }
+    },
+    "viz_12": {
+      "type": "splunk.bar",
+      "title": "Top 10 memory hosts",
+      "dataSources": {
+        "primary": "ds_12"
+      },
+      "options": {
+        "dataValuesDisplay": "all"
+      }
+    },
+    "viz_13": {
+      "type": "splunk.bar",
+      "title": "Top 10 fullest filesystems",
+      "dataSources": {
+        "primary": "ds_13"
+      },
+      "options": {
+        "dataValuesDisplay": "all"
+      }
+    }
+  },
+  "layout": {
+    "type": "grid",
+    "options": {
+      "width": 1440,
+      "height": 1110,
+      "display": "auto-scale"
+    },
+    "structure": [
+      {
+        "item": "viz_1",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_2",
+        "type": "block",
+        "position": {
+          "x": 206,
+          "y": 0,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_3",
+        "type": "block",
+        "position": {
+          "x": 412,
+          "y": 0,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_4",
+        "type": "block",
+        "position": {
+          "x": 618,
+          "y": 0,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_5",
+        "type": "block",
+        "position": {
+          "x": 824,
+          "y": 0,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_6",
+        "type": "block",
+        "position": {
+          "x": 1030,
+          "y": 0,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_7",
+        "type": "block",
+        "position": {
+          "x": 1236,
+          "y": 0,
+          "w": 206,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_8",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 130,
+          "w": 720,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_9",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 130,
+          "w": 720,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_10",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 430,
+          "w": 1440,
+          "h": 360
+        }
+      },
+      {
+        "item": "viz_11",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 790,
+          "w": 480,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_12",
+        "type": "block",
+        "position": {
+          "x": 480,
+          "y": 790,
+          "w": 480,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_13",
+        "type": "block",
+        "position": {
+          "x": 960,
+          "y": 790,
+          "w": 480,
+          "h": 320
+        }
+      }
+    ],
+    "globalInputs": [
+      "input_global_trp",
+      "input_host",
+      "input_env"
+    ]
+  }
+}
+  ]]></definition>
+</dashboard>
