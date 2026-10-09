@@ -8,6 +8,7 @@ Dashboard Studio dashboards for Linux servers collected with `Splunk_TA_nix` (v1
 | Linux Host Deep Dive | One host: CPU by mode, memory/swap, load, disk and network throughput, disks, processes, interfaces |
 | Linux Storage & Capacity | Filesystem usage, projected days until full, I/O latency |
 | Linux Access & Network Security | SSH/sudo logins, failed logins, account changes, `who`, listening ports |
+| Linux Investigation & Audit Trail | Normalised forensic timeline (SSH, sudo/su, auth failures, account changes, shell history, auditd) with host/user/IP/keyword pivots |
 | Collection Health | Silent hosts, data freshness per sourcetype, events per sourcetype |
 
 ## Setup
