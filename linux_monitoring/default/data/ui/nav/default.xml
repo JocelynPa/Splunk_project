@@ -3,5 +3,6 @@
   <view name="linux_host_detail" />
   <view name="linux_storage" />
   <view name="linux_security" />
+  <view name="linux_investigation" />
   <view name="linux_collection" />
 </nav>

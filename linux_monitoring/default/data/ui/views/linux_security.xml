@@ -53,7 +53,7 @@
     "ds_1": {
       "type": "ds.search",
       "options": {
-        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ action=success app IN (ssh,sshd,login) | stats count",
+        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ | eval src=coalesce(src,src_ip) | search action=success app IN (ssh,sshd,login) | stats count",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"
@@ -64,7 +64,7 @@
     "ds_2": {
       "type": "ds.search",
       "options": {
-        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ action=failure | stats count",
+        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ | eval src=coalesce(src,src_ip) | search action=failure | stats count",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"
@@ -75,7 +75,7 @@
     "ds_3": {
       "type": "ds.search",
       "options": {
-        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ action=failure | stats dc(src)",
+        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ | eval src=coalesce(src,src_ip) | search action=failure | stats dc(src)",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"
@@ -86,7 +86,7 @@
     "ds_4": {
       "type": "ds.search",
       "options": {
-        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ app IN (sudo,su) | stats count",
+        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ | eval src=coalesce(src,src_ip) | search app IN (sudo,su) | stats count",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"
@@ -97,7 +97,7 @@
     "ds_5": {
       "type": "ds.search",
       "options": {
-        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ (command IN (useradd,userdel,groupadd,groupdel,passwd)) | stats count",
+        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ | eval src=coalesce(src,src_ip) | search (command IN (useradd,userdel,groupadd,groupdel,passwd)) | stats count",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"
@@ -108,7 +108,7 @@
     "ds_6": {
       "type": "ds.search",
       "options": {
-        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ action IN (success,failure) app IN (ssh,sshd,login) | timechart span=1h count by action",
+        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ | eval src=coalesce(src,src_ip) | search action IN (success,failure) app IN (ssh,sshd,login) | timechart span=1h count by action",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"
@@ -119,7 +119,7 @@
     "ds_7": {
       "type": "ds.search",
       "options": {
-        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ action=failure | stats count dc(user) as users dc(host) as hosts latest(_time) as last by src | sort 15 - count | eval last=strftime(last,\"%F %T\")",
+        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ | eval src=coalesce(src,src_ip) | search action=failure | stats count dc(user) as users dc(host) as hosts latest(_time) as last by src | sort 15 - count | eval last=strftime(last,\"%F %T\")",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"
@@ -130,7 +130,7 @@
     "ds_8": {
       "type": "ds.search",
       "options": {
-        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ action=failure | stats count dc(src) as sources by user | sort 15 - count",
+        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ | eval src=coalesce(src,src_ip) | search action=failure | stats count dc(src) as sources by user | sort 15 - count",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"
@@ -141,7 +141,7 @@
     "ds_9": {
       "type": "ds.search",
       "options": {
-        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ command IN (useradd,userdel,groupadd,groupdel,passwd) | table _time host command user vendor_action | sort - _time",
+        "query": "`nix_idx` sourcetype=linux_secure host=$host_f$ | eval src=coalesce(src,src_ip) | search command IN (useradd,userdel,groupadd,groupdel,passwd) | table _time host command user vendor_action | sort - _time",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"

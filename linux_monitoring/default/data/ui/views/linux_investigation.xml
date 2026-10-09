@@ -1,0 +1,759 @@
+<dashboard version="2" theme="dark">
+  <label>Linux Investigation &amp; Audit Trail</label>
+  <description>Forensic view of Linux activity: one normalised timeline of SSH logins, authentication failures, sudo/su, account changes, shell history and auditd events, with pivots by host, user, source IP and keyword.</description>
+  <definition><![CDATA[
+{
+  "title": "Linux Investigation & Audit Trail",
+  "description": "Forensic view of Linux activity: one normalised timeline of SSH logins, authentication failures, sudo/su, account changes, shell history and auditd events, with pivots by host, user, source IP and keyword.",
+  "inputs": {
+    "input_trp": {
+      "type": "input.timerange",
+      "title": "Time range",
+      "options": {
+        "token": "global_time",
+        "defaultValue": "-24h@h,now"
+      }
+    },
+    "input_host": {
+      "type": "input.text",
+      "title": "Host",
+      "options": {
+        "token": "host_f",
+        "defaultValue": "*"
+      }
+    },
+    "input_user": {
+      "type": "input.text",
+      "title": "User",
+      "options": {
+        "token": "user_f",
+        "defaultValue": "*"
+      }
+    },
+    "input_src": {
+      "type": "input.text",
+      "title": "Source IP",
+      "options": {
+        "token": "src_f",
+        "defaultValue": "*"
+      }
+    },
+    "input_type": {
+      "type": "input.dropdown",
+      "title": "Event type",
+      "options": {
+        "token": "type_f",
+        "defaultValue": "*",
+        "items": [
+          {
+            "label": "All",
+            "value": "*"
+          },
+          {
+            "label": "SSH login success",
+            "value": "SSH login success"
+          },
+          {
+            "label": "Authentication failure",
+            "value": "Authentication failure"
+          },
+          {
+            "label": "sudo command",
+            "value": "sudo command"
+          },
+          {
+            "label": "Privilege session (su/sudo)",
+            "value": "Privilege session"
+          },
+          {
+            "label": "Account / group change",
+            "value": "Account change"
+          },
+          {
+            "label": "Shell command (history)",
+            "value": "Shell command"
+          },
+          {
+            "label": "Audit (auditd)",
+            "value": "Audit*"
+          },
+          {
+            "label": "Session end",
+            "value": "Session end"
+          },
+          {
+            "label": "Other",
+            "value": "Other"
+          }
+        ]
+      }
+    },
+    "input_kw": {
+      "type": "input.text",
+      "title": "Keyword in raw event",
+      "options": {
+        "token": "kw_f",
+        "defaultValue": ""
+      }
+    }
+  },
+  "dataSources": {
+    "ds_1": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_inv` | search host=$host_f$ user=$user_f$ src=$src_f$ event_type=$type_f$ _raw=\"*$kw_f$*\" | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_1"
+    },
+    "ds_2": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_inv` | search host=$host_f$ user=$user_f$ src=$src_f$ event_type=$type_f$ _raw=\"*$kw_f$*\" | stats dc(host)",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_2"
+    },
+    "ds_3": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_inv` | search host=$host_f$ user=$user_f$ src=$src_f$ event_type=$type_f$ _raw=\"*$kw_f$*\" | stats dc(user)",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_3"
+    },
+    "ds_4": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_inv` | search host=$host_f$ user=$user_f$ src=$src_f$ event_type=$type_f$ _raw=\"*$kw_f$*\" event_type=\"Authentication failure\" | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_4"
+    },
+    "ds_5": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_inv` | search host=$host_f$ user=$user_f$ src=$src_f$ event_type=$type_f$ _raw=\"*$kw_f$*\" event_type=\"sudo command\" | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_5"
+    },
+    "ds_6": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_inv` | search host=$host_f$ user=$user_f$ src=$src_f$ event_type=$type_f$ _raw=\"*$kw_f$*\" event_type=\"Account change\" | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_6"
+    },
+    "ds_7": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_inv` | search host=$host_f$ user=$user_f$ src=$src_f$ event_type=$type_f$ _raw=\"*$kw_f$*\" | timechart span=1h count by event_type limit=10",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_7"
+    },
+    "ds_8": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_inv` | search host=$host_f$ user=$user_f$ src=$src_f$ event_type=$type_f$ _raw=\"*$kw_f$*\" | sort - _time | eval time=strftime(_time,\"%F %T\") | table time host user src event_type detail sourcetype",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_8"
+    },
+    "ds_9": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_inv` | search host=$host_f$ user=$user_f$ src=$src_f$ event_type=$type_f$ _raw=\"*$kw_f$*\" event_type=\"sudo command\" | eval time=strftime(_time,\"%F %T\") | sort - _time | table time host sudo_user sudo_target sudo_pwd sudo_cmd",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_9"
+    },
+    "ds_10": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_inv` | search host=$host_f$ user=$user_f$ src=$src_f$ event_type=$type_f$ _raw=\"*$kw_f$*\" | stats count dc(event_type) as types latest(_time) as last by user host | eval last=strftime(last,\"%F %T\") | sort - count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_10"
+    },
+    "ds_11": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_inv` | search host=$host_f$ user=$user_f$ src=$src_f$ event_type=$type_f$ _raw=\"*$kw_f$*\" event_type=\"SSH login success\" | stats count earliest(_time) as first latest(_time) as last values(src) as sources by user host | eval first=strftime(first,\"%F %T\"), last=strftime(last,\"%F %T\") | sort - count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_11"
+    },
+    "ds_12": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_inv` | search host=$host_f$ user=$user_f$ src=$src_f$ event_type=$type_f$ _raw=\"*$kw_f$*\" event_type IN (\"Authentication failure\",\"SSH login success\") | stats count(eval(event_type=\"Authentication failure\")) as failures count(eval(event_type=\"SSH login success\")) as successes dc(user) as users values(host) as hosts earliest(_time) as first latest(_time) as last by src | where failures>=5 AND successes>=1 | eval first=strftime(first,\"%F %T\"), last=strftime(last,\"%F %T\") | sort - failures",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_12"
+    },
+    "ds_13": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_inv` | search host=$host_f$ user=$user_f$ src=$src_f$ event_type=$type_f$ _raw=\"*$kw_f$*\" event_type=\"Account change\" | eval time=strftime(_time,\"%F %T\") | sort - _time | table time host user command vendor_action detail",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_13"
+    },
+    "ds_14": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_inv` | search host=$host_f$ user=$user_f$ src=$src_f$ event_type=$type_f$ _raw=\"*$kw_f$*\" event_type=\"Privilege session\" | eval time=strftime(_time,\"%F %T\") | sort - _time | table time host user src_user detail",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_14"
+    },
+    "ds_15": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_inv` | search host=$host_f$ user=$user_f$ src=$src_f$ event_type=$type_f$ _raw=\"*$kw_f$*\" sourcetype=bash_history | eval time=strftime(_time,\"%F %T\") | sort - _time | table time host user_name bash_command",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_15"
+    },
+    "ds_16": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_inv` | search host=$host_f$ user=$user_f$ src=$src_f$ event_type=$type_f$ _raw=\"*$kw_f$*\" sourcetype IN (linux_audit,auditd) | eval time=strftime(_time,\"%F %T\") | sort - _time | table time host type auid uid exe command execve_command proctitle res",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_16"
+    },
+    "ds_17": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=config_file host=$host_f$ | stats count latest(_time) as last by host source | eval last=strftime(last,\"%F %T\") | sort - count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_17"
+    },
+    "ds_18": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_idx` sourcetype=Unix:Service host=$host_f$ | stats latest(ACTIVE) as state latest(_time) as last by host UNIT | where state!=\"active\" | eval last=strftime(last,\"%F %T\") | sort host UNIT",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_18"
+    },
+    "ds_19": {
+      "type": "ds.search",
+      "options": {
+        "query": "`nix_inv` | search host=$host_f$ user=$user_f$ src=$src_f$ event_type=$type_f$ _raw=\"*$kw_f$*\" | sort - _time | eval time=strftime(_time,\"%F %T\") | table time host sourcetype _raw",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      },
+      "name": "ds_19"
+    }
+  },
+  "defaults": {},
+  "visualizations": {
+    "viz_1": {
+      "type": "splunk.singlevalue",
+      "title": "Events",
+      "dataSources": {
+        "primary": "ds_1"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_2": {
+      "type": "splunk.singlevalue",
+      "title": "Hosts",
+      "dataSources": {
+        "primary": "ds_2"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_3": {
+      "type": "splunk.singlevalue",
+      "title": "Users",
+      "dataSources": {
+        "primary": "ds_3"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_4": {
+      "type": "splunk.singlevalue",
+      "title": "Auth failures",
+      "dataSources": {
+        "primary": "ds_4"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 50
+          },
+          {
+            "value": "#F8BE34",
+            "from": 50,
+            "to": 500
+          },
+          {
+            "value": "#B0413E",
+            "from": 500
+          }
+        ]
+      }
+    },
+    "viz_5": {
+      "type": "splunk.singlevalue",
+      "title": "sudo commands",
+      "dataSources": {
+        "primary": "ds_5"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_6": {
+      "type": "splunk.singlevalue",
+      "title": "Account changes",
+      "dataSources": {
+        "primary": "ds_6"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#F8BE34",
+            "from": 1,
+            "to": 5
+          },
+          {
+            "value": "#B0413E",
+            "from": 5
+          }
+        ]
+      }
+    },
+    "viz_7": {
+      "type": "splunk.column",
+      "title": "Activity over time by event type",
+      "dataSources": {
+        "primary": "ds_7"
+      },
+      "options": {
+        "legendDisplay": "bottom",
+        "stackMode": "stacked"
+      }
+    },
+    "viz_8": {
+      "type": "splunk.table",
+      "title": "Unified timeline (all actions, newest first) - click a row to see the raw event",
+      "dataSources": {
+        "primary": "ds_8"
+      },
+      "options": {
+        "count": 15,
+        "drilldown": "none"
+      }
+    },
+    "viz_9": {
+      "type": "splunk.table",
+      "title": "sudo commands (who ran what, as whom, from where)",
+      "dataSources": {
+        "primary": "ds_9"
+      },
+      "options": {
+        "count": 8
+      }
+    },
+    "viz_10": {
+      "type": "splunk.table",
+      "title": "Who is active on which host",
+      "dataSources": {
+        "primary": "ds_10"
+      },
+      "options": {
+        "count": 8
+      }
+    },
+    "viz_11": {
+      "type": "splunk.table",
+      "title": "Successful SSH logins (user, source, host)",
+      "dataSources": {
+        "primary": "ds_11"
+      },
+      "options": {
+        "count": 8
+      }
+    },
+    "viz_12": {
+      "type": "splunk.table",
+      "title": "Brute force then success (same source: failures followed by a success)",
+      "dataSources": {
+        "primary": "ds_12"
+      },
+      "options": {
+        "count": 8
+      }
+    },
+    "viz_13": {
+      "type": "splunk.table",
+      "title": "Account, group and password changes",
+      "dataSources": {
+        "primary": "ds_13"
+      },
+      "options": {
+        "count": 8
+      }
+    },
+    "viz_14": {
+      "type": "splunk.table",
+      "title": "Privilege escalation sessions (su / sudo to root)",
+      "dataSources": {
+        "primary": "ds_14"
+      },
+      "options": {
+        "count": 8
+      }
+    },
+    "viz_15": {
+      "type": "splunk.table",
+      "title": "Shell history (bash_history)",
+      "dataSources": {
+        "primary": "ds_15"
+      },
+      "options": {
+        "count": 8
+      }
+    },
+    "viz_16": {
+      "type": "splunk.table",
+      "title": "auditd: executed commands and file/identity events",
+      "dataSources": {
+        "primary": "ds_16"
+      },
+      "options": {
+        "count": 8
+      }
+    },
+    "viz_17": {
+      "type": "splunk.table",
+      "title": "Configuration changes under /etc (config_file)",
+      "dataSources": {
+        "primary": "ds_17"
+      },
+      "options": {
+        "count": 8
+      }
+    },
+    "viz_18": {
+      "type": "splunk.table",
+      "title": "Service state (Unix:Service) - non active / failed",
+      "dataSources": {
+        "primary": "ds_18"
+      },
+      "options": {
+        "count": 8
+      }
+    },
+    "viz_19": {
+      "type": "splunk.table",
+      "title": "Raw events explorer",
+      "dataSources": {
+        "primary": "ds_19"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      }
+    }
+  },
+  "layout": {
+    "type": "grid",
+    "options": {
+      "width": 1440,
+      "height": 2810,
+      "display": "auto-scale"
+    },
+    "structure": [
+      {
+        "item": "viz_1",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_2",
+        "type": "block",
+        "position": {
+          "x": 240,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_3",
+        "type": "block",
+        "position": {
+          "x": 480,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_4",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_5",
+        "type": "block",
+        "position": {
+          "x": 960,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_6",
+        "type": "block",
+        "position": {
+          "x": 1200,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_7",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 130,
+          "w": 1440,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_8",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 430,
+          "w": 1440,
+          "h": 420
+        }
+      },
+      {
+        "item": "viz_9",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 850,
+          "w": 960,
+          "h": 340
+        }
+      },
+      {
+        "item": "viz_10",
+        "type": "block",
+        "position": {
+          "x": 960,
+          "y": 850,
+          "w": 480,
+          "h": 340
+        }
+      },
+      {
+        "item": "viz_11",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1190,
+          "w": 720,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_12",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 1190,
+          "w": 720,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_13",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1510,
+          "w": 720,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_14",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 1510,
+          "w": 720,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_15",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1830,
+          "w": 720,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_16",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 1830,
+          "w": 720,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_17",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 2150,
+          "w": 720,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_18",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 2150,
+          "w": 720,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_19",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 2450,
+          "w": 1440,
+          "h": 360
+        }
+      }
+    ],
+    "globalInputs": [
+      "input_trp",
+      "input_host",
+      "input_user",
+      "input_src",
+      "input_type",
+      "input_kw"
+    ]
+  }
+}
+  ]]></definition>
+</dashboard>
