@@ -307,7 +307,7 @@
     "ds_17": {
       "type": "ds.search",
       "options": {
-        "query": "`nix_idx` sourcetype=config_file host=$host_f$ | eval len=len(_raw) | sort 0 host source _time | streamstats current=f last(len) as prev_len by host source | stats latest(_time) as t latest(len) as size latest(prev_len) as prev_size count as versions by host source | where t>=relative_time(now(),\"-$cfg_win$\") | eval status=if(versions=1,\"first seen (no earlier version)\",\"modified\"), size_delta=if(isnotnull(prev_size),size-prev_size,null()), last_modified=strftime(t,\"%F %T\") | sort - t | table last_modified host source status size size_delta",
+        "query": "`nix_idx` sourcetype=config_file host=$host_f$ | eval len=len(_raw) | sort 0 host source _time | streamstats current=f last(len) as prev_len by host source | stats latest(_time) as t latest(len) as size latest(prev_len) as prev_size count as versions by host source | where t>=relative_time(now(),\"-$cfg_win$\") | eval status=if(versions=1,\"first seen (no earlier version)\",\"modified\"), size_delta=if(isnotnull(prev_size),size-prev_size,null()), last_modified=strftime(t,\"%F %T\") | eval file_path=source | join type=left host file_path [ search `nix_inv` | search host=$host_f$ | rex max_match=0 field=_raw \"(?<file_path>/etc/[^\\s\\\"';,|]+)\" | where isnotnull(file_path) | mvexpand file_path | search event_type IN (\"sudo command\",\"Shell command\") OR sourcetype IN (\"linux_audit\",\"auditd\") | eval act=strftime(_time,\"%F %T\").\" | \".user.\" | \".substr(detail,1,100) | stats latest(_time) as actor_time latest(user) as last_actor values(act) as related_actions by host file_path ] | eval last_actor=coalesce(last_actor,\"unknown (no sudo / history / audit trace)\") | sort - t | table last_modified host source status last_actor size size_delta related_actions",
         "queryParameters": {
           "earliest": "-30d@d",
           "latest": "now"
@@ -336,6 +336,17 @@
         }
       },
       "name": "ds_19"
+    },
+    "ds_audit_files": {
+      "type": "ds.search",
+      "name": "ds_audit_files",
+      "options": {
+        "query": "`nix_idx` sourcetype IN (linux_audit,auditd) host=$host_f$| rex field=_raw \"msg=audit\\((?<audit_ts>[\\d.]+):(?<serial>\\d+)\\)\" | where isnotnull(serial) | rex field=_raw \"\\bauid=\\\"?(?<who_auid>[^\\s\\\"]+)\" | rex field=_raw \"\\bAUID=\\\"(?<who_name>[^\\\"]+)\\\"\" | rex field=_raw \"\\bexe=\\\"(?<who_exe>[^\\\"]+)\\\"\" | rex field=_raw \"\\bkey=\\\"?(?<audit_key>[^\\s\\\"]+)\" | rex field=_raw \"\\bname=\\\"(?<file_name>/[^\\\"]+)\\\"\" | rex field=_raw \"\\bsyscall=(?<syscall>\\S+)\" | stats min(_time) as _time values(who_name) as user_name values(who_auid) as auid values(who_exe) as program values(syscall) as syscall values(audit_key) as rule values(file_name) as files by host serial | mvexpand files | where match(files,\"^/etc/\") AND auid!=\"4294967295\" | eval time=strftime(_time,\"%F %T\"), who=coalesce(mvindex(user_name,0),mvindex(auid,0)) | sort - _time | table time host who program syscall files rule",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
     }
   },
   "defaults": {},
@@ -546,7 +557,7 @@
     },
     "viz_17": {
       "type": "splunk.table",
-      "title": "Recently modified files under /etc (config_file)",
+      "title": "Recently modified files under /etc - and who touched them (sudo / shell history / auditd)",
       "dataSources": {
         "primary": "ds_17"
       },
@@ -574,13 +585,23 @@
         "count": 8,
         "wrap": true
       }
+    },
+    "viz_audit_files": {
+      "type": "splunk.table",
+      "title": "auditd: who changed files under /etc (requires an audit watch rule on /etc)",
+      "dataSources": {
+        "primary": "ds_audit_files"
+      },
+      "options": {
+        "count": 8
+      }
     }
   },
   "layout": {
     "type": "grid",
     "options": {
       "width": 1440,
-      "height": 2810,
+      "height": 3130,
       "display": "auto-scale"
     },
     "structure": [
@@ -769,9 +790,19 @@
         "type": "block",
         "position": {
           "x": 0,
-          "y": 2450,
+          "y": 2770,
           "w": 1440,
           "h": 360
+        }
+      },
+      {
+        "item": "viz_audit_files",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 2450,
+          "w": 1440,
+          "h": 320
         }
       }
     ],

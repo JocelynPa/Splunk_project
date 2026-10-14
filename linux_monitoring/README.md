@@ -17,3 +17,13 @@ Dashboard Studio dashboards for Linux servers collected with `Splunk_TA_nix` (v1
 3. Optional: fill `lookups/nix_host_groups.csv` (`host,group`) for the host-group input.
 
 Sourcetypes used: `cpu`, `vmstat`, `df`, `iostat`, `ps`, `interfaces`, `bandwidth`, `openPorts`, `who`, `lastlog`, `hardware`, `linux_secure`. Fields come from the TA's own props/transforms (e.g. `cpu_load_percent`, `memUsedPct`, `swapUsedPct`, `loadAvg1mi`, `UsePct`, `rKB_PS`).
+
+## Who modified a file?
+`config_file` events only say *what* changed, not *who*. The Investigation dashboard therefore correlates each recently modified `/etc` file with:
+- sudo commands, shell history (`bash_history`) and auditd events on the same host that mention the file path (column `related_actions`, time | user | command), and
+- an auditd panel listing the user (`auid` / `AUID`), program, syscall and file for writes under `/etc`.
+
+For reliable attribution enable an audit watch on the servers (`/etc/audit/rules.d/etc.rules`), collect `/var/log/audit/audit.log` as sourcetype `linux_audit`, and set `log_format = ENRICHED` in `auditd.conf` so `AUID` is resolved to a user name:
+```
+-w /etc -p wa -k etc_changes
+```
