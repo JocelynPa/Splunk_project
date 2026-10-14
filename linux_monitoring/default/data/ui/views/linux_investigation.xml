@@ -95,6 +95,36 @@
         "token": "kw_f",
         "defaultValue": ""
       }
+    },
+    "input_cfgwin": {
+      "type": "input.dropdown",
+      "title": "Files modified in the last",
+      "options": {
+        "token": "cfg_win",
+        "defaultValue": "24h",
+        "items": [
+          {
+            "label": "1 hour",
+            "value": "1h"
+          },
+          {
+            "label": "4 hours",
+            "value": "4h"
+          },
+          {
+            "label": "24 hours",
+            "value": "24h"
+          },
+          {
+            "label": "7 days",
+            "value": "7d"
+          },
+          {
+            "label": "30 days",
+            "value": "30d"
+          }
+        ]
+      }
     }
   },
   "dataSources": {
@@ -277,10 +307,10 @@
     "ds_17": {
       "type": "ds.search",
       "options": {
-        "query": "`nix_idx` sourcetype=config_file host=$host_f$ | stats count latest(_time) as last by host source | eval last=strftime(last,\"%F %T\") | sort - count",
+        "query": "`nix_idx` sourcetype=config_file host=$host_f$ | eval len=len(_raw) | sort 0 host source _time | streamstats current=f last(len) as prev_len by host source | stats latest(_time) as t latest(len) as size latest(prev_len) as prev_size count as versions by host source | where t>=relative_time(now(),\"-$cfg_win$\") | eval status=if(versions=1,\"first seen (no earlier version)\",\"modified\"), size_delta=if(isnotnull(prev_size),size-prev_size,null()), last_modified=strftime(t,\"%F %T\") | sort - t | table last_modified host source status size size_delta",
         "queryParameters": {
-          "earliest": "$global_time.earliest$",
-          "latest": "$global_time.latest$"
+          "earliest": "-30d@d",
+          "latest": "now"
         }
       },
       "name": "ds_17"
@@ -516,12 +546,12 @@
     },
     "viz_17": {
       "type": "splunk.table",
-      "title": "Configuration changes under /etc (config_file)",
+      "title": "Recently modified files under /etc (config_file)",
       "dataSources": {
         "primary": "ds_17"
       },
       "options": {
-        "count": 8
+        "count": 10
       }
     },
     "viz_18": {
@@ -751,7 +781,8 @@
       "input_user",
       "input_src",
       "input_type",
-      "input_kw"
+      "input_kw",
+      "input_cfgwin"
     ]
   }
 }
