@@ -1,0 +1,708 @@
+<dashboard version="2" theme="dark">
+  <label>AD Account Review (SecOps)</label>
+  <description>Periodic review of Active Directory accounts by the SecOps team: every account gets a risk score and the reasons why it should be reviewed (privileged, password never expires, stale, expired, SPN with old password, delegation, disabled but still privileged...), plus review status and owner information. Filter by OU, scope, review status and risk, export the list for account owners, and record decisions in adx_review_decisions.csv. Based on the AD Objects lookups (last refresh, not live LDAP).</description>
+  <definition><![CDATA[
+{
+  "title": "AD Account Review (SecOps)",
+  "description": "Periodic review of Active Directory accounts by the SecOps team: every account gets a risk score and the reasons why it should be reviewed (privileged, password never expires, stale, expired, SPN with old password, delegation, disabled but still privileged...), plus review status and owner information. Filter by OU, scope, review status and risk, export the list for account owners, and record decisions in adx_review_decisions.csv. Based on the AD Objects lookups (last refresh, not live LDAP).",
+  "inputs": {
+    "input_ou": {
+      "type": "input.text",
+      "title": "OU filter (regex)",
+      "options": {
+        "token": "ou_f",
+        "defaultValue": ".*"
+      }
+    },
+    "input_scope": {
+      "type": "input.dropdown",
+      "title": "Scope",
+      "options": {
+        "token": "scope",
+        "defaultValue": "1=1",
+        "items": [
+          {
+            "label": "All accounts",
+            "value": "1=1"
+          },
+          {
+            "label": "Enabled only",
+            "value": "is_disabled=0"
+          },
+          {
+            "label": "Privileged",
+            "value": "is_privileged=1"
+          },
+          {
+            "label": "Service accounts (SPN)",
+            "value": "isnotnull(servicePrincipalName)"
+          },
+          {
+            "label": "Password never expires",
+            "value": "pwd_never_expires=1"
+          },
+          {
+            "label": "Disabled",
+            "value": "is_disabled=1"
+          }
+        ]
+      }
+    },
+    "input_rstatus": {
+      "type": "input.dropdown",
+      "title": "Review status",
+      "options": {
+        "token": "rstatus",
+        "defaultValue": "1=1",
+        "items": [
+          {
+            "label": "All",
+            "value": "1=1"
+          },
+          {
+            "label": "Needs review (never / overdue)",
+            "value": "review_status!=\"Reviewed\""
+          },
+          {
+            "label": "Never reviewed",
+            "value": "review_status=\"Never reviewed\""
+          },
+          {
+            "label": "Review overdue",
+            "value": "review_status=\"Review overdue\""
+          },
+          {
+            "label": "Reviewed",
+            "value": "review_status=\"Reviewed\""
+          }
+        ]
+      }
+    },
+    "input_min": {
+      "type": "input.dropdown",
+      "title": "Minimum risk",
+      "options": {
+        "token": "min_risk",
+        "defaultValue": "1",
+        "items": [
+          {
+            "label": "All (score >= 0)",
+            "value": "0"
+          },
+          {
+            "label": "LOW and above",
+            "value": "1"
+          },
+          {
+            "label": "MEDIUM and above",
+            "value": "3"
+          },
+          {
+            "label": "HIGH only",
+            "value": "6"
+          }
+        ]
+      }
+    }
+  },
+  "defaults": {},
+  "visualizations": {
+    "viz_1": {
+      "type": "splunk.singlevalue",
+      "title": "Accounts in scope",
+      "dataSources": {
+        "primary": "ds_1"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_2": {
+      "type": "splunk.singlevalue",
+      "title": "HIGH risk",
+      "dataSources": {
+        "primary": "ds_2"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_3": {
+      "type": "splunk.singlevalue",
+      "title": "MEDIUM risk",
+      "dataSources": {
+        "primary": "ds_3"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#F1813F",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_4": {
+      "type": "splunk.singlevalue",
+      "title": "Never reviewed",
+      "dataSources": {
+        "primary": "ds_4"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#FFC300",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_5": {
+      "type": "splunk.singlevalue",
+      "title": "Review overdue",
+      "dataSources": {
+        "primary": "ds_5"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_6": {
+      "type": "splunk.singlevalue",
+      "title": "Disabled - delete candidates",
+      "dataSources": {
+        "primary": "ds_6"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "underLabel": "disabled for a long time or still privileged"
+      }
+    },
+    "viz_7": {
+      "type": "splunk.pie",
+      "title": "Risk level distribution",
+      "dataSources": {
+        "primary": "ds_7"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_8": {
+      "type": "splunk.bar",
+      "title": "Top review reasons",
+      "dataSources": {
+        "primary": "ds_8"
+      },
+      "options": {
+        "legendDisplay": "off"
+      }
+    },
+    "viz_9": {
+      "type": "splunk.pie",
+      "title": "Review status",
+      "dataSources": {
+        "primary": "ds_9"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_10": {
+      "type": "splunk.table",
+      "title": "Accounts to review",
+      "dataSources": {
+        "primary": "ds_10"
+      },
+      "options": {
+        "count": 15,
+        "wrap": true,
+        "columnFormat": {
+          "risk_level": {
+            "rowBackgroundColors": "> table | seriesByName(\"risk_level\") | matchValue(risk_levelColorConfig)"
+          },
+          "review_status": {
+            "rowBackgroundColors": "> table | seriesByName(\"review_status\") | matchValue(review_statusColorConfig)"
+          },
+          "privileged": {
+            "rowBackgroundColors": "> table | seriesByName(\"privileged\") | matchValue(privilegedColorConfig)"
+          }
+        }
+      },
+      "description": "Sorted by risk score. Use the filters above (OU, scope, review status, minimum risk). Export with \"Open in Search\" then Export CSV to hand the list to account owners; record the outcome in lookups/adx_review_decisions.csv (sam, decision, reviewer, review_date YYYY-MM-DD, comment).",
+      "context": {
+        "risk_levelColorConfig": [
+          {
+            "match": "HIGH",
+            "value": "#B0413E"
+          },
+          {
+            "match": "MEDIUM",
+            "value": "#F1813F"
+          },
+          {
+            "match": "LOW",
+            "value": "#F8BE34"
+          },
+          {
+            "match": "OK",
+            "value": "#65A637"
+          }
+        ],
+        "review_statusColorConfig": [
+          {
+            "match": "Never reviewed",
+            "value": "#B0413E"
+          },
+          {
+            "match": "Review overdue",
+            "value": "#F1813F"
+          },
+          {
+            "match": "Reviewed",
+            "value": "#65A637"
+          }
+        ],
+        "privilegedColorConfig": [
+          {
+            "match": "YES",
+            "value": "#F8BE34"
+          }
+        ]
+      }
+    },
+    "viz_11": {
+      "type": "splunk.table",
+      "title": "Review workload by owner (managedBy)",
+      "dataSources": {
+        "primary": "ds_11"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      }
+    },
+    "viz_12": {
+      "type": "splunk.table",
+      "title": "Accounts without owner information",
+      "dataSources": {
+        "primary": "ds_12"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true,
+        "columnFormat": {
+          "risk_level": {
+            "rowBackgroundColors": "> table | seriesByName(\"risk_level\") | matchValue(risk_levelColorConfig)"
+          }
+        }
+      },
+      "description": "Enabled accounts with no managedBy, description or department: nobody can attest them during the review.",
+      "context": {
+        "risk_levelColorConfig": [
+          {
+            "match": "HIGH",
+            "value": "#B0413E"
+          },
+          {
+            "match": "MEDIUM",
+            "value": "#F1813F"
+          },
+          {
+            "match": "LOW",
+            "value": "#F8BE34"
+          },
+          {
+            "match": "OK",
+            "value": "#65A637"
+          }
+        ]
+      }
+    },
+    "viz_13": {
+      "type": "splunk.table",
+      "title": "Disabled accounts - delete candidates",
+      "dataSources": {
+        "primary": "ds_13"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      }
+    },
+    "viz_14": {
+      "type": "splunk.table",
+      "title": "Recently reviewed (decisions log)",
+      "dataSources": {
+        "primary": "ds_14"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      },
+      "description": "Content of lookups/adx_review_decisions.csv."
+    }
+  },
+  "dataSources": {
+    "ds_1": {
+      "type": "ds.search",
+      "name": "Accounts in scope",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_2": {
+      "type": "ds.search",
+      "name": "HIGH risk",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where risk_level=\"HIGH\" | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_3": {
+      "type": "ds.search",
+      "name": "MEDIUM risk",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where risk_level=\"MEDIUM\" | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_4": {
+      "type": "ds.search",
+      "name": "Never reviewed",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where review_status=\"Never reviewed\" AND is_disabled=0 | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_5": {
+      "type": "ds.search",
+      "name": "Review overdue",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where review_status=\"Review overdue\" | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_6": {
+      "type": "ds.search",
+      "name": "Disabled - delete candidates",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where is_disabled=1 AND risk_score>=1 | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_7": {
+      "type": "ds.search",
+      "name": "Risk level distribution",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | stats count by risk_level",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_8": {
+      "type": "ds.search",
+      "name": "Top review reasons",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | mvexpand review_reasons | stats count by review_reasons | sort - count | head 12",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_9": {
+      "type": "ds.search",
+      "name": "Review status",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | stats count by review_status",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_10": {
+      "type": "ds.search",
+      "name": "Accounts to review",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where risk_score>=$min_risk$ | eval privileged=if(is_privileged=1,\"YES\",\"no\"), state=if(is_disabled=1,\"Disabled\",\"Enabled\"), last_logon=strftime(last_logon,\"%Y-%m-%d\"), created=strftime(created,\"%Y-%m-%d\"), groups=mvjoin(priv_groups,\", \"), reasons=mvjoin(review_reasons,\" | \") | sort - risk_score, - pwd_age_days | table sam display_name risk_level risk_score reasons state department title description managedBy groups pwd_age_days last_logon created review_status decision reviewer review_date comment ou",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_11": {
+      "type": "ds.search",
+      "name": "Review workload by owner (managedBy)",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | eval owner=coalesce(mvindex(managedBy,0),\"(no owner)\") | stats count as accounts, sum(eval(if(risk_level=\"HIGH\",1,0))) as high, sum(eval(if(review_status!=\"Reviewed\",1,0))) as to_review by owner | sort - high, - to_review",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_12": {
+      "type": "ds.search",
+      "name": "Accounts without owner information",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where is_disabled=0 AND isnull(managedBy) AND (isnull(description) OR description=\"\") AND (isnull(department) OR department=\"\") | eval last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort - risk_score | table sam display_name risk_level last_logon ou",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_13": {
+      "type": "ds.search",
+      "name": "Disabled accounts - delete candidates",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where is_disabled=1 AND risk_score>=1 | eval changed=strftime(last_change,\"%Y-%m-%d\"), reasons=mvjoin(review_reasons,\" | \") | sort - risk_score | table sam display_name changed reasons ou",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_14": {
+      "type": "ds.search",
+      "name": "Recently reviewed (decisions log)",
+      "options": {
+        "query": "| inputlookup adx_review_decisions | sort - review_date | head 50",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    }
+  },
+  "layout": {
+    "type": "grid",
+    "options": {
+      "width": 1440,
+      "height": 1754,
+      "display": "auto-scale"
+    },
+    "structure": [
+      {
+        "item": "viz_1",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_2",
+        "type": "block",
+        "position": {
+          "x": 240,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_3",
+        "type": "block",
+        "position": {
+          "x": 480,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_4",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_5",
+        "type": "block",
+        "position": {
+          "x": 960,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_6",
+        "type": "block",
+        "position": {
+          "x": 1200,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_7",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 130,
+          "w": 480,
+          "h": 340
+        }
+      },
+      {
+        "item": "viz_8",
+        "type": "block",
+        "position": {
+          "x": 480,
+          "y": 130,
+          "w": 480,
+          "h": 340
+        }
+      },
+      {
+        "item": "viz_9",
+        "type": "block",
+        "position": {
+          "x": 960,
+          "y": 130,
+          "w": 480,
+          "h": 340
+        }
+      },
+      {
+        "item": "viz_10",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 470,
+          "w": 1440,
+          "h": 516
+        }
+      },
+      {
+        "item": "viz_11",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 986,
+          "w": 720,
+          "h": 384
+        }
+      },
+      {
+        "item": "viz_12",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 986,
+          "w": 720,
+          "h": 384
+        }
+      },
+      {
+        "item": "viz_13",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1370,
+          "w": 720,
+          "h": 384
+        }
+      },
+      {
+        "item": "viz_14",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 1370,
+          "w": 720,
+          "h": 384
+        }
+      }
+    ],
+    "globalInputs": [
+      "input_ou",
+      "input_scope",
+      "input_rstatus",
+      "input_min"
+    ]
+  }
+}
+  ]]></definition>
+</dashboard>

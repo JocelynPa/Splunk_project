@@ -1,5 +1,6 @@
 <nav search_view="search" color="#5385ce">
-  <view name="ad_overview" default="true" />
+  <view name="ad_account_review" default="true" />
+  <view name="ad_overview" />
   <view name="breakglass_secadm" />
   <view name="ad_privileged" />
   <view name="ad_replication" />
