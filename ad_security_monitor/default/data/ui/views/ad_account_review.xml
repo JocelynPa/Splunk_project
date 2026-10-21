@@ -387,7 +387,7 @@
       "type": "ds.search",
       "name": "Comptes dans le périmètre",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | stats count",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") `adx_risk` | where $scope$ AND $rstatus$ | stats count",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -398,7 +398,7 @@
       "type": "ds.search",
       "name": "Risque ÉLEVÉ",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where risk_level=\"ÉLEVÉ\" | stats count",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") `adx_risk` | where $scope$ AND $rstatus$ | where risk_level=\"ÉLEVÉ\" | stats count",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -409,7 +409,7 @@
       "type": "ds.search",
       "name": "Risque MOYEN",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where risk_level=\"MOYEN\" | stats count",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") `adx_risk` | where $scope$ AND $rstatus$ | where risk_level=\"MOYEN\" | stats count",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -420,7 +420,7 @@
       "type": "ds.search",
       "name": "Jamais revus (comptes actifs)",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where review_status=\"Jamais revu\" AND is_disabled=0 | stats count",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") `adx_risk` | where $scope$ AND $rstatus$ | where review_status=\"Jamais revu\" AND is_disabled=0 | stats count",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -431,7 +431,7 @@
       "type": "ds.search",
       "name": "Revues en retard",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where review_status=\"Revue en retard\" | stats count",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") `adx_risk` | where $scope$ AND $rstatus$ | where review_status=\"Revue en retard\" | stats count",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -442,7 +442,7 @@
       "type": "ds.search",
       "name": "Désactivés à supprimer",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where is_disabled=1 AND risk_score>=1 | stats count",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") `adx_risk` | where $scope$ AND $rstatus$ | where is_disabled=1 AND risk_score>=1 | stats count",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -453,7 +453,7 @@
       "type": "ds.search",
       "name": "Répartition par niveau de risque",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | stats count by risk_level",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") `adx_risk` | where $scope$ AND $rstatus$ | stats count by risk_level",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -464,7 +464,7 @@
       "type": "ds.search",
       "name": "Principales raisons de revue",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | mvexpand review_reasons | stats count by review_reasons | sort - count | head 12",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") `adx_risk` | where $scope$ AND $rstatus$ | mvexpand review_reasons | stats count by review_reasons | sort - count | head 12",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -475,7 +475,7 @@
       "type": "ds.search",
       "name": "Statut des revues",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | stats count by review_status",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") `adx_risk` | where $scope$ AND $rstatus$ | stats count by review_status",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -486,7 +486,7 @@
       "type": "ds.search",
       "name": "Comptes à revoir",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where risk_score>=$min_risk$ | eval state=if(is_disabled=1,\"Désactivé\",\"Actif\"), last_logon=strftime(last_logon,\"%Y-%m-%d\"), created=strftime(created,\"%Y-%m-%d\"), groups=mvjoin(priv_groups,\", \"), reasons=mvjoin(review_reasons,\" | \") | sort - risk_score, - pwd_age_days | table sam display_name risk_level risk_score reasons state department title description managedBy groups pwd_age_days last_logon created review_status decision reviewer review_date comment ou | rename sam as \"Compte\", display_name as \"Nom affiché\", risk_level as \"Niveau de risque\", risk_score as \"Score\", reasons as \"Raisons de la revue\", state as \"État\", department as \"Service\", title as \"Fonction\", description as \"Description\", managedBy as \"Responsable (managedBy)\", groups as \"Groupes privilégiés\", pwd_age_days as \"Âge du mot de passe (j)\", last_logon as \"Dernière connexion\", created as \"Créé le\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\", ou as \"OU\"",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") `adx_risk` | where $scope$ AND $rstatus$ | where risk_score>=$min_risk$ | eval state=if(is_disabled=1,\"Désactivé\",\"Actif\"), last_logon=strftime(last_logon,\"%Y-%m-%d\"), created=strftime(created,\"%Y-%m-%d\"), groups=mvjoin(priv_groups,\", \"), reasons=mvjoin(review_reasons,\" | \") | sort - risk_score, - pwd_age_days | table sam display_name risk_level risk_score reasons state department title description managedBy groups pwd_age_days last_logon created review_status decision reviewer review_date comment ou | rename sam as \"Compte\", display_name as \"Nom affiché\", risk_level as \"Niveau de risque\", risk_score as \"Score\", reasons as \"Raisons de la revue\", state as \"État\", department as \"Service\", title as \"Fonction\", description as \"Description\", managedBy as \"Responsable (managedBy)\", groups as \"Groupes privilégiés\", pwd_age_days as \"Âge du mot de passe (j)\", last_logon as \"Dernière connexion\", created as \"Créé le\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\", ou as \"OU\"",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -497,7 +497,7 @@
       "type": "ds.search",
       "name": "Charge de revue par responsable (managedBy)",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | eval owner=coalesce(mvindex(managedBy,0),\"(aucun responsable)\") | stats count as accounts, sum(eval(if(risk_level=\"ÉLEVÉ\",1,0))) as high, sum(eval(if(review_status!=\"Revu\",1,0))) as to_review by owner | sort - high, - to_review | rename owner as \"Responsable\", accounts as \"Comptes\", high as \"Risque élevé\", to_review as \"À revoir\"",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") `adx_risk` | where $scope$ AND $rstatus$ | eval owner=coalesce(mvindex(managedBy,0),\"(aucun responsable)\") | stats count as accounts, sum(eval(if(risk_level=\"ÉLEVÉ\",1,0))) as high, sum(eval(if(review_status!=\"Revu\",1,0))) as to_review by owner | sort - high, - to_review | rename owner as \"Responsable\", accounts as \"Comptes\", high as \"Risque élevé\", to_review as \"À revoir\"",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -508,7 +508,7 @@
       "type": "ds.search",
       "name": "Comptes sans information de responsable",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where is_disabled=0 AND isnull(managedBy) AND (isnull(description) OR description=\"\") AND (isnull(department) OR department=\"\") | eval last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort - risk_score | table sam display_name risk_level last_logon ou | rename sam as \"Compte\", display_name as \"Nom affiché\", risk_level as \"Niveau de risque\", last_logon as \"Dernière connexion\", ou as \"OU\"",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") `adx_risk` | where $scope$ AND $rstatus$ | where is_disabled=0 AND isnull(managedBy) AND (isnull(description) OR description=\"\") AND (isnull(department) OR department=\"\") | eval last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort - risk_score | table sam display_name risk_level last_logon ou | rename sam as \"Compte\", display_name as \"Nom affiché\", risk_level as \"Niveau de risque\", last_logon as \"Dernière connexion\", ou as \"OU\"",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -519,7 +519,7 @@
       "type": "ds.search",
       "name": "Comptes désactivés - candidats à la suppression",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where is_disabled=1 AND risk_score>=1 | eval changed=strftime(last_change,\"%Y-%m-%d\"), reasons=mvjoin(review_reasons,\" | \") | sort - risk_score | table sam display_name changed reasons ou | rename sam as \"Compte\", display_name as \"Nom affiché\", changed as \"Dernière modification\", reasons as \"Raisons\", ou as \"OU\"",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") `adx_risk` | where $scope$ AND $rstatus$ | where is_disabled=1 AND risk_score>=1 | eval changed=strftime(last_change,\"%Y-%m-%d\"), reasons=mvjoin(review_reasons,\" | \") | sort - risk_score | table sam display_name changed reasons ou | rename sam as \"Compte\", display_name as \"Nom affiché\", changed as \"Dernière modification\", reasons as \"Raisons\", ou as \"OU\"",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
