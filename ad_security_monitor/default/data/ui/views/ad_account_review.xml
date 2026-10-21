@@ -1,0 +1,699 @@
+<dashboard version="2" theme="dark">
+  <label>Revue des comptes AD (SecOps)</label>
+  <description>Revue périodique des comptes Active Directory par les équipes SecOps : chaque compte reçoit un score de risque et les raisons pour lesquelles il doit être revu (privilégié, mot de passe sans expiration, inactif, expiré, SPN avec ancien mot de passe, délégation, désactivé mais encore privilégié...), ainsi que son statut de revue et ses informations de responsable. Filtrez par OU, périmètre, statut de revue et risque, exportez la liste pour les responsables de comptes et consignez les décisions dans adx_review_decisions.csv. Basé sur les lookups AD Objects (dernier rafraîchissement, pas du LDAP en direct).</description>
+  <definition><![CDATA[
+{
+  "title": "Revue des comptes AD (SecOps)",
+  "description": "Revue périodique des comptes Active Directory par les équipes SecOps : chaque compte reçoit un score de risque et les raisons pour lesquelles il doit être revu (privilégié, mot de passe sans expiration, inactif, expiré, SPN avec ancien mot de passe, délégation, désactivé mais encore privilégié...), ainsi que son statut de revue et ses informations de responsable. Filtrez par OU, périmètre, statut de revue et risque, exportez la liste pour les responsables de comptes et consignez les décisions dans adx_review_decisions.csv. Basé sur les lookups AD Objects (dernier rafraîchissement, pas du LDAP en direct).",
+  "inputs": {
+    "input_ou": {
+      "type": "input.text",
+      "title": "Filtre OU (regex)",
+      "options": {
+        "token": "ou_f",
+        "defaultValue": ".*"
+      }
+    },
+    "input_scope": {
+      "type": "input.dropdown",
+      "title": "Périmètre",
+      "options": {
+        "token": "scope",
+        "defaultValue": "1=1",
+        "items": [
+          {
+            "label": "Tous les comptes",
+            "value": "1=1"
+          },
+          {
+            "label": "Comptes actifs uniquement",
+            "value": "is_disabled=0"
+          },
+          {
+            "label": "Comptes privilégiés",
+            "value": "is_privileged=1"
+          },
+          {
+            "label": "Comptes de service (SPN)",
+            "value": "isnotnull(servicePrincipalName)"
+          },
+          {
+            "label": "Mot de passe sans expiration",
+            "value": "pwd_never_expires=1"
+          },
+          {
+            "label": "Comptes désactivés",
+            "value": "is_disabled=1"
+          }
+        ]
+      }
+    },
+    "input_rstatus": {
+      "type": "input.dropdown",
+      "title": "Statut de revue",
+      "options": {
+        "token": "rstatus",
+        "defaultValue": "1=1",
+        "items": [
+          {
+            "label": "Tous",
+            "value": "1=1"
+          },
+          {
+            "label": "À revoir (jamais / en retard)",
+            "value": "review_status!=\"Revu\""
+          },
+          {
+            "label": "Jamais revus",
+            "value": "review_status=\"Jamais revu\""
+          },
+          {
+            "label": "Revue en retard",
+            "value": "review_status=\"Revue en retard\""
+          },
+          {
+            "label": "Revus",
+            "value": "review_status=\"Revu\""
+          }
+        ]
+      }
+    },
+    "input_min": {
+      "type": "input.dropdown",
+      "title": "Risque minimum",
+      "options": {
+        "token": "min_risk",
+        "defaultValue": "1",
+        "items": [
+          {
+            "label": "Tous (score >= 0)",
+            "value": "0"
+          },
+          {
+            "label": "FAIBLE et plus",
+            "value": "1"
+          },
+          {
+            "label": "MOYEN et plus",
+            "value": "3"
+          },
+          {
+            "label": "ÉLEVÉ uniquement",
+            "value": "6"
+          }
+        ]
+      }
+    }
+  },
+  "defaults": {},
+  "visualizations": {
+    "viz_1": {
+      "type": "splunk.singlevalue",
+      "title": "Comptes dans le périmètre",
+      "dataSources": {
+        "primary": "ds_1"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      }
+    },
+    "viz_2": {
+      "type": "splunk.singlevalue",
+      "title": "Risque ÉLEVÉ",
+      "dataSources": {
+        "primary": "ds_2"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_3": {
+      "type": "splunk.singlevalue",
+      "title": "Risque MOYEN",
+      "dataSources": {
+        "primary": "ds_3"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#F1813F",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_4": {
+      "type": "splunk.singlevalue",
+      "title": "Jamais revus (comptes actifs)",
+      "dataSources": {
+        "primary": "ds_4"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#FFC300",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_5": {
+      "type": "splunk.singlevalue",
+      "title": "Revues en retard",
+      "dataSources": {
+        "primary": "ds_5"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      }
+    },
+    "viz_6": {
+      "type": "splunk.singlevalue",
+      "title": "Désactivés à supprimer",
+      "dataSources": {
+        "primary": "ds_6"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "underLabel": "désactivés depuis longtemps ou encore privilégiés"
+      }
+    },
+    "viz_7": {
+      "type": "splunk.pie",
+      "title": "Répartition par niveau de risque",
+      "dataSources": {
+        "primary": "ds_7"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_8": {
+      "type": "splunk.bar",
+      "title": "Principales raisons de revue",
+      "dataSources": {
+        "primary": "ds_8"
+      },
+      "options": {
+        "legendDisplay": "off"
+      }
+    },
+    "viz_9": {
+      "type": "splunk.pie",
+      "title": "Statut des revues",
+      "dataSources": {
+        "primary": "ds_9"
+      },
+      "options": {
+        "legendDisplay": "bottom"
+      }
+    },
+    "viz_10": {
+      "type": "splunk.table",
+      "title": "Comptes à revoir",
+      "dataSources": {
+        "primary": "ds_10"
+      },
+      "options": {
+        "count": 15,
+        "wrap": true,
+        "columnFormat": {
+          "Niveau de risque": {
+            "rowBackgroundColors": "> table | seriesByName(\"Niveau de risque\") | matchValue(col0ColorConfig)"
+          },
+          "Statut de revue": {
+            "rowBackgroundColors": "> table | seriesByName(\"Statut de revue\") | matchValue(col1ColorConfig)"
+          }
+        }
+      },
+      "description": "Trié par score de risque. Utilisez les filtres ci-dessus (OU, périmètre, statut de revue, risque minimum). Exportez avec « Ouvrir dans la recherche » puis Exporter en CSV pour transmettre la liste aux responsables de comptes ; consignez le résultat dans lookups/adx_review_decisions.csv (sam, decision, reviewer, review_date AAAA-MM-JJ, comment).",
+      "context": {
+        "col0ColorConfig": [
+          {
+            "match": "ÉLEVÉ",
+            "value": "#B0413E"
+          },
+          {
+            "match": "MOYEN",
+            "value": "#F1813F"
+          },
+          {
+            "match": "FAIBLE",
+            "value": "#F8BE34"
+          },
+          {
+            "match": "OK",
+            "value": "#65A637"
+          }
+        ],
+        "col1ColorConfig": [
+          {
+            "match": "Jamais revu",
+            "value": "#B0413E"
+          },
+          {
+            "match": "Revue en retard",
+            "value": "#F1813F"
+          },
+          {
+            "match": "Revu",
+            "value": "#65A637"
+          }
+        ]
+      }
+    },
+    "viz_11": {
+      "type": "splunk.table",
+      "title": "Charge de revue par responsable (managedBy)",
+      "dataSources": {
+        "primary": "ds_11"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      }
+    },
+    "viz_12": {
+      "type": "splunk.table",
+      "title": "Comptes sans information de responsable",
+      "dataSources": {
+        "primary": "ds_12"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true,
+        "columnFormat": {
+          "Niveau de risque": {
+            "rowBackgroundColors": "> table | seriesByName(\"Niveau de risque\") | matchValue(col0ColorConfig)"
+          }
+        }
+      },
+      "description": "Comptes actifs sans managedBy, description ni service : personne ne peut les attester pendant la revue.",
+      "context": {
+        "col0ColorConfig": [
+          {
+            "match": "ÉLEVÉ",
+            "value": "#B0413E"
+          },
+          {
+            "match": "MOYEN",
+            "value": "#F1813F"
+          },
+          {
+            "match": "FAIBLE",
+            "value": "#F8BE34"
+          },
+          {
+            "match": "OK",
+            "value": "#65A637"
+          }
+        ]
+      }
+    },
+    "viz_13": {
+      "type": "splunk.table",
+      "title": "Comptes désactivés - candidats à la suppression",
+      "dataSources": {
+        "primary": "ds_13"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      }
+    },
+    "viz_14": {
+      "type": "splunk.table",
+      "title": "Journal des décisions de revue",
+      "dataSources": {
+        "primary": "ds_14"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      },
+      "description": "Contenu de lookups/adx_review_decisions.csv."
+    }
+  },
+  "dataSources": {
+    "ds_1": {
+      "type": "ds.search",
+      "name": "Comptes dans le périmètre",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_2": {
+      "type": "ds.search",
+      "name": "Risque ÉLEVÉ",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where risk_level=\"ÉLEVÉ\" | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_3": {
+      "type": "ds.search",
+      "name": "Risque MOYEN",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where risk_level=\"MOYEN\" | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_4": {
+      "type": "ds.search",
+      "name": "Jamais revus (comptes actifs)",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where review_status=\"Jamais revu\" AND is_disabled=0 | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_5": {
+      "type": "ds.search",
+      "name": "Revues en retard",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where review_status=\"Revue en retard\" | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_6": {
+      "type": "ds.search",
+      "name": "Désactivés à supprimer",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where is_disabled=1 AND risk_score>=1 | stats count",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_7": {
+      "type": "ds.search",
+      "name": "Répartition par niveau de risque",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | stats count by risk_level",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_8": {
+      "type": "ds.search",
+      "name": "Principales raisons de revue",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | mvexpand review_reasons | stats count by review_reasons | sort - count | head 12",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_9": {
+      "type": "ds.search",
+      "name": "Statut des revues",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | stats count by review_status",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_10": {
+      "type": "ds.search",
+      "name": "Comptes à revoir",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where risk_score>=$min_risk$ | eval state=if(is_disabled=1,\"Désactivé\",\"Actif\"), last_logon=strftime(last_logon,\"%Y-%m-%d\"), created=strftime(created,\"%Y-%m-%d\"), groups=mvjoin(priv_groups,\", \"), reasons=mvjoin(review_reasons,\" | \") | sort - risk_score, - pwd_age_days | table sam display_name risk_level risk_score reasons state department title description managedBy groups pwd_age_days last_logon created review_status decision reviewer review_date comment ou | rename sam as \"Compte\", display_name as \"Nom affiché\", risk_level as \"Niveau de risque\", risk_score as \"Score\", reasons as \"Raisons de la revue\", state as \"État\", department as \"Service\", title as \"Fonction\", description as \"Description\", managedBy as \"Responsable (managedBy)\", groups as \"Groupes privilégiés\", pwd_age_days as \"Âge du mot de passe (j)\", last_logon as \"Dernière connexion\", created as \"Créé le\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\", ou as \"OU\"",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_11": {
+      "type": "ds.search",
+      "name": "Charge de revue par responsable (managedBy)",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | eval owner=coalesce(mvindex(managedBy,0),\"(aucun responsable)\") | stats count as accounts, sum(eval(if(risk_level=\"ÉLEVÉ\",1,0))) as high, sum(eval(if(review_status!=\"Revu\",1,0))) as to_review by owner | sort - high, - to_review | rename owner as \"Responsable\", accounts as \"Comptes\", high as \"Risque élevé\", to_review as \"À revoir\"",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_12": {
+      "type": "ds.search",
+      "name": "Comptes sans information de responsable",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where is_disabled=0 AND isnull(managedBy) AND (isnull(description) OR description=\"\") AND (isnull(department) OR department=\"\") | eval last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort - risk_score | table sam display_name risk_level last_logon ou | rename sam as \"Compte\", display_name as \"Nom affiché\", risk_level as \"Niveau de risque\", last_logon as \"Dernière connexion\", ou as \"OU\"",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_13": {
+      "type": "ds.search",
+      "name": "Comptes désactivés - candidats à la suppression",
+      "options": {
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_risk` | where $scope$ AND $rstatus$ | where is_disabled=1 AND risk_score>=1 | eval changed=strftime(last_change,\"%Y-%m-%d\"), reasons=mvjoin(review_reasons,\" | \") | sort - risk_score | table sam display_name changed reasons ou | rename sam as \"Compte\", display_name as \"Nom affiché\", changed as \"Dernière modification\", reasons as \"Raisons\", ou as \"OU\"",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_14": {
+      "type": "ds.search",
+      "name": "Journal des décisions de revue",
+      "options": {
+        "query": "| inputlookup adx_review_decisions | sort - review_date | head 50 | rename sam as \"Compte\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    }
+  },
+  "layout": {
+    "type": "grid",
+    "options": {
+      "width": 1440,
+      "height": 1754,
+      "display": "auto-scale"
+    },
+    "structure": [
+      {
+        "item": "viz_1",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_2",
+        "type": "block",
+        "position": {
+          "x": 240,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_3",
+        "type": "block",
+        "position": {
+          "x": 480,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_4",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_5",
+        "type": "block",
+        "position": {
+          "x": 960,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_6",
+        "type": "block",
+        "position": {
+          "x": 1200,
+          "y": 0,
+          "w": 240,
+          "h": 130
+        }
+      },
+      {
+        "item": "viz_7",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 130,
+          "w": 480,
+          "h": 340
+        }
+      },
+      {
+        "item": "viz_8",
+        "type": "block",
+        "position": {
+          "x": 480,
+          "y": 130,
+          "w": 480,
+          "h": 340
+        }
+      },
+      {
+        "item": "viz_9",
+        "type": "block",
+        "position": {
+          "x": 960,
+          "y": 130,
+          "w": 480,
+          "h": 340
+        }
+      },
+      {
+        "item": "viz_10",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 470,
+          "w": 1440,
+          "h": 516
+        }
+      },
+      {
+        "item": "viz_11",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 986,
+          "w": 720,
+          "h": 384
+        }
+      },
+      {
+        "item": "viz_12",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 986,
+          "w": 720,
+          "h": 384
+        }
+      },
+      {
+        "item": "viz_13",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1370,
+          "w": 720,
+          "h": 384
+        }
+      },
+      {
+        "item": "viz_14",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 1370,
+          "w": 720,
+          "h": 384
+        }
+      }
+    ],
+    "globalInputs": [
+      "input_ou",
+      "input_scope",
+      "input_rstatus",
+      "input_min"
+    ]
+  }
+}
+  ]]></definition>
+</dashboard>

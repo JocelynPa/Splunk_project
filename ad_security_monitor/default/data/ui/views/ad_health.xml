@@ -1,14 +1,14 @@
 <dashboard version="2" theme="dark">
-  <label>AD Health &amp; Performance</label>
-  <description>Domain controller health and performance: AD health-check, Netlogon and DNS-health events flagging problems, data freshness per DC, and Perfmon counters for NTDS (LDAP, replication queue, threads), CPU, DNS and DFS replicated folders. Problem events are detected by keywords (macro adx_problem_terms) because the free-text health sources have no fixed schema.</description>
+  <label>Santé et performance AD</label>
+  <description>Santé et performance des contrôleurs de domaine : état AD, événements Netlogon et DNS signalant des problèmes, fraîcheur des données par DC, et compteurs Perfmon NTDS (LDAP, file de réplication, threads), CPU, DNS et dossiers répliqués DFS.</description>
   <definition><![CDATA[
 {
-  "title": "AD Health & Performance",
-  "description": "Domain controller health and performance: AD health-check, Netlogon and DNS-health events flagging problems, data freshness per DC, and Perfmon counters for NTDS (LDAP, replication queue, threads), CPU, DNS and DFS replicated folders. Problem events are detected by keywords (macro adx_problem_terms) because the free-text health sources have no fixed schema.",
+  "title": "Santé et performance AD",
+  "description": "Santé et performance des contrôleurs de domaine : état AD, événements Netlogon et DNS signalant des problèmes, fraîcheur des données par DC, et compteurs Perfmon NTDS (LDAP, file de réplication, threads), CPU, DNS et dossiers répliqués DFS.",
   "inputs": {
     "input_global_trp": {
       "type": "input.timerange",
-      "title": "Time range",
+      "title": "Période",
       "options": {
         "token": "global_time",
         "defaultValue": "-7d@h,now"
@@ -16,7 +16,7 @@
     },
     "input_pm_st": {
       "type": "input.dropdown",
-      "title": "Perfmon sourcetype",
+      "title": "Sourcetype Perfmon",
       "options": {
         "token": "pm_st",
         "defaultValue": "Perfmon:NTDS",
@@ -30,15 +30,15 @@
             "value": "Perfmon:DNS"
           },
           {
-            "label": "DFS Replicated Folders",
+            "label": "Dossiers répliqués DFS",
             "value": "Perfmon:DFS_Replicated_Folders"
           },
           {
-            "label": "Network Interface",
+            "label": "Interface réseau",
             "value": "Perfmon:Network_Interface"
           },
           {
-            "label": "Processor",
+            "label": "Processeur",
             "value": "Perfmon:Processor"
           }
         ]
@@ -46,7 +46,7 @@
     },
     "input_pm_counter": {
       "type": "input.dropdown",
-      "title": "Counter",
+      "title": "Compteur",
       "options": {
         "token": "pm_counter",
         "selectFirstSearchResult": true
@@ -60,7 +60,7 @@
   "visualizations": {
     "viz_1": {
       "type": "splunk.singlevalue",
-      "title": "DCs reporting health",
+      "title": "DC qui remontent leur état",
       "dataSources": {
         "primary": "ds_1"
       },
@@ -71,7 +71,7 @@
     },
     "viz_2": {
       "type": "splunk.singlevalue",
-      "title": "DCs with a problem",
+      "title": "DC en problème",
       "dataSources": {
         "primary": "ds_2"
       },
@@ -95,7 +95,7 @@
     },
     "viz_3": {
       "type": "splunk.singlevalue",
-      "title": "SYSVOL not shared",
+      "title": "SYSVOL non partagé",
       "dataSources": {
         "primary": "ds_3"
       },
@@ -119,7 +119,7 @@
     },
     "viz_4": {
       "type": "splunk.singlevalue",
-      "title": "DNS servers with a problem",
+      "title": "Serveurs DNS en problème",
       "dataSources": {
         "primary": "ds_4"
       },
@@ -143,7 +143,7 @@
     },
     "viz_5": {
       "type": "splunk.singlevalue",
-      "title": "Global catalogs",
+      "title": "Catalogues globaux",
       "dataSources": {
         "primary": "ds_5"
       },
@@ -154,7 +154,7 @@
     },
     "viz_6": {
       "type": "splunk.singlevalue",
-      "title": "Clients without AD site (24h)",
+      "title": "Clients sans site AD (24 h)",
       "dataSources": {
         "primary": "ds_6"
       },
@@ -183,7 +183,7 @@
     },
     "viz_7": {
       "type": "splunk.singlevalue",
-      "title": "Silent sources (no data > 60 min)",
+      "title": "Sources silencieuses (aucune donnée > 60 min)",
       "dataSources": {
         "primary": "ds_7"
       },
@@ -207,7 +207,7 @@
     },
     "viz_8": {
       "type": "splunk.table",
-      "title": "Domain controllers - health, roles and inventory",
+      "title": "Contrôleurs de domaine - santé, rôles et inventaire",
       "dataSources": {
         "primary": "ds_8"
       },
@@ -215,20 +215,20 @@
         "count": 12,
         "wrap": true,
         "columnFormat": {
-          "status": {
-            "rowBackgroundColors": "> table | seriesByName(\"status\") | matchValue(statusColorConfig)"
+          "Statut": {
+            "rowBackgroundColors": "> table | seriesByName(\"Statut\") | matchValue(col0ColorConfig)"
           }
         }
       },
-      "description": "Latest MSAD:NT6:Health state of each DC. PROBLEM = SYSVOL not shared, processes not OK, DNS registration failed, or a monitored service down (ntfrs is ignored: expected stopped with DFSR). fsmo = FSMO roles held; istg = intersite topology generator.",
+      "description": "Dernier état MSAD:NT6:Health de chaque DC. PROBLÈME = SYSVOL non partagé, processus non OK, enregistrement DNS en échec ou service surveillé arrêté (ntfrs est ignoré : normalement arrêté avec DFSR). fsmo = rôles FSMO détenus ; istg = générateur de topologie inter-sites.",
       "context": {
-        "statusColorConfig": [
+        "col0ColorConfig": [
           {
             "match": "OK",
             "value": "#65A637"
           },
           {
-            "match": "PROBLEM",
+            "match": "PROBLÈME",
             "value": "#B0413E"
           }
         ]
@@ -236,7 +236,7 @@
     },
     "viz_9": {
       "type": "splunk.pie",
-      "title": "Domain controllers by operating system",
+      "title": "Contrôleurs de domaine par système d'exploitation",
       "dataSources": {
         "primary": "ds_9"
       },
@@ -246,7 +246,7 @@
     },
     "viz_10": {
       "type": "splunk.bar",
-      "title": "Domain controllers by AD site",
+      "title": "Contrôleurs de domaine par site AD",
       "dataSources": {
         "primary": "ds_10"
       },
@@ -256,7 +256,7 @@
     },
     "viz_11": {
       "type": "splunk.table",
-      "title": "FSMO role holders",
+      "title": "Détenteurs des rôles FSMO",
       "dataSources": {
         "primary": "ds_11"
       },
@@ -267,7 +267,7 @@
     },
     "viz_12": {
       "type": "splunk.table",
-      "title": "DNS servers - health",
+      "title": "Serveurs DNS - santé",
       "dataSources": {
         "primary": "ds_12"
       },
@@ -275,20 +275,20 @@
         "count": 8,
         "wrap": true,
         "columnFormat": {
-          "status": {
-            "rowBackgroundColors": "> table | seriesByName(\"status\") | matchValue(statusColorConfig)"
+          "Statut": {
+            "rowBackgroundColors": "> table | seriesByName(\"Statut\") | matchValue(col0ColorConfig)"
           }
         }
       },
-      "description": "Latest MSAD:NT6:DNS-Health state of each DNS server (service status, DNSSEC, recursion, scavenging interval, forwarders).",
+      "description": "Dernier état MSAD:NT6:DNS-Health de chaque serveur DNS (état du service, DNSSEC, récursion, intervalle de nettoyage, redirecteurs).",
       "context": {
-        "statusColorConfig": [
+        "col0ColorConfig": [
           {
             "match": "OK",
             "value": "#65A637"
           },
           {
-            "match": "PROBLEM",
+            "match": "PROBLÈME",
             "value": "#B0413E"
           }
         ]
@@ -296,7 +296,7 @@
     },
     "viz_13": {
       "type": "splunk.line",
-      "title": "Highest USN by DC (directory change activity)",
+      "title": "USN max par DC (activité de modification de l'annuaire)",
       "dataSources": {
         "primary": "ds_13"
       },
@@ -306,7 +306,7 @@
     },
     "viz_14": {
       "type": "splunk.column",
-      "title": "Netlogon site affinity over time",
+      "title": "Affinité de site Netlogon dans le temps",
       "dataSources": {
         "primary": "ds_14"
       },
@@ -317,7 +317,7 @@
     },
     "viz_15": {
       "type": "splunk.table",
-      "title": "Subnets missing from AD Sites and Services (NO_CLIENT_SITE)",
+      "title": "Sous-réseaux absents d'AD Sites and Services (NO_CLIENT_SITE)",
       "dataSources": {
         "primary": "ds_15"
       },
@@ -325,11 +325,11 @@
         "count": 10,
         "wrap": true
       },
-      "description": "Clients authenticating from an IP that is not in any AD subnet (Netlogon NO_CLIENT_SITE): they may be served by a remote DC. Add these subnets to the right site in AD Sites and Services. The /24 grouping is an approximation."
+      "description": "Clients qui s'authentifient depuis une IP absente de tout sous-réseau AD (Netlogon NO_CLIENT_SITE) : ils peuvent être servis par un DC distant. Ajoutez ces sous-réseaux au bon site dans AD Sites and Services. Le regroupement en /24 est une approximation."
     },
     "viz_16": {
       "type": "splunk.table",
-      "title": "Clients without AD site - top hosts",
+      "title": "Clients sans site AD - principaux hôtes",
       "dataSources": {
         "primary": "ds_16"
       },
@@ -340,7 +340,7 @@
     },
     "viz_17": {
       "type": "splunk.table",
-      "title": "Data freshness per DC and source (minutes since last event)",
+      "title": "Fraîcheur des données par DC et par source (minutes depuis le dernier événement)",
       "dataSources": {
         "primary": "ds_17"
       },
@@ -348,11 +348,11 @@
         "count": 15,
         "wrap": true
       },
-      "description": "Empty cell = that DC never sent that source in the last 24h."
+      "description": "Cellule vide = ce DC n'a jamais envoyé cette source au cours des dernières 24 h."
     },
     "viz_18": {
       "type": "splunk.line",
-      "title": "NTDS - LDAP searches/sec",
+      "title": "NTDS - recherches LDAP/s",
       "dataSources": {
         "primary": "ds_18"
       },
@@ -362,7 +362,7 @@
     },
     "viz_19": {
       "type": "splunk.line",
-      "title": "NTDS - pending replication operations",
+      "title": "NTDS - opérations de réplication en attente",
       "dataSources": {
         "primary": "ds_19"
       },
@@ -372,7 +372,7 @@
     },
     "viz_20": {
       "type": "splunk.line",
-      "title": "NTDS - DS threads in use",
+      "title": "NTDS - threads DS utilisés",
       "dataSources": {
         "primary": "ds_20"
       },
@@ -382,7 +382,7 @@
     },
     "viz_21": {
       "type": "splunk.line",
-      "title": "CPU - % Processor Time (_Total)",
+      "title": "CPU - % temps processeur (_Total)",
       "dataSources": {
         "primary": "ds_21"
       },
@@ -392,7 +392,7 @@
     },
     "viz_22": {
       "type": "splunk.line",
-      "title": "DNS - queries received/sec",
+      "title": "DNS - requêtes reçues/s",
       "dataSources": {
         "primary": "ds_22"
       },
@@ -402,7 +402,7 @@
     },
     "viz_23": {
       "type": "splunk.line",
-      "title": "DNS - recursive query failures/sec",
+      "title": "DNS - échecs de requêtes récursives/s",
       "dataSources": {
         "primary": "ds_23"
       },
@@ -412,20 +412,20 @@
     },
     "viz_24": {
       "type": "splunk.line",
-      "title": "Perfmon explorer: pick any counter",
+      "title": "Explorateur Perfmon : choisissez un compteur",
       "dataSources": {
         "primary": "ds_24"
       },
       "options": {
         "legendDisplay": "bottom"
       },
-      "description": "Choose a Perfmon sourcetype then a counter (NTDS, DNS, DFS Replicated Folders, Network Interface, Processor)."
+      "description": "Choisissez un sourcetype Perfmon puis un compteur (NTDS, DNS, Dossiers répliqués DFS, Interface réseau, Processeur)."
     }
   },
   "dataSources": {
     "ds_1": {
       "type": "ds.search",
-      "name": "DCs reporting health",
+      "name": "DC qui remontent leur état",
       "options": {
         "query": "`adx_dc_health` | stats count",
         "queryParameters": {
@@ -436,9 +436,9 @@
     },
     "ds_2": {
       "type": "ds.search",
-      "name": "DCs with a problem",
+      "name": "DC en problème",
       "options": {
-        "query": "`adx_dc_health` | where status=\"PROBLEM\" | stats count",
+        "query": "`adx_dc_health` | where status=\"PROBLÈME\" | stats count",
         "queryParameters": {
           "earliest": "-24h",
           "latest": "now"
@@ -447,7 +447,7 @@
     },
     "ds_3": {
       "type": "ds.search",
-      "name": "SYSVOL not shared",
+      "name": "SYSVOL non partagé",
       "options": {
         "query": "`adx_dc_health` | where sysvol!=\"True\" | stats count",
         "queryParameters": {
@@ -458,9 +458,9 @@
     },
     "ds_4": {
       "type": "ds.search",
-      "name": "DNS servers with a problem",
+      "name": "Serveurs DNS en problème",
       "options": {
-        "query": "`adx_dns_health` | where status=\"PROBLEM\" | stats count",
+        "query": "`adx_dns_health` | where status=\"PROBLÈME\" | stats count",
         "queryParameters": {
           "earliest": "-24h",
           "latest": "now"
@@ -469,7 +469,7 @@
     },
     "ds_5": {
       "type": "ds.search",
-      "name": "Global catalogs",
+      "name": "Catalogues globaux",
       "options": {
         "query": "`adx_dc_health` | where gc=\"True\" | stats count",
         "queryParameters": {
@@ -480,7 +480,7 @@
     },
     "ds_6": {
       "type": "ds.search",
-      "name": "Clients without AD site (24h)",
+      "name": "Clients sans site AD (24 h)",
       "options": {
         "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Netlogon\" msad_affinity=NO_CLIENT_SITE | stats dc(src_ip)",
         "queryParameters": {
@@ -491,7 +491,7 @@
     },
     "ds_7": {
       "type": "ds.search",
-      "name": "Silent sources (no data > 60 min)",
+      "name": "Sources silencieuses (aucune donnée > 60 min)",
       "options": {
         "query": "| multisearch [search `adx_msad_index` (sourcetype=\"MSAD:NT6:Health\" OR sourcetype=\"MSAD:NT6:Replication\" OR sourcetype=\"MSAD:NT6:Netlogon\" OR sourcetype=\"MSAD:NT6:DNS-Health\") | fields host sourcetype _time] [search `adx_perfmon_index` (sourcetype=\"Perfmon:NTDS\" OR sourcetype=\"Perfmon:Processor\") | fields host sourcetype _time] | stats max(_time) as last by host sourcetype | where last<now()-3600 | stats count",
         "queryParameters": {
@@ -502,9 +502,9 @@
     },
     "ds_8": {
       "type": "ds.search",
-      "name": "Domain controllers - health, roles and inventory",
+      "name": "Contrôleurs de domaine - santé, rôles et inventaire",
       "options": {
-        "query": "`adx_dc_health` | eval last_report=minutes_ago.\" min ago\", problem=coalesce(mvjoin(problem,\"; \"),\"-\") | sort - status, site, Server | table site Server status problem os gc rodc fsmo istg sysvol procs_ok dns_register svc_down usn forest_level domain_level schema last_report",
+        "query": "`adx_dc_health` | eval last_report=minutes_ago.\" min ago\", problem=coalesce(mvjoin(problem,\"; \"),\"-\") | sort - status, site, Server | table site Server status problem os gc rodc fsmo istg sysvol procs_ok dns_register svc_down usn forest_level domain_level schema last_report | rename site as \"Site\", Server as \"Serveur\", status as \"Statut\", problem as \"Problème\", os as \"OS\", gc as \"GC\", rodc as \"RODC\", fsmo as \"Rôles FSMO\", istg as \"ISTG\", sysvol as \"SYSVOL\", procs_ok as \"Processus OK\", dns_register as \"Enregistrement DNS\", svc_down as \"Services arrêtés\", usn as \"USN max\", forest_level as \"Niveau forêt\", domain_level as \"Niveau domaine\", schema as \"Schéma\", last_report as \"Dernier rapport\"",
         "queryParameters": {
           "earliest": "-24h",
           "latest": "now"
@@ -513,7 +513,7 @@
     },
     "ds_9": {
       "type": "ds.search",
-      "name": "Domain controllers by operating system",
+      "name": "Contrôleurs de domaine par système d'exploitation",
       "options": {
         "query": "`adx_dc_health` | stats count by os",
         "queryParameters": {
@@ -524,7 +524,7 @@
     },
     "ds_10": {
       "type": "ds.search",
-      "name": "Domain controllers by AD site",
+      "name": "Contrôleurs de domaine par site AD",
       "options": {
         "query": "`adx_dc_health` | stats count by site",
         "queryParameters": {
@@ -535,9 +535,9 @@
     },
     "ds_11": {
       "type": "ds.search",
-      "name": "FSMO role holders",
+      "name": "Détenteurs des rôles FSMO",
       "options": {
-        "query": "`adx_dc_health` | where len(fsmo)>0 | table Server fsmo site",
+        "query": "`adx_dc_health` | where len(fsmo)>0 | table Server fsmo site | rename Server as \"Serveur\", fsmo as \"Rôles FSMO\", site as \"Site\"",
         "queryParameters": {
           "earliest": "-24h",
           "latest": "now"
@@ -546,9 +546,9 @@
     },
     "ds_12": {
       "type": "ds.search",
-      "name": "DNS servers - health",
+      "name": "Serveurs DNS - santé",
       "options": {
-        "query": "`adx_dns_health` | eval problem=coalesce(mvjoin(problem,\"; \"),\"-\"), forwarders=mvjoin(forwarders,\", \"), last_report=minutes_ago.\" min ago\" | sort - status, Server | table Server status problem dns_status started dnssec no_recursion scavenging_h forwarders os last_report",
+        "query": "`adx_dns_health` | eval problem=coalesce(mvjoin(problem,\"; \"),\"-\"), forwarders=mvjoin(forwarders,\", \"), last_report=minutes_ago.\" min ago\" | sort - status, Server | table Server status problem dns_status started dnssec no_recursion scavenging_h forwarders os last_report | rename Server as \"Serveur\", status as \"Statut\", problem as \"Problème\", dns_status as \"Statut DNS\", started as \"Démarré\", dnssec as \"DNSSEC\", no_recursion as \"Sans récursion\", scavenging_h as \"Nettoyage (h)\", forwarders as \"Redirecteurs\", os as \"OS\", last_report as \"Dernier rapport\"",
         "queryParameters": {
           "earliest": "-24h",
           "latest": "now"
@@ -557,7 +557,7 @@
     },
     "ds_13": {
       "type": "ds.search",
-      "name": "Highest USN by DC (directory change activity)",
+      "name": "USN max par DC (activité de modification de l'annuaire)",
       "options": {
         "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Health\" | timechart span=1h max(HighestUSN) by Server limit=15",
         "queryParameters": {
@@ -568,7 +568,7 @@
     },
     "ds_14": {
       "type": "ds.search",
-      "name": "Netlogon site affinity over time",
+      "name": "Affinité de site Netlogon dans le temps",
       "options": {
         "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Netlogon\" | fillnull value=\"OTHER\" msad_affinity | timechart span=1h count by msad_affinity",
         "queryParameters": {
@@ -579,9 +579,9 @@
     },
     "ds_15": {
       "type": "ds.search",
-      "name": "Subnets missing from AD Sites and Services (NO_CLIENT_SITE)",
+      "name": "Sous-réseaux absents d'AD Sites and Services (NO_CLIENT_SITE)",
       "options": {
-        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Netlogon\" msad_affinity=NO_CLIENT_SITE | eval subnet=replace(src_ip,\"^(\\d+\\.\\d+\\.\\d+)\\.\\d+\",\"\\1.0/24\") | stats count as requests, dc(src_ip) as clients, dc(src_host) as hosts, values(host) as seen_by_dc, latest(src_host) as sample_host by subnet | sort - requests",
+        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Netlogon\" msad_affinity=NO_CLIENT_SITE | eval subnet=replace(src_ip,\"^(\\d+\\.\\d+\\.\\d+)\\.\\d+\",\"\\1.0/24\") | stats count as requests, dc(src_ip) as clients, dc(src_host) as hosts, values(host) as seen_by_dc, latest(src_host) as sample_host by subnet | sort - requests | table subnet requests clients hosts seen_by_dc sample_host | rename subnet as \"Sous-réseau\", requests as \"Requêtes\", clients as \"Clients\", hosts as \"Hôtes\", seen_by_dc as \"Vu par les DC\", sample_host as \"Hôte exemple\"",
         "queryParameters": {
           "earliest": "-24h",
           "latest": "now"
@@ -590,9 +590,9 @@
     },
     "ds_16": {
       "type": "ds.search",
-      "name": "Clients without AD site - top hosts",
+      "name": "Clients sans site AD - principaux hôtes",
       "options": {
-        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Netlogon\" msad_affinity=NO_CLIENT_SITE | stats count as requests, latest(src_ip) as src_ip, latest(src_domain) as domain, values(host) as seen_by_dc by src_host | sort - requests",
+        "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Netlogon\" msad_affinity=NO_CLIENT_SITE | stats count as requests, latest(src_ip) as src_ip, latest(src_domain) as domain, values(host) as seen_by_dc by src_host | sort - requests | table src_host requests src_ip domain seen_by_dc | rename src_host as \"Hôte source\", requests as \"Requêtes\", src_ip as \"IP source\", domain as \"Domaine\", seen_by_dc as \"Vu par les DC\"",
         "queryParameters": {
           "earliest": "-24h",
           "latest": "now"
@@ -601,9 +601,9 @@
     },
     "ds_17": {
       "type": "ds.search",
-      "name": "Data freshness per DC and source (minutes since last event)",
+      "name": "Fraîcheur des données par DC et par source (minutes depuis le dernier événement)",
       "options": {
-        "query": "| multisearch [search `adx_msad_index` (sourcetype=\"MSAD:NT6:Health\" OR sourcetype=\"MSAD:NT6:Replication\" OR sourcetype=\"MSAD:NT6:Netlogon\" OR sourcetype=\"MSAD:NT6:DNS-Health\") | fields host sourcetype _time] [search `adx_perfmon_index` (sourcetype=\"Perfmon:NTDS\" OR sourcetype=\"Perfmon:Processor\" OR sourcetype=\"Perfmon:DNS\" OR sourcetype=\"Perfmon:DFS_Replicated_Folders\") | fields host sourcetype _time] | stats max(_time) as last by host sourcetype | eval minutes_ago=round((now()-last)/60,0) | chart latest(minutes_ago) as m over host by sourcetype",
+        "query": "| multisearch [search `adx_msad_index` (sourcetype=\"MSAD:NT6:Health\" OR sourcetype=\"MSAD:NT6:Replication\" OR sourcetype=\"MSAD:NT6:Netlogon\" OR sourcetype=\"MSAD:NT6:DNS-Health\") | fields host sourcetype _time] [search `adx_perfmon_index` (sourcetype=\"Perfmon:NTDS\" OR sourcetype=\"Perfmon:Processor\" OR sourcetype=\"Perfmon:DNS\" OR sourcetype=\"Perfmon:DFS_Replicated_Folders\") | fields host sourcetype _time] | stats max(_time) as last by host sourcetype | eval minutes_ago=round((now()-last)/60,0) | chart latest(minutes_ago) as m over host by sourcetype | rename host as \"DC\"",
         "queryParameters": {
           "earliest": "-24h",
           "latest": "now"
@@ -612,7 +612,7 @@
     },
     "ds_18": {
       "type": "ds.search",
-      "name": "NTDS - LDAP searches/sec",
+      "name": "NTDS - recherches LDAP/s",
       "options": {
         "query": "`adx_perfmon_index` sourcetype=\"Perfmon:NTDS\" counter=\"LDAP Searches/sec\" | timechart span=5m avg(Value) by host limit=15",
         "queryParameters": {
@@ -623,7 +623,7 @@
     },
     "ds_19": {
       "type": "ds.search",
-      "name": "NTDS - pending replication operations",
+      "name": "NTDS - opérations de réplication en attente",
       "options": {
         "query": "`adx_perfmon_index` sourcetype=\"Perfmon:NTDS\" counter=\"DRA Pending Replication Operations\" | timechart span=5m avg(Value) by host limit=15",
         "queryParameters": {
@@ -634,7 +634,7 @@
     },
     "ds_20": {
       "type": "ds.search",
-      "name": "NTDS - DS threads in use",
+      "name": "NTDS - threads DS utilisés",
       "options": {
         "query": "`adx_perfmon_index` sourcetype=\"Perfmon:NTDS\" counter=\"DS Threads in Use\" | timechart span=5m avg(Value) by host limit=15",
         "queryParameters": {
@@ -645,7 +645,7 @@
     },
     "ds_21": {
       "type": "ds.search",
-      "name": "CPU - % Processor Time (_Total)",
+      "name": "CPU - % temps processeur (_Total)",
       "options": {
         "query": "`adx_perfmon_index` sourcetype=\"Perfmon:Processor\" counter=\"% Processor Time\" instance=\"_Total\" | timechart span=5m avg(Value) by host limit=15",
         "queryParameters": {
@@ -656,7 +656,7 @@
     },
     "ds_22": {
       "type": "ds.search",
-      "name": "DNS - queries received/sec",
+      "name": "DNS - requêtes reçues/s",
       "options": {
         "query": "`adx_perfmon_index` sourcetype=\"Perfmon:DNS\" counter=\"Total Query Received/sec\" | timechart span=5m avg(Value) by host limit=15",
         "queryParameters": {
@@ -667,7 +667,7 @@
     },
     "ds_23": {
       "type": "ds.search",
-      "name": "DNS - recursive query failures/sec",
+      "name": "DNS - échecs de requêtes récursives/s",
       "options": {
         "query": "`adx_perfmon_index` sourcetype=\"Perfmon:DNS\" counter=\"Recursive Query Failure/sec\" | timechart span=5m avg(Value) by host limit=15",
         "queryParameters": {
@@ -678,7 +678,7 @@
     },
     "ds_24": {
       "type": "ds.search",
-      "name": "Perfmon explorer: pick any counter",
+      "name": "Explorateur Perfmon : choisissez un compteur",
       "options": {
         "query": "`adx_perfmon_index` sourcetype=\"$pm_st$\" counter=\"$pm_counter$\" | eval series=host.\" \".coalesce(instance,\"\") | timechart span=5m avg(Value) by series limit=15",
         "queryParameters": {

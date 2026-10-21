@@ -1,14 +1,14 @@
 <dashboard version="2" theme="dark">
-  <label>AD Accounts Overview</label>
-  <description>Account-hygiene view of Active Directory built on the lookups of the Microsoft Windows Active Directory Objects app (see README for the lookup names/macros to adjust): enabled vs disabled, password-never-expires, locked, expired, stale, privileged and risky configurations. Figures reflect the last refresh of the lookups, not live LDAP.</description>
+  <label>Vue d'ensemble des comptes AD</label>
+  <description>Vue d'hygiène des comptes Active Directory construite sur les lookups de l'app Microsoft Windows Active Directory Objects (voir le README pour adapter les noms de lookups/macros) : actifs vs désactivés, mot de passe sans expiration, verrouillés, expirés, inactifs, privilégiés et configurations à risque. Les chiffres reflètent le dernier rafraîchissement des lookups, pas du LDAP en direct.</description>
   <definition><![CDATA[
 {
-  "title": "AD Accounts Overview",
-  "description": "Account-hygiene view of Active Directory built on the lookups of the Microsoft Windows Active Directory Objects app (see README for the lookup names/macros to adjust): enabled vs disabled, password-never-expires, locked, expired, stale, privileged and risky configurations. Figures reflect the last refresh of the lookups, not live LDAP.",
+  "title": "Vue d'ensemble des comptes AD",
+  "description": "Vue d'hygiène des comptes Active Directory construite sur les lookups de l'app Microsoft Windows Active Directory Objects (voir le README pour adapter les noms de lookups/macros) : actifs vs désactivés, mot de passe sans expiration, verrouillés, expirés, inactifs, privilégiés et configurations à risque. Les chiffres reflètent le dernier rafraîchissement des lookups, pas du LDAP en direct.",
   "inputs": {
     "input_ou": {
       "type": "input.text",
-      "title": "OU filter (regex, e.g. OU=Admins)",
+      "title": "Filtre OU (regex, ex. OU=Admins)",
       "options": {
         "token": "ou_f",
         "defaultValue": ".*"
@@ -19,7 +19,7 @@
   "visualizations": {
     "viz_1": {
       "type": "splunk.singlevalue",
-      "title": "User accounts",
+      "title": "Comptes utilisateurs",
       "dataSources": {
         "primary": "ds_1"
       },
@@ -30,7 +30,7 @@
     },
     "viz_2": {
       "type": "splunk.singlevalue",
-      "title": "Enabled",
+      "title": "Actifs",
       "dataSources": {
         "primary": "ds_2"
       },
@@ -41,7 +41,7 @@
     },
     "viz_3": {
       "type": "splunk.singlevalue",
-      "title": "Disabled",
+      "title": "Désactivés",
       "dataSources": {
         "primary": "ds_3"
       },
@@ -52,7 +52,7 @@
     },
     "viz_4": {
       "type": "splunk.singlevalue",
-      "title": "Password never expires (enabled)",
+      "title": "Mot de passe sans expiration (actifs)",
       "dataSources": {
         "primary": "ds_4"
       },
@@ -81,7 +81,7 @@
     },
     "viz_5": {
       "type": "splunk.singlevalue",
-      "title": "Locked out",
+      "title": "Verrouillés",
       "dataSources": {
         "primary": "ds_5"
       },
@@ -105,7 +105,7 @@
     },
     "viz_6": {
       "type": "splunk.singlevalue",
-      "title": "Password not required (enabled)",
+      "title": "Mot de passe non requis (actifs)",
       "dataSources": {
         "primary": "ds_6"
       },
@@ -129,7 +129,7 @@
     },
     "viz_7": {
       "type": "splunk.singlevalue",
-      "title": "Expired but still enabled",
+      "title": "Expirés mais toujours actifs",
       "dataSources": {
         "primary": "ds_7"
       },
@@ -153,7 +153,7 @@
     },
     "viz_8": {
       "type": "splunk.singlevalue",
-      "title": "Stale enabled accounts",
+      "title": "Comptes actifs inactifs",
       "dataSources": {
         "primary": "ds_8"
       },
@@ -161,7 +161,7 @@
         "sparklineDisplay": "off",
         "trendDisplay": "off",
         "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)",
-        "underLabel": "no logon for more than adx_stale_days days"
+        "underLabel": "aucune connexion depuis plus de adx_stale_days jours"
       },
       "context": {
         "majorColorEditorConfig": [
@@ -183,7 +183,7 @@
     },
     "viz_9": {
       "type": "splunk.singlevalue",
-      "title": "Privileged accounts (enabled)",
+      "title": "Comptes privilégiés (actifs)",
       "dataSources": {
         "primary": "ds_9"
       },
@@ -194,7 +194,7 @@
     },
     "viz_10": {
       "type": "splunk.singlevalue",
-      "title": "krbtgt password age (days)",
+      "title": "Âge du mot de passe krbtgt (jours)",
       "dataSources": {
         "primary": "ds_10"
       },
@@ -218,7 +218,7 @@
     },
     "viz_11": {
       "type": "splunk.singlevalue",
-      "title": "Password expired (enabled)",
+      "title": "Mot de passe expiré (actifs)",
       "dataSources": {
         "primary": "ds_11"
       },
@@ -226,7 +226,7 @@
         "sparklineDisplay": "off",
         "trendDisplay": "off",
         "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)",
-        "underLabel": "older than adx_max_pwd_age_days"
+        "underLabel": "plus ancien que adx_max_pwd_age_days"
       },
       "context": {
         "majorColorEditorConfig": [
@@ -248,7 +248,7 @@
     },
     "viz_12": {
       "type": "splunk.singlevalue",
-      "title": "Password expires within 14 days",
+      "title": "Mot de passe expirant sous 14 jours",
       "dataSources": {
         "primary": "ds_12"
       },
@@ -277,7 +277,7 @@
     },
     "viz_13": {
       "type": "splunk.singlevalue",
-      "title": "Must change password at next logon",
+      "title": "Doit changer son mot de passe à la prochaine connexion",
       "dataSources": {
         "primary": "ds_13"
       },
@@ -288,7 +288,7 @@
     },
     "viz_14": {
       "type": "splunk.singlevalue",
-      "title": "Accounts not compliant with password rules",
+      "title": "Comptes non conformes aux règles de mot de passe",
       "dataSources": {
         "primary": "ds_14"
       },
@@ -317,7 +317,7 @@
     },
     "viz_15": {
       "type": "splunk.singlevalue",
-      "title": "Privileged passwords too old",
+      "title": "Mots de passe privilégiés trop anciens",
       "dataSources": {
         "primary": "ds_15"
       },
@@ -341,18 +341,18 @@
     },
     "viz_16": {
       "type": "splunk.bar",
-      "title": "Password rule violations (enabled accounts)",
+      "title": "Violations des règles de mot de passe (comptes actifs)",
       "dataSources": {
         "primary": "ds_16"
       },
       "options": {
         "legendDisplay": "off"
       },
-      "description": "Based on UAC flags, password age and privileged membership. AD does not expose password contents: weak, leaked or dictionary passwords need an offline audit (e.g. DSInternals Test-PasswordQuality) or Entra/AD password protection."
+      "description": "Basé sur les indicateurs UAC, l'âge du mot de passe et l'appartenance privilégiée. AD n'expose pas le contenu des mots de passe : les mots de passe faibles, compromis ou de dictionnaire nécessitent un audit hors ligne (ex. DSInternals Test-PasswordQuality) ou une protection des mots de passe Entra/AD."
     },
     "viz_17": {
       "type": "splunk.table",
-      "title": "Accounts not compliant with password rules",
+      "title": "Comptes non conformes aux règles de mot de passe",
       "dataSources": {
         "primary": "ds_17"
       },
@@ -360,15 +360,15 @@
         "count": 10,
         "wrap": true,
         "columnFormat": {
-          "privileged": {
-            "rowBackgroundColors": "> table | seriesByName(\"privileged\") | matchValue(privilegedColorConfig)"
+          "Privilégié": {
+            "rowBackgroundColors": "> table | seriesByName(\"Privilégié\") | matchValue(col0ColorConfig)"
           }
         }
       },
       "context": {
-        "privilegedColorConfig": [
+        "col0ColorConfig": [
           {
-            "match": "YES",
+            "match": "OUI",
             "value": "#F8BE34"
           }
         ]
@@ -376,7 +376,7 @@
     },
     "viz_18": {
       "type": "splunk.table",
-      "title": "Passwords expired or expiring within 14 days",
+      "title": "Mots de passe expirés ou expirant sous 14 jours",
       "dataSources": {
         "primary": "ds_18"
       },
@@ -384,20 +384,20 @@
         "count": 10,
         "wrap": true,
         "columnFormat": {
-          "status": {
-            "rowBackgroundColors": "> table | seriesByName(\"status\") | matchValue(statusColorConfig)"
+          "Statut": {
+            "rowBackgroundColors": "> table | seriesByName(\"Statut\") | matchValue(col0ColorConfig)"
           }
         }
       },
-      "description": "Negative value = days since the password expired (domain maximum password age = macro adx_max_pwd_age_days; fine-grained policies are not taken into account).",
+      "description": "Valeur négative = jours depuis l'expiration du mot de passe (âge maximum du domaine = macro adx_max_pwd_age_days ; les politiques de mot de passe affinées ne sont pas prises en compte).",
       "context": {
-        "statusColorConfig": [
+        "col0ColorConfig": [
           {
-            "match": "EXPIRED",
+            "match": "EXPIRÉ",
             "value": "#B0413E"
           },
           {
-            "match": "EXPIRING",
+            "match": "EXPIRE BIENTÔT",
             "value": "#F8BE34"
           }
         ]
@@ -405,7 +405,7 @@
     },
     "viz_19": {
       "type": "splunk.pie",
-      "title": "Enabled vs disabled",
+      "title": "Actifs vs désactivés",
       "dataSources": {
         "primary": "ds_19"
       },
@@ -415,7 +415,7 @@
     },
     "viz_20": {
       "type": "splunk.pie",
-      "title": "Password posture of enabled accounts",
+      "title": "Situation des mots de passe des comptes actifs",
       "dataSources": {
         "primary": "ds_20"
       },
@@ -425,7 +425,7 @@
     },
     "viz_21": {
       "type": "splunk.column",
-      "title": "Password age of enabled accounts",
+      "title": "Âge des mots de passe des comptes actifs",
       "dataSources": {
         "primary": "ds_21"
       },
@@ -435,7 +435,7 @@
     },
     "viz_22": {
       "type": "splunk.column",
-      "title": "Last logon of enabled accounts",
+      "title": "Dernière connexion des comptes actifs",
       "dataSources": {
         "primary": "ds_22"
       },
@@ -445,7 +445,7 @@
     },
     "viz_23": {
       "type": "splunk.bar",
-      "title": "Password never expires - by OU (top 15, enabled)",
+      "title": "Mot de passe sans expiration - par OU (top 15, actifs)",
       "dataSources": {
         "primary": "ds_23"
       },
@@ -455,7 +455,7 @@
     },
     "viz_24": {
       "type": "splunk.table",
-      "title": "Password never expires - enabled accounts",
+      "title": "Mot de passe sans expiration - comptes actifs",
       "dataSources": {
         "primary": "ds_24"
       },
@@ -463,15 +463,15 @@
         "count": 12,
         "wrap": true,
         "columnFormat": {
-          "privileged": {
-            "rowBackgroundColors": "> table | seriesByName(\"privileged\") | matchValue(privilegedColorConfig)"
+          "Privilégié": {
+            "rowBackgroundColors": "> table | seriesByName(\"Privilégié\") | matchValue(col0ColorConfig)"
           }
         }
       },
       "context": {
-        "privilegedColorConfig": [
+        "col0ColorConfig": [
           {
-            "match": "YES",
+            "match": "OUI",
             "value": "#F8BE34"
           }
         ]
@@ -479,7 +479,7 @@
     },
     "viz_25": {
       "type": "splunk.table",
-      "title": "Risky account configurations (enabled)",
+      "title": "Configurations de comptes à risque (actifs)",
       "dataSources": {
         "primary": "ds_25"
       },
@@ -490,7 +490,7 @@
     },
     "viz_26": {
       "type": "splunk.table",
-      "title": "Accounts expiring in the next 30 days",
+      "title": "Comptes expirant dans les 30 prochains jours",
       "dataSources": {
         "primary": "ds_26"
       },
@@ -501,7 +501,7 @@
     },
     "viz_27": {
       "type": "splunk.table",
-      "title": "Enabled accounts past their expiry date",
+      "title": "Comptes actifs dont la date d'expiration est dépassée",
       "dataSources": {
         "primary": "ds_27"
       },
@@ -512,7 +512,7 @@
     },
     "viz_28": {
       "type": "splunk.table",
-      "title": "Disabled accounts that still belong to a privileged group",
+      "title": "Comptes désactivés appartenant encore à un groupe privilégié",
       "dataSources": {
         "primary": "ds_28"
       },
@@ -523,7 +523,7 @@
     },
     "viz_29": {
       "type": "splunk.table",
-      "title": "Stale enabled accounts (oldest logon first)",
+      "title": "Comptes actifs inactifs (connexion la plus ancienne d'abord)",
       "dataSources": {
         "primary": "ds_29"
       },
@@ -534,18 +534,18 @@
     },
     "viz_30": {
       "type": "splunk.line",
-      "title": "Daily trend (needs the \"AD KPI Snapshot\" saved search enabled)",
+      "title": "Tendance quotidienne (nécessite la recherche enregistrée « AD - KPI Snapshot »)",
       "dataSources": {
         "primary": "ds_30"
       },
       "options": {
         "legendDisplay": "bottom"
       },
-      "description": "History is built by the disabled-by-default saved search \"AD - KPI Snapshot to Summary Index\". Enable it to see how these figures evolve."
+      "description": "L'historique est construit par la recherche enregistrée « AD - KPI Snapshot to Summary Index », désactivée par défaut. Activez-la pour suivre l'évolution de ces chiffres."
     },
     "viz_31": {
       "type": "splunk.bar",
-      "title": "Computers by operating system (top 10)",
+      "title": "Ordinateurs par système d'exploitation (top 10)",
       "dataSources": {
         "primary": "ds_31"
       },
@@ -555,7 +555,7 @@
     },
     "viz_32": {
       "type": "splunk.singlevalue",
-      "title": "Stale enabled computers",
+      "title": "Ordinateurs actifs inactifs",
       "dataSources": {
         "primary": "ds_32"
       },
@@ -586,7 +586,7 @@
   "dataSources": {
     "ds_1": {
       "type": "ds.search",
-      "name": "User accounts",
+      "name": "Comptes utilisateurs",
       "options": {
         "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | stats count",
         "queryParameters": {
@@ -597,7 +597,7 @@
     },
     "ds_2": {
       "type": "ds.search",
-      "name": "Enabled",
+      "name": "Actifs",
       "options": {
         "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 | stats count",
         "queryParameters": {
@@ -608,7 +608,7 @@
     },
     "ds_3": {
       "type": "ds.search",
-      "name": "Disabled",
+      "name": "Désactivés",
       "options": {
         "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=1 | stats count",
         "queryParameters": {
@@ -619,7 +619,7 @@
     },
     "ds_4": {
       "type": "ds.search",
-      "name": "Password never expires (enabled)",
+      "name": "Mot de passe sans expiration (actifs)",
       "options": {
         "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND pwd_never_expires=1 | stats count",
         "queryParameters": {
@@ -630,7 +630,7 @@
     },
     "ds_5": {
       "type": "ds.search",
-      "name": "Locked out",
+      "name": "Verrouillés",
       "options": {
         "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_locked=1 | stats count",
         "queryParameters": {
@@ -641,7 +641,7 @@
     },
     "ds_6": {
       "type": "ds.search",
-      "name": "Password not required (enabled)",
+      "name": "Mot de passe non requis (actifs)",
       "options": {
         "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND pwd_not_required=1 | stats count",
         "queryParameters": {
@@ -652,7 +652,7 @@
     },
     "ds_7": {
       "type": "ds.search",
-      "name": "Expired but still enabled",
+      "name": "Expirés mais toujours actifs",
       "options": {
         "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND is_expired=1 | stats count",
         "queryParameters": {
@@ -663,7 +663,7 @@
     },
     "ds_8": {
       "type": "ds.search",
-      "name": "Stale enabled accounts",
+      "name": "Comptes actifs inactifs",
       "options": {
         "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND days_since_logon>`adx_stale_days` | stats count",
         "queryParameters": {
@@ -674,7 +674,7 @@
     },
     "ds_9": {
       "type": "ds.search",
-      "name": "Privileged accounts (enabled)",
+      "name": "Comptes privilégiés (actifs)",
       "options": {
         "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND is_privileged=1 | stats count",
         "queryParameters": {
@@ -685,7 +685,7 @@
     },
     "ds_10": {
       "type": "ds.search",
-      "name": "krbtgt password age (days)",
+      "name": "Âge du mot de passe krbtgt (jours)",
       "options": {
         "query": "| `adx_users` | where sam=\"krbtgt\" | stats max(pwd_age_days) as age",
         "queryParameters": {
@@ -696,7 +696,7 @@
     },
     "ds_11": {
       "type": "ds.search",
-      "name": "Password expired (enabled)",
+      "name": "Mot de passe expiré (actifs)",
       "options": {
         "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND pwd_expired=1 | stats count",
         "queryParameters": {
@@ -707,7 +707,7 @@
     },
     "ds_12": {
       "type": "ds.search",
-      "name": "Password expires within 14 days",
+      "name": "Mot de passe expirant sous 14 jours",
       "options": {
         "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND isnotnull(pwd_days_left) AND pwd_days_left>=0 AND pwd_days_left<=14 | stats count",
         "queryParameters": {
@@ -718,7 +718,7 @@
     },
     "ds_13": {
       "type": "ds.search",
-      "name": "Must change password at next logon",
+      "name": "Doit changer son mot de passe à la prochaine connexion",
       "options": {
         "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND must_change_pwd=1 | stats count",
         "queryParameters": {
@@ -729,7 +729,7 @@
     },
     "ds_14": {
       "type": "ds.search",
-      "name": "Accounts not compliant with password rules",
+      "name": "Comptes non conformes aux règles de mot de passe",
       "options": {
         "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_pwd_violations` | where isnotnull(violations) | stats count",
         "queryParameters": {
@@ -740,7 +740,7 @@
     },
     "ds_15": {
       "type": "ds.search",
-      "name": "Privileged passwords too old",
+      "name": "Mots de passe privilégiés trop anciens",
       "options": {
         "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND is_privileged=1 AND pwd_age_days>`adx_priv_max_pwd_age_days` | stats count",
         "queryParameters": {
@@ -751,7 +751,7 @@
     },
     "ds_16": {
       "type": "ds.search",
-      "name": "Password rule violations (enabled accounts)",
+      "name": "Violations des règles de mot de passe (comptes actifs)",
       "options": {
         "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_pwd_violations` | mvexpand violations | stats count by violations | sort - count",
         "queryParameters": {
@@ -762,9 +762,9 @@
     },
     "ds_17": {
       "type": "ds.search",
-      "name": "Accounts not compliant with password rules",
+      "name": "Comptes non conformes aux règles de mot de passe",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_pwd_violations` | where isnotnull(violations) | eval n=mvcount(violations), privileged=if(is_privileged=1,\"YES\",\"no\"), last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort - n, - pwd_age_days | table sam display_name violations pwd_age_days last_logon privileged ou",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_pwd_violations` | where isnotnull(violations) | eval n=mvcount(violations), privileged=if(is_privileged=1,\"OUI\",\"non\"), last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort - n, - pwd_age_days | table sam display_name violations pwd_age_days last_logon privileged ou | rename sam as \"Compte\", display_name as \"Nom affiché\", violations as \"Violations\", pwd_age_days as \"Âge du mot de passe (j)\", last_logon as \"Dernière connexion\", privileged as \"Privilégié\", ou as \"OU\"",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -773,9 +773,9 @@
     },
     "ds_18": {
       "type": "ds.search",
-      "name": "Passwords expired or expiring within 14 days",
+      "name": "Mots de passe expirés ou expirant sous 14 jours",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND isnotnull(pwd_days_left) AND pwd_days_left<=14 | eval status=if(pwd_days_left<0,\"EXPIRED\",\"EXPIRING\"), days_overdue_or_left=pwd_days_left, last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort pwd_days_left | table sam display_name status days_overdue_or_left pwd_age_days last_logon ou",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND isnotnull(pwd_days_left) AND pwd_days_left<=14 | eval status=if(pwd_days_left<0,\"EXPIRÉ\",\"EXPIRE BIENTÔT\"), days_overdue_or_left=pwd_days_left, last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort pwd_days_left | table sam display_name status days_overdue_or_left pwd_age_days last_logon ou | rename sam as \"Compte\", display_name as \"Nom affiché\", status as \"Statut\", days_overdue_or_left as \"Jours (négatif = dépassé)\", pwd_age_days as \"Âge du mot de passe (j)\", last_logon as \"Dernière connexion\", ou as \"OU\"",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -784,9 +784,9 @@
     },
     "ds_19": {
       "type": "ds.search",
-      "name": "Enabled vs disabled",
+      "name": "Actifs vs désactivés",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | eval state=if(is_disabled=1,\"Disabled\",\"Enabled\") | stats count by state",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | eval state=if(is_disabled=1,\"Désactivé\",\"Actif\") | stats count by state",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -795,9 +795,9 @@
     },
     "ds_20": {
       "type": "ds.search",
-      "name": "Password posture of enabled accounts",
+      "name": "Situation des mots de passe des comptes actifs",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 | eval posture=case(pwd_never_expires=1,\"Never expires\", pwd_age_days>`adx_max_pwd_age_days`,\"Older than policy age\", isnull(pwd_age_days),\"Unknown\", true(),\"Within policy age\") | stats count by posture",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 | eval posture=case(pwd_never_expires=1,\"N'expire jamais\", pwd_age_days>`adx_max_pwd_age_days`,\"Plus ancien que la politique\", isnull(pwd_age_days),\"Inconnu\", true(),\"Dans la politique\") | stats count by posture",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -806,9 +806,9 @@
     },
     "ds_21": {
       "type": "ds.search",
-      "name": "Password age of enabled accounts",
+      "name": "Âge des mots de passe des comptes actifs",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND isnotnull(pwd_age_days) | eval b=case(pwd_age_days<=30,\"1) 0-30 d\", pwd_age_days<=90,\"2) 31-90 d\", pwd_age_days<=180,\"3) 91-180 d\", pwd_age_days<=365,\"4) 181-365 d\", true(),\"5) > 1 year\") | stats count by b | sort b",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND isnotnull(pwd_age_days) | eval b=case(pwd_age_days<=30,\"1) 0-30 d\", pwd_age_days<=90,\"2) 31-90 d\", pwd_age_days<=180,\"3) 91-180 d\", pwd_age_days<=365,\"4) 181-365 d\", true(),\"5) > 1 an\") | stats count by b | sort b",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -817,9 +817,9 @@
     },
     "ds_22": {
       "type": "ds.search",
-      "name": "Last logon of enabled accounts",
+      "name": "Dernière connexion des comptes actifs",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 | eval b=case(isnull(days_since_logon),\"6) Never / unknown\", days_since_logon<=7,\"1) <= 7 d\", days_since_logon<=30,\"2) 8-30 d\", days_since_logon<=90,\"3) 31-90 d\", days_since_logon<=180,\"4) 91-180 d\", true(),\"5) > 180 d\") | stats count by b | sort b",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 | eval b=case(isnull(days_since_logon),\"6) Jamais / inconnu\", days_since_logon<=7,\"1) <= 7 d\", days_since_logon<=30,\"2) 8-30 d\", days_since_logon<=90,\"3) 31-90 d\", days_since_logon<=180,\"4) 91-180 d\", true(),\"5) > 180 d\") | stats count by b | sort b",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -828,7 +828,7 @@
     },
     "ds_23": {
       "type": "ds.search",
-      "name": "Password never expires - by OU (top 15, enabled)",
+      "name": "Mot de passe sans expiration - par OU (top 15, actifs)",
       "options": {
         "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND pwd_never_expires=1 | stats count by ou | sort - count | head 15",
         "queryParameters": {
@@ -839,9 +839,9 @@
     },
     "ds_24": {
       "type": "ds.search",
-      "name": "Password never expires - enabled accounts",
+      "name": "Mot de passe sans expiration - comptes actifs",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND pwd_never_expires=1 | eval privileged=if(is_privileged=1,\"YES\",\"no\"), last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort - is_privileged, - pwd_age_days | table sam display_name ou pwd_age_days last_logon privileged",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND pwd_never_expires=1 | eval privileged=if(is_privileged=1,\"OUI\",\"non\"), last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort - is_privileged, - pwd_age_days | table sam display_name ou pwd_age_days last_logon privileged | rename sam as \"Compte\", display_name as \"Nom affiché\", ou as \"OU\", pwd_age_days as \"Âge du mot de passe (j)\", last_logon as \"Dernière connexion\", privileged as \"Privilégié\"",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -850,9 +850,9 @@
     },
     "ds_25": {
       "type": "ds.search",
-      "name": "Risky account configurations (enabled)",
+      "name": "Configurations de comptes à risque (actifs)",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 | eval risk=mvappend(if(pwd_not_required=1,\"PASSWD_NOTREQD\",null()), if(no_preauth=1,\"DONT_REQ_PREAUTH (AS-REP roastable)\",null()), if(trusted_for_delegation=1,\"Unconstrained delegation\",null()), if(pwd_never_expires=1 AND is_privileged=1,\"Privileged + password never expires\",null()), if(is_privileged=1 AND days_since_logon>`adx_stale_days`,\"Privileged + stale\",null())) | where isnotnull(risk) | table sam display_name risk ou pwd_age_days",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 | eval risk=mvappend(if(pwd_not_required=1,\"Mot de passe non requis (PASSWD_NOTREQD)\",null()), if(no_preauth=1,\"Sans pré-authentification (AS-REP roastable)\",null()), if(trusted_for_delegation=1,\"Délégation non contrainte\",null()), if(pwd_never_expires=1 AND is_privileged=1,\"Privilégié + mot de passe sans expiration\",null()), if(is_privileged=1 AND days_since_logon>`adx_stale_days`,\"Privilégié + inactif\",null())) | where isnotnull(risk) | table sam display_name risk ou pwd_age_days | rename sam as \"Compte\", display_name as \"Nom affiché\", risk as \"Risque\", ou as \"OU\", pwd_age_days as \"Âge du mot de passe (j)\"",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -861,9 +861,9 @@
     },
     "ds_26": {
       "type": "ds.search",
-      "name": "Accounts expiring in the next 30 days",
+      "name": "Comptes expirant dans les 30 prochains jours",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND isnotnull(acct_expires) AND acct_expires>now() AND acct_expires<now()+30*86400 | eval days_left=round((acct_expires-now())/86400,0), expires=strftime(acct_expires,\"%Y-%m-%d\") | sort days_left | table sam display_name expires days_left ou",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND isnotnull(acct_expires) AND acct_expires>now() AND acct_expires<now()+30*86400 | eval days_left=round((acct_expires-now())/86400,0), expires=strftime(acct_expires,\"%Y-%m-%d\") | sort days_left | table sam display_name expires days_left ou | rename sam as \"Compte\", display_name as \"Nom affiché\", expires as \"Expire le\", days_left as \"Jours restants\", ou as \"OU\"",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -872,9 +872,9 @@
     },
     "ds_27": {
       "type": "ds.search",
-      "name": "Enabled accounts past their expiry date",
+      "name": "Comptes actifs dont la date d'expiration est dépassée",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND is_expired=1 | eval expired_on=strftime(acct_expires,\"%Y-%m-%d\") | table sam display_name expired_on ou",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND is_expired=1 | eval expired_on=strftime(acct_expires,\"%Y-%m-%d\") | table sam display_name expired_on ou | rename sam as \"Compte\", display_name as \"Nom affiché\", expired_on as \"Expiré le\", ou as \"OU\"",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -883,9 +883,9 @@
     },
     "ds_28": {
       "type": "ds.search",
-      "name": "Disabled accounts that still belong to a privileged group",
+      "name": "Comptes désactivés appartenant encore à un groupe privilégié",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=1 AND is_privileged=1 | table sam display_name ou priv_groups",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=1 AND is_privileged=1 | table sam display_name ou priv_groups | rename sam as \"Compte\", display_name as \"Nom affiché\", ou as \"OU\", priv_groups as \"Groupes privilégiés\"",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -894,9 +894,9 @@
     },
     "ds_29": {
       "type": "ds.search",
-      "name": "Stale enabled accounts (oldest logon first)",
+      "name": "Comptes actifs inactifs (connexion la plus ancienne d'abord)",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND days_since_logon>`adx_stale_days` | eval last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort - days_since_logon | table sam display_name last_logon days_since_logon ou",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND days_since_logon>`adx_stale_days` | eval last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort - days_since_logon | table sam display_name last_logon days_since_logon ou | rename sam as \"Compte\", display_name as \"Nom affiché\", last_logon as \"Dernière connexion\", days_since_logon as \"Jours sans connexion\", ou as \"OU\"",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -905,9 +905,9 @@
     },
     "ds_30": {
       "type": "ds.search",
-      "name": "Daily trend (needs the \"AD KPI Snapshot\" saved search enabled)",
+      "name": "Tendance quotidienne (nécessite la recherche enregistrée « AD - KPI Snapshot »)",
       "options": {
-        "query": "index=summary sourcetype=adx_kpi_snapshot | timechart span=1d max(never_expire_enabled) as \"Never expires (enabled)\", max(disabled) as \"Disabled\", max(stale_enabled) as \"Stale enabled\", max(locked) as \"Locked\"",
+        "query": "index=summary sourcetype=adx_kpi_snapshot | timechart span=1d max(never_expire_enabled) as \"Never expires (enabled)\", max(disabled) as \"Désactivé\", max(stale_enabled) as \"Stale enabled\", max(locked) as \"Locked\"",
         "queryParameters": {
           "earliest": "-90d@d",
           "latest": "now"
@@ -916,7 +916,7 @@
     },
     "ds_31": {
       "type": "ds.search",
-      "name": "Computers by operating system (top 10)",
+      "name": "Ordinateurs par système d'exploitation (top 10)",
       "options": {
         "query": "| `adx_computers` | where is_disabled=0 | stats count by os | sort - count | head 10",
         "queryParameters": {
@@ -927,7 +927,7 @@
     },
     "ds_32": {
       "type": "ds.search",
-      "name": "Stale enabled computers",
+      "name": "Ordinateurs actifs inactifs",
       "options": {
         "query": "| `adx_computers` | where is_disabled=0 AND days_since_logon>`adx_stale_days` | stats count",
         "queryParameters": {

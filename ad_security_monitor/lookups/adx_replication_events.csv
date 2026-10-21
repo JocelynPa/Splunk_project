@@ -1,14 +1,14 @@
 event_id,description,severity
-1308,KCC detected consecutive replication failures,high
-1311,KCC: replication topology cannot span all sites,high
-1388,Lingering object detected (replication source has deleted objects),critical
-1566,KCC: no DC available in a site for replication,high
-1865,KCC: no complete site connectivity path,high
-1925,Failed to establish replication link,high
-1988,Lingering object - replication blocked (strict consistency),critical
-2042,Too long since last replication (tombstone lifetime risk),critical
-2087,DNS lookup failure for replication partner,high
-2088,DNS lookup OK but replication RPC failed,medium
-2095,USN rollback detected,critical
-2213,DFSR: database dirty shutdown - SYSVOL replication paused,high
-4012,DFSR: replication stopped (exceeded MaxOfflineTimeInDays),critical
+1308,Le KCC a détecté des échecs de réplication consécutifs,élevée
+1311,KCC : la topologie de réplication ne couvre pas tous les sites,élevée
+1388,Objet lingering détecté (la source de réplication a supprimé des objets),critique
+1566,KCC : aucun DC disponible dans un site pour la réplication,élevée
+1865,KCC : aucun chemin de connectivité complet entre les sites,élevée
+1925,Échec d'établissement du lien de réplication,élevée
+1988,Objet lingering - réplication bloquée (cohérence stricte),critique
+2042,Trop de temps depuis la dernière réplication (risque de durée de vie tombstone),critique
+2087,Échec de résolution DNS du partenaire de réplication,élevée
+2088,Résolution DNS OK mais échec du RPC de réplication,moyenne
+2095,USN rollback détecté,critique
+2213,DFSR : arrêt brutal de la base - réplication SYSVOL suspendue,élevée
+4012,DFSR : réplication arrêtée (MaxOfflineTimeInDays dépassé),critique
