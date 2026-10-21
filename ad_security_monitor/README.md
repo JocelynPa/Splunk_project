@@ -6,7 +6,7 @@ gives one central place to see everything that happens to (and with) the
 
 | Dashboard | What it answers |
 |---|---|
-| **AD Account Review (SecOps)** *(default view)* | Periodic account review: each account gets a **risk score / level** (HIGH, MEDIUM, LOW) and the **reasons** to review it (privileged, never-expire, stale, expired, SPN with old password, delegation, disabled but still privileged, ...), plus **review status** (never reviewed / overdue / reviewed), owner info (managedBy, department, description) and filters by OU, scope, review status and minimum risk. |
+| **Revue des comptes AD (SecOps)** *(default view, in French)* | Periodic account review: each account gets a **risk score / level** (HIGH, MEDIUM, LOW) and the **reasons** to review it (privileged, never-expire, stale, expired, SPN with old password, delegation, disabled but still privileged, ...), plus **review status** (never reviewed / overdue / reviewed), owner info (managedBy, department, description) and filters by OU, scope, review status and minimum risk. |
 | **AD Accounts Overview** | How many accounts are enabled / disabled / locked / expired, how many have **password never expires**, stale accounts, privileged accounts, risky flags (PASSWD_NOTREQD, AS-REP roastable, unconstrained delegation), `krbtgt` password age, computers by OS. Built on the lookups of the *Microsoft Windows Active Directory Objects* app; an OU regex filter narrows every figure. |
 | **Break-Glass Account (secadm)** | Account state (enabled, password age, never-expires, privileged), days since last logon / last password change, logons since the password was last set, **password changes/resets**, attribute changes, enable/disable, lockouts, group membership changes, **who** did it, **from where**, **when**, every logon (type, source IP/host, DC), failed attempts, actions performed *by* the account, off-hours use, source hosts never seen before. |
 | **AD Privileged Accounts** | Members of privileged groups (EN + FR names) with password age, never-expires, smartcard, last logon; members per group; `adminCount=1` leftovers; service accounts with an SPN (Kerberoasting targets, oldest passwords first); recent privileged group membership changes. |
@@ -74,10 +74,10 @@ and alerts follow the file. An account is matched both when it is the
 
 ## Account review workflow (SecOps)
 
-1. Open **AD Account Review (SecOps)**, pick the scope (OU, privileged, service accounts...) and *Needs review*.
+1. Open **Revue des comptes AD (SecOps)**, pick the scope (OU, privileged, service accounts...) and *Needs review*.
 2. Use *Open in Search > Export CSV* on the "Accounts to review" table to send the list to the account owners.
 3. Record each decision in `lookups/adx_review_decisions.csv` (`sam,decision,reviewer,review_date,comment`, date as `YYYY-MM-DD`; edit it with the Lookup Editor app or re-upload the CSV). The dashboard then shows the review status and flags reviews older than `adx_review_days` (default 180) as overdue.
-4. Scoring weights are in the `adx_risk` macro (HIGH >= 6, MEDIUM >= 3, LOW >= 1); `adx_disabled_days` (180) sets when a disabled account becomes a delete candidate.
+4. Scoring weights are in the `adx_risk` macro (ÉLEVÉ >= 6, MOYEN >= 3, FAIBLE >= 1); `adx_disabled_days` (180) sets when a disabled account becomes a delete candidate.
 
 ## Notes and limits
 
