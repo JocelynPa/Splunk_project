@@ -1,14 +1,14 @@
 <dashboard version="2" theme="dark">
-  <label>AD Replication &amp; Sync Health</label>
-  <description>State of Active Directory replication between domain controllers: per-link status (last success, lag, last result) from MSAD:NT6:Replication, replication-related Directory Service and DFSR events (KCC, lingering objects, tombstone lifetime, DNS failures, USN rollback), sync start/end audit events, and Kerberos clock-skew failures.</description>
+  <label>Réplication et synchronisation AD</label>
+  <description>État de la réplication Active Directory entre contrôleurs de domaine : état de chaque lien (dernier succès, retard, dernier résultat) depuis MSAD:NT6:Replication, événements Directory Service et DFSR liés à la réplication (KCC, objets lingering, durée de vie tombstone, échecs DNS, USN rollback), audit de début/fin de synchronisation et échecs Kerberos liés à l'horloge.</description>
   <definition><![CDATA[
 {
-  "title": "AD Replication & Sync Health",
-  "description": "State of Active Directory replication between domain controllers: per-link status (last success, lag, last result) from MSAD:NT6:Replication, replication-related Directory Service and DFSR events (KCC, lingering objects, tombstone lifetime, DNS failures, USN rollback), sync start/end audit events, and Kerberos clock-skew failures.",
+  "title": "Réplication et synchronisation AD",
+  "description": "État de la réplication Active Directory entre contrôleurs de domaine : état de chaque lien (dernier succès, retard, dernier résultat) depuis MSAD:NT6:Replication, événements Directory Service et DFSR liés à la réplication (KCC, objets lingering, durée de vie tombstone, échecs DNS, USN rollback), audit de début/fin de synchronisation et échecs Kerberos liés à l'horloge.",
   "inputs": {
     "input_global_trp": {
       "type": "input.timerange",
-      "title": "Time range",
+      "title": "Période",
       "options": {
         "token": "global_time",
         "defaultValue": "-7d@h,now"
@@ -19,7 +19,7 @@
   "visualizations": {
     "viz_1": {
       "type": "splunk.singlevalue",
-      "title": "DCs reporting replication status",
+      "title": "DC qui remontent l'état de réplication",
       "dataSources": {
         "primary": "ds_1"
       },
@@ -30,7 +30,7 @@
     },
     "viz_2": {
       "type": "splunk.singlevalue",
-      "title": "Failing replication links",
+      "title": "Liens de réplication en échec",
       "dataSources": {
         "primary": "ds_2"
       },
@@ -54,7 +54,7 @@
     },
     "viz_3": {
       "type": "splunk.singlevalue",
-      "title": "Max time since last success (min)",
+      "title": "Délai max depuis le dernier succès (min)",
       "dataSources": {
         "primary": "ds_3"
       },
@@ -83,7 +83,7 @@
     },
     "viz_4": {
       "type": "splunk.singlevalue",
-      "title": "Replication error events",
+      "title": "Événements d'erreur de réplication",
       "dataSources": {
         "primary": "ds_4"
       },
@@ -112,7 +112,7 @@
     },
     "viz_5": {
       "type": "splunk.singlevalue",
-      "title": "Critical events (lingering objects, tombstone, USN rollback)",
+      "title": "Événements critiques (objets lingering, tombstone, USN rollback)",
       "dataSources": {
         "primary": "ds_5"
       },
@@ -136,7 +136,7 @@
     },
     "viz_6": {
       "type": "splunk.singlevalue",
-      "title": "Minutes since last replication event",
+      "title": "Minutes depuis le dernier événement de réplication",
       "dataSources": {
         "primary": "ds_6"
       },
@@ -160,7 +160,7 @@
     },
     "viz_7": {
       "type": "splunk.table",
-      "title": "Replication links - current state",
+      "title": "Liens de réplication - état actuel",
       "dataSources": {
         "primary": "ds_7"
       },
@@ -168,24 +168,24 @@
         "count": 15,
         "wrap": true,
         "columnFormat": {
-          "status": {
-            "rowBackgroundColors": "> table | seriesByName(\"status\") | matchValue(statusColorConfig)"
+          "Statut": {
+            "rowBackgroundColors": "> table | seriesByName(\"Statut\") | matchValue(col0ColorConfig)"
           }
         }
       },
-      "description": "dc = DC that receives the changes, partner = replication source (src_host). Source: MSAD:NT6:Replication (LastSuccessfulSync / LastAttemptedSync / Result; Result 0 = success). LATE = no successful sync for more than 4 hours.",
+      "description": "dc = DC qui reçoit les changements, partner = source de réplication (src_host). Source : MSAD:NT6:Replication (LastSuccessfulSync / LastAttemptedSync / Result ; Result 0 = succès). EN RETARD = aucune synchronisation réussie depuis plus de 4 heures.",
       "context": {
-        "statusColorConfig": [
+        "col0ColorConfig": [
           {
             "match": "OK",
             "value": "#65A637"
           },
           {
-            "match": "LATE",
+            "match": "EN RETARD",
             "value": "#F8BE34"
           },
           {
-            "match": "FAILING",
+            "match": "EN ÉCHEC",
             "value": "#B0413E"
           }
         ]
@@ -193,7 +193,7 @@
     },
     "viz_8": {
       "type": "splunk.column",
-      "title": "Failed replication events by DC",
+      "title": "Événements de réplication en échec par DC",
       "dataSources": {
         "primary": "ds_8"
       },
@@ -204,7 +204,7 @@
     },
     "viz_9": {
       "type": "splunk.column",
-      "title": "Replication-related events over time",
+      "title": "Événements liés à la réplication dans le temps",
       "dataSources": {
         "primary": "ds_9"
       },
@@ -215,7 +215,7 @@
     },
     "viz_10": {
       "type": "splunk.table",
-      "title": "Directory Service / DFSR replication events",
+      "title": "Événements de réplication Directory Service / DFSR",
       "dataSources": {
         "primary": "ds_10"
       },
@@ -223,23 +223,23 @@
         "count": 10,
         "wrap": true,
         "columnFormat": {
-          "severity": {
-            "rowBackgroundColors": "> table | seriesByName(\"severity\") | matchValue(severityColorConfig)"
+          "Gravité": {
+            "rowBackgroundColors": "> table | seriesByName(\"Gravité\") | matchValue(col0ColorConfig)"
           }
         }
       },
       "context": {
-        "severityColorConfig": [
+        "col0ColorConfig": [
           {
-            "match": "critical",
+            "match": "critique",
             "value": "#B0413E"
           },
           {
-            "match": "high",
+            "match": "élevée",
             "value": "#F1813F"
           },
           {
-            "match": "medium",
+            "match": "moyenne",
             "value": "#F8BE34"
           }
         ]
@@ -247,7 +247,7 @@
     },
     "viz_11": {
       "type": "splunk.table",
-      "title": "Replication errors by DC and event",
+      "title": "Erreurs de réplication par DC et par événement",
       "dataSources": {
         "primary": "ds_11"
       },
@@ -258,7 +258,7 @@
     },
     "viz_12": {
       "type": "splunk.table",
-      "title": "Security 4932/4933: replica sync start/end",
+      "title": "Sécurité 4932/4933 : début/fin de synchronisation de réplica",
       "dataSources": {
         "primary": "ds_12"
       },
@@ -266,11 +266,11 @@
         "count": 8,
         "wrap": true
       },
-      "description": "Requires the audit policy \"Audit Detailed Directory Service Replication\" (Security events 4932/4933)."
+      "description": "Nécessite la stratégie d'audit « Audit Detailed Directory Service Replication » (événements Sécurité 4932/4933)."
     },
     "viz_13": {
       "type": "splunk.table",
-      "title": "Kerberos clock-skew failures (event 4771, code 0x25) - time sync",
+      "title": "Échecs Kerberos par décalage d'horloge (événement 4771, code 0x25) - synchronisation horaire",
       "dataSources": {
         "primary": "ds_13"
       },
@@ -278,13 +278,13 @@
         "count": 8,
         "wrap": true
       },
-      "description": "Clients whose clock drifts more than 5 minutes from the DC: a typical side effect of broken AD time synchronisation."
+      "description": "Clients dont l'horloge dérive de plus de 5 minutes par rapport au DC : effet typique d'une synchronisation horaire AD défaillante."
     }
   },
   "dataSources": {
     "ds_1": {
       "type": "ds.search",
-      "name": "DCs reporting replication status",
+      "name": "DC qui remontent l'état de réplication",
       "options": {
         "query": "`adx_repl_data` | stats dc(host)",
         "queryParameters": {
@@ -295,7 +295,7 @@
     },
     "ds_2": {
       "type": "ds.search",
-      "name": "Failing replication links",
+      "name": "Liens de réplication en échec",
       "options": {
         "query": "`adx_repl_links` | where last_result!=\"0\" | stats count",
         "queryParameters": {
@@ -306,7 +306,7 @@
     },
     "ds_3": {
       "type": "ds.search",
-      "name": "Max time since last success (min)",
+      "name": "Délai max depuis le dernier succès (min)",
       "options": {
         "query": "`adx_repl_links` | stats max(lag_min)",
         "queryParameters": {
@@ -317,7 +317,7 @@
     },
     "ds_4": {
       "type": "ds.search",
-      "name": "Replication error events",
+      "name": "Événements d'erreur de réplication",
       "options": {
         "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) | stats count",
         "queryParameters": {
@@ -328,7 +328,7 @@
     },
     "ds_5": {
       "type": "ds.search",
-      "name": "Critical events (lingering objects, tombstone, USN rollback)",
+      "name": "Événements critiques (objets lingering, tombstone, USN rollback)",
       "options": {
         "query": "`adx_ds_events` EventCode IN (1388,1988,2042,2095,4012) | stats count",
         "queryParameters": {
@@ -339,7 +339,7 @@
     },
     "ds_6": {
       "type": "ds.search",
-      "name": "Minutes since last replication event",
+      "name": "Minutes depuis le dernier événement de réplication",
       "options": {
         "query": "`adx_repl_data` | stats max(_time) as t | eval m=round((now()-t)/60,0) | fields m",
         "queryParameters": {
@@ -350,9 +350,9 @@
     },
     "ds_7": {
       "type": "ds.search",
-      "name": "Replication links - current state",
+      "name": "Liens de réplication - état actuel",
       "options": {
-        "query": "`adx_repl_links` | eval last_success=strftime(last_success_epoch,\"%Y-%m-%d %H:%M\"), last_attempt=strftime(last_attempt_epoch,\"%Y-%m-%d %H:%M\"), status=case(last_result!=\"0\",\"FAILING\", lag_min>240,\"LATE\", true(),\"OK\") | sort - status, - lag_min | table dc partner naming_context transport status last_success last_attempt lag_min last_result",
+        "query": "`adx_repl_links` | eval last_success=strftime(last_success_epoch,\"%Y-%m-%d %H:%M\"), last_attempt=strftime(last_attempt_epoch,\"%Y-%m-%d %H:%M\"), status=case(last_result!=\"0\",\"EN ÉCHEC\", lag_min>240,\"EN RETARD\", true(),\"OK\") | sort - status, - lag_min | table dc partner naming_context transport status last_success last_attempt lag_min last_result | rename dc as \"DC\", partner as \"Partenaire\", naming_context as \"Partition\", transport as \"Transport\", status as \"Statut\", last_success as \"Dernier succès\", last_attempt as \"Dernière tentative\", lag_min as \"Retard (min)\", last_result as \"Dernier résultat\"",
         "queryParameters": {
           "earliest": "-24h",
           "latest": "now"
@@ -361,7 +361,7 @@
     },
     "ds_8": {
       "type": "ds.search",
-      "name": "Failed replication events by DC",
+      "name": "Événements de réplication en échec par DC",
       "options": {
         "query": "`adx_repl_data` | where Result!=\"0\" | timechart span=1h count by host",
         "queryParameters": {
@@ -372,7 +372,7 @@
     },
     "ds_9": {
       "type": "ds.search",
-      "name": "Replication-related events over time",
+      "name": "Événements liés à la réplication dans le temps",
       "options": {
         "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) | timechart count by EventCode",
         "queryParameters": {
@@ -383,9 +383,9 @@
     },
     "ds_10": {
       "type": "ds.search",
-      "name": "Directory Service / DFSR replication events",
+      "name": "Événements de réplication Directory Service / DFSR",
       "options": {
-        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description severity | eval dc=coalesce(Computer, ComputerName, host), message=substr(coalesce(Message, _raw),1,300) | sort - _time | table _time dc event_id severity description message",
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description severity | eval dc=coalesce(Computer, ComputerName, host), message=substr(coalesce(Message, _raw),1,300) | sort - _time | table _time dc event_id severity description message | rename _time as \"Heure\", dc as \"DC\", event_id as \"ID événement\", severity as \"Gravité\", description as \"Description\", message as \"Message\"",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"
@@ -394,9 +394,9 @@
     },
     "ds_11": {
       "type": "ds.search",
-      "name": "Replication errors by DC and event",
+      "name": "Erreurs de réplication par DC et par événement",
       "options": {
-        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description | eval dc=coalesce(Computer, ComputerName, host) | stats count, latest(_time) as last by dc event_id description | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count",
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description | eval dc=coalesce(Computer, ComputerName, host) | stats count, latest(_time) as last by dc event_id description | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table dc event_id description count last | rename dc as \"DC\", event_id as \"ID événement\", description as \"Description\", count as \"Nombre\", last as \"Dernière occurrence\"",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"
@@ -405,9 +405,9 @@
     },
     "ds_12": {
       "type": "ds.search",
-      "name": "Security 4932/4933: replica sync start/end",
+      "name": "Sécurité 4932/4933 : début/fin de synchronisation de réplica",
       "options": {
-        "query": "`adx_security_events` (EventCode=4932 OR EventCode=4933) | eval dc=coalesce(Computer, ComputerName, host), status_code=coalesce(Status_Code, StatusCode, Status), naming_context=coalesce(Naming_Context, NamingContext), source_dra=coalesce(Source_DRA, SourceDRA) | stats count, sum(eval(if(EventCode=4933 AND status_code!=\"0\",1,0))) as failed_syncs by dc naming_context | sort - failed_syncs",
+        "query": "`adx_security_events` (EventCode=4932 OR EventCode=4933) | eval dc=coalesce(Computer, ComputerName, host), status_code=coalesce(Status_Code, StatusCode, Status), naming_context=coalesce(Naming_Context, NamingContext), source_dra=coalesce(Source_DRA, SourceDRA) | stats count, sum(eval(if(EventCode=4933 AND status_code!=\"0\",1,0))) as failed_syncs by dc naming_context | sort - failed_syncs | table dc naming_context count failed_syncs | rename dc as \"DC\", naming_context as \"Partition\", count as \"Nombre\", failed_syncs as \"Synchros en échec\"",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"
@@ -416,9 +416,9 @@
     },
     "ds_13": {
       "type": "ds.search",
-      "name": "Kerberos clock-skew failures (event 4771, code 0x25) - time sync",
+      "name": "Échecs Kerberos par décalage d'horloge (événement 4771, code 0x25) - synchronisation horaire",
       "options": {
-        "query": "`adx_security_events` EventCode=4771 (Failure_Code=0x25 OR Result_Code=0x25) | eval client=coalesce(IpAddress, Client_Address, src_ip), user=coalesce(TargetUserName, Account_Name) | stats count, latest(_time) as last by client user | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count",
+        "query": "`adx_security_events` EventCode=4771 (Failure_Code=0x25 OR Result_Code=0x25) | eval client=coalesce(IpAddress, Client_Address, src_ip), user=coalesce(TargetUserName, Account_Name) | stats count, latest(_time) as last by client user | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table client user count last | rename client as \"Client\", user as \"Utilisateur\", count as \"Nombre\", last as \"Dernière occurrence\"",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"

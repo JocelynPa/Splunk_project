@@ -267,16 +267,16 @@
         "wrap": true,
         "columnFormat": {
           "Niveau de risque": {
-            "rowBackgroundColors": "> table | seriesByName(\"Niveau de risque\") | matchValue(Niveau de risqueColorConfig)"
+            "rowBackgroundColors": "> table | seriesByName(\"Niveau de risque\") | matchValue(col0ColorConfig)"
           },
           "Statut de revue": {
-            "rowBackgroundColors": "> table | seriesByName(\"Statut de revue\") | matchValue(Statut de revueColorConfig)"
+            "rowBackgroundColors": "> table | seriesByName(\"Statut de revue\") | matchValue(col1ColorConfig)"
           }
         }
       },
       "description": "Trié par score de risque. Utilisez les filtres ci-dessus (OU, périmètre, statut de revue, risque minimum). Exportez avec « Ouvrir dans la recherche » puis Exporter en CSV pour transmettre la liste aux responsables de comptes ; consignez le résultat dans lookups/adx_review_decisions.csv (sam, decision, reviewer, review_date AAAA-MM-JJ, comment).",
       "context": {
-        "Niveau de risqueColorConfig": [
+        "col0ColorConfig": [
           {
             "match": "ÉLEVÉ",
             "value": "#B0413E"
@@ -294,7 +294,7 @@
             "value": "#65A637"
           }
         ],
-        "Statut de revueColorConfig": [
+        "col1ColorConfig": [
           {
             "match": "Jamais revu",
             "value": "#B0413E"
@@ -332,13 +332,13 @@
         "wrap": true,
         "columnFormat": {
           "Niveau de risque": {
-            "rowBackgroundColors": "> table | seriesByName(\"Niveau de risque\") | matchValue(Niveau de risqueColorConfig)"
+            "rowBackgroundColors": "> table | seriesByName(\"Niveau de risque\") | matchValue(col0ColorConfig)"
           }
         }
       },
       "description": "Comptes actifs sans managedBy, description ni service : personne ne peut les attester pendant la revue.",
       "context": {
-        "Niveau de risqueColorConfig": [
+        "col0ColorConfig": [
           {
             "match": "ÉLEVÉ",
             "value": "#B0413E"

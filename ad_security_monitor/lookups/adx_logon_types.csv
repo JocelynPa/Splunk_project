@@ -1,10 +1,10 @@
 logon_type,logon_type_label
 2,Interactive (console)
-3,Network
-4,Batch
+3,Réseau
+4,Batch (tâche planifiée)
 5,Service
-7,Unlock
-8,NetworkCleartext
-9,NewCredentials (runas /netonly)
-10,RemoteInteractive (RDP)
-11,CachedInteractive
+7,Déverrouillage
+8,Réseau en clair
+9,Nouveaux identifiants (runas /netonly)
+10,Interactive à distance (RDP)
+11,Interactive en cache

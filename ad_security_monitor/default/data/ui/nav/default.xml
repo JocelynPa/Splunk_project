@@ -6,7 +6,7 @@
   <view name="ad_replication" />
   <view name="ad_health" />
   <view name="ad_activity_threats" />
-  <collection label="Reference">
-    <a href="/manager/ad_security_monitor/data/lookups/lookup-table-files">Lookup files (break-glass accounts, event catalog)</a>
+  <collection label="Référence">
+    <a href="/manager/ad_security_monitor/data/lookups/lookup-table-files">Fichiers de lookup (comptes bris de glace, catalogue d'événements, décisions de revue)</a>
   </collection>
 </nav>

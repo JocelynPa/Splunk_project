@@ -6,7 +6,7 @@ gives one central place to see everything that happens to (and with) the
 
 | Dashboard | What it answers |
 |---|---|
-| **Revue des comptes AD (SecOps)** *(default view, in French)* | Periodic account review: each account gets a **risk score / level** (HIGH, MEDIUM, LOW) and the **reasons** to review it (privileged, never-expire, stale, expired, SPN with old password, delegation, disabled but still privileged, ...), plus **review status** (never reviewed / overdue / reviewed), owner info (managedBy, department, description) and filters by OU, scope, review status and minimum risk. |
+| **Revue des comptes AD (SecOps)** *(default view)* | Periodic account review: each account gets a **risk score / level** (HIGH, MEDIUM, LOW) and the **reasons** to review it (privileged, never-expire, stale, expired, SPN with old password, delegation, disabled but still privileged, ...), plus **review status** (never reviewed / overdue / reviewed), owner info (managedBy, department, description) and filters by OU, scope, review status and minimum risk. |
 | **AD Accounts Overview** | How many accounts are enabled / disabled / locked / expired, how many have **password never expires**, stale accounts, privileged accounts, risky flags (PASSWD_NOTREQD, AS-REP roastable, unconstrained delegation), `krbtgt` password age, computers by OS. Built on the lookups of the *Microsoft Windows Active Directory Objects* app; an OU regex filter narrows every figure. |
 | **Break-Glass Account (secadm)** | Account state (enabled, password age, never-expires, privileged), days since last logon / last password change, logons since the password was last set, **password changes/resets**, attribute changes, enable/disable, lockouts, group membership changes, **who** did it, **from where**, **when**, every logon (type, source IP/host, DC), failed attempts, actions performed *by* the account, off-hours use, source hosts never seen before. |
 | **AD Privileged Accounts** | Members of privileged groups (EN + FR names) with password age, never-expires, smartcard, last logon; members per group; `adminCount=1` leftovers; service accounts with an SPN (Kerberoasting targets, oldest passwords first); recent privileged group membership changes. |
@@ -19,7 +19,7 @@ password change, modification, actions performed by the account,
 privileged group changes, audit log cleared, failing replication links, and
 a daily KPI snapshot for the trend panel.
 
-All dashboards are **Dashboard Studio** (`version="2"`, dark theme, grid layout) and require Splunk Enterprise 8.2+ (9.x recommended). They can be edited in the Dashboard Studio UI after install.
+All dashboards are in **French** (titles, panels, column headers, displayed values; the lookups' display labels in `lookups/*.csv` too) and use **Dashboard Studio** (`version="2"`, dark theme, grid layout) and require Splunk Enterprise 8.2+ (9.x recommended). They can be edited in the Dashboard Studio UI after install.
 
 ## Data prerequisites
 

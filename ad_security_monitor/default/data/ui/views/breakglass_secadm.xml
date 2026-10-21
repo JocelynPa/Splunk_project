@@ -1,14 +1,14 @@
 <dashboard version="2" theme="dark">
-  <label>Break-Glass Account (secadm)</label>
-  <description>Centralised view of every change made to, and every use of, the break-glass account(s) listed in adx_breakglass_accounts.csv, built from Windows Security events collected on the domain controllers (4624/4625, 4723/4724, 4738, 4722/4725, 4740/4767, 4728/4732/4756, 5136, 4672, 4648, 4768/4769/4771). Any non-zero red tile is an event worth correlating with an incident ticket.</description>
+  <label>Compte bris de glace (secadm)</label>
+  <description>Vue centralisée de chaque modification et de chaque utilisation du ou des comptes bris de glace listés dans adx_breakglass_accounts.csv, construite à partir des événements de sécurité Windows collectés sur les contrôleurs de domaine (4624/4625, 4723/4724, 4738, 4722/4725, 4740/4767, 4728/4732/4756, 5136, 4672, 4648, 4768/4769/4771). Toute tuile rouge non nulle mérite d'être rapprochée d'un ticket d'incident.</description>
   <definition><![CDATA[
 {
-  "title": "Break-Glass Account (secadm)",
-  "description": "Centralised view of every change made to, and every use of, the break-glass account(s) listed in adx_breakglass_accounts.csv, built from Windows Security events collected on the domain controllers (4624/4625, 4723/4724, 4738, 4722/4725, 4740/4767, 4728/4732/4756, 5136, 4672, 4648, 4768/4769/4771). Any non-zero red tile is an event worth correlating with an incident ticket.",
+  "title": "Compte bris de glace (secadm)",
+  "description": "Vue centralisée de chaque modification et de chaque utilisation du ou des comptes bris de glace listés dans adx_breakglass_accounts.csv, construite à partir des événements de sécurité Windows collectés sur les contrôleurs de domaine (4624/4625, 4723/4724, 4738, 4722/4725, 4740/4767, 4728/4732/4756, 5136, 4672, 4648, 4768/4769/4771). Toute tuile rouge non nulle mérite d'être rapprochée d'un ticket d'incident.",
   "inputs": {
     "input_global_trp": {
       "type": "input.timerange",
-      "title": "Time range",
+      "title": "Période",
       "options": {
         "token": "global_time",
         "defaultValue": "-7d@h,now"
@@ -19,7 +19,7 @@
   "visualizations": {
     "viz_1": {
       "type": "splunk.table",
-      "title": "Break-glass account state (from AD lookup)",
+      "title": "État du compte bris de glace (lookup AD)",
       "dataSources": {
         "primary": "ds_1"
       },
@@ -27,29 +27,29 @@
         "count": 5,
         "wrap": true,
         "columnFormat": {
-          "status": {
-            "rowBackgroundColors": "> table | seriesByName(\"status\") | matchValue(statusColorConfig)"
+          "Statut": {
+            "rowBackgroundColors": "> table | seriesByName(\"Statut\") | matchValue(col0ColorConfig)"
           },
-          "locked": {
-            "rowBackgroundColors": "> table | seriesByName(\"locked\") | matchValue(lockedColorConfig)"
+          "Verrouillé": {
+            "rowBackgroundColors": "> table | seriesByName(\"Verrouillé\") | matchValue(col1ColorConfig)"
           }
         }
       },
-      "description": "Break-glass accounts are listed in lookups/adx_breakglass_accounts.csv. Normal state: ENABLED/DISABLED according to your policy, password rotated after each use, never used outside an incident. lastLogonTimestamp is replicated only every ~9-14 days: use the event panels below for real-time usage.",
+      "description": "Les comptes bris de glace sont listés dans lookups/adx_breakglass_accounts.csv. État normal : ACTIF/DÉSACTIVÉ selon votre politique, mot de passe renouvelé après chaque usage, jamais utilisé hors incident. lastLogonTimestamp n'est répliqué que tous les ~9 à 14 jours : utilisez les panneaux d'événements ci-dessous pour l'usage en temps réel.",
       "context": {
-        "statusColorConfig": [
+        "col0ColorConfig": [
           {
-            "match": "DISABLED",
+            "match": "DÉSACTIVÉ",
             "value": "#65A637"
           },
           {
-            "match": "ENABLED",
+            "match": "ACTIF",
             "value": "#F8BE34"
           }
         ],
-        "lockedColorConfig": [
+        "col1ColorConfig": [
           {
-            "match": "LOCKED",
+            "match": "VERROUILLÉ",
             "value": "#B0413E"
           }
         ]
@@ -57,7 +57,7 @@
     },
     "viz_2": {
       "type": "splunk.singlevalue",
-      "title": "Days since last logon (90 d lookback)",
+      "title": "Jours depuis la dernière connexion (sur 90 j)",
       "dataSources": {
         "primary": "ds_2"
       },
@@ -68,7 +68,7 @@
     },
     "viz_3": {
       "type": "splunk.singlevalue",
-      "title": "Days since last password change/reset (1 y lookback)",
+      "title": "Jours depuis le dernier changement/reset du mot de passe (sur 1 an)",
       "dataSources": {
         "primary": "ds_3"
       },
@@ -79,7 +79,7 @@
     },
     "viz_4": {
       "type": "splunk.singlevalue",
-      "title": "Password age from AD lookup (days)",
+      "title": "Âge du mot de passe d'après le lookup AD (jours)",
       "dataSources": {
         "primary": "ds_4"
       },
@@ -90,7 +90,7 @@
     },
     "viz_5": {
       "type": "splunk.singlevalue",
-      "title": "Logons since the password was last set (90 d)",
+      "title": "Connexions depuis la dernière définition du mot de passe (90 j)",
       "dataSources": {
         "primary": "ds_5"
       },
@@ -114,7 +114,7 @@
     },
     "viz_6": {
       "type": "splunk.singlevalue",
-      "title": "Successful logons",
+      "title": "Connexions réussies",
       "dataSources": {
         "primary": "ds_6"
       },
@@ -138,7 +138,7 @@
     },
     "viz_7": {
       "type": "splunk.singlevalue",
-      "title": "Failed logons",
+      "title": "Connexions échouées",
       "dataSources": {
         "primary": "ds_7"
       },
@@ -162,7 +162,7 @@
     },
     "viz_8": {
       "type": "splunk.singlevalue",
-      "title": "Password changes / resets",
+      "title": "Changements / resets de mot de passe",
       "dataSources": {
         "primary": "ds_8"
       },
@@ -186,7 +186,7 @@
     },
     "viz_9": {
       "type": "splunk.singlevalue",
-      "title": "Account modifications",
+      "title": "Modifications du compte",
       "dataSources": {
         "primary": "ds_9"
       },
@@ -210,7 +210,7 @@
     },
     "viz_10": {
       "type": "splunk.singlevalue",
-      "title": "Group membership changes",
+      "title": "Changements d'appartenance aux groupes",
       "dataSources": {
         "primary": "ds_10"
       },
@@ -234,7 +234,7 @@
     },
     "viz_11": {
       "type": "splunk.singlevalue",
-      "title": "Actions performed BY the account",
+      "title": "Actions effectuées PAR le compte",
       "dataSources": {
         "primary": "ds_11"
       },
@@ -258,7 +258,7 @@
     },
     "viz_12": {
       "type": "splunk.singlevalue",
-      "title": "Off-hours logons",
+      "title": "Connexions hors horaires",
       "dataSources": {
         "primary": "ds_12"
       },
@@ -282,7 +282,7 @@
     },
     "viz_13": {
       "type": "splunk.column",
-      "title": "Break-glass activity over time (by action)",
+      "title": "Activité du compte bris de glace dans le temps (par action)",
       "dataSources": {
         "primary": "ds_13"
       },
@@ -293,7 +293,7 @@
     },
     "viz_14": {
       "type": "splunk.table",
-      "title": "Change log: who changed the account, when, from where",
+      "title": "Journal des changements : qui a modifié le compte, quand, depuis où",
       "dataSources": {
         "primary": "ds_14"
       },
@@ -301,19 +301,19 @@
         "count": 10,
         "wrap": true,
         "columnFormat": {
-          "action": {
-            "rowBackgroundColors": "> table | seriesByName(\"action\") | matchValue(actionColorConfig)"
+          "Action": {
+            "rowBackgroundColors": "> table | seriesByName(\"Action\") | matchValue(col0ColorConfig)"
           }
         }
       },
       "context": {
-        "actionColorConfig": [
+        "col0ColorConfig": [
           {
-            "match": "Password reset (by admin)",
+            "match": "Réinitialisation de mot de passe (par un admin)",
             "value": "#B0413E"
           },
           {
-            "match": "Password change attempt (self)",
+            "match": "Changement de mot de passe (par le titulaire)",
             "value": "#F8BE34"
           }
         ]
@@ -321,7 +321,7 @@
     },
     "viz_15": {
       "type": "splunk.table",
-      "title": "Account usage: logons",
+      "title": "Utilisation du compte : connexions",
       "dataSources": {
         "primary": "ds_15"
       },
@@ -332,7 +332,7 @@
     },
     "viz_16": {
       "type": "splunk.table",
-      "title": "Failed attempts",
+      "title": "Tentatives échouées",
       "dataSources": {
         "primary": "ds_16"
       },
@@ -343,7 +343,7 @@
     },
     "viz_17": {
       "type": "splunk.table",
-      "title": "Actions performed BY the break-glass account",
+      "title": "Actions effectuées PAR le compte bris de glace",
       "dataSources": {
         "primary": "ds_17"
       },
@@ -354,7 +354,7 @@
     },
     "viz_18": {
       "type": "splunk.table",
-      "title": "Privileged sessions and explicit-credential use",
+      "title": "Sessions privilégiées et usage d'identifiants explicites",
       "dataSources": {
         "primary": "ds_18"
       },
@@ -365,7 +365,7 @@
     },
     "viz_19": {
       "type": "splunk.bar",
-      "title": "Usage by source host / IP",
+      "title": "Utilisation par hôte / IP source",
       "dataSources": {
         "primary": "ds_19"
       },
@@ -375,7 +375,7 @@
     },
     "viz_20": {
       "type": "splunk.pie",
-      "title": "Who changes the account (actors)",
+      "title": "Qui modifie le compte (acteurs)",
       "dataSources": {
         "primary": "ds_20"
       },
@@ -385,7 +385,7 @@
     },
     "viz_21": {
       "type": "splunk.column",
-      "title": "Logons by hour of day",
+      "title": "Connexions par heure de la journée",
       "dataSources": {
         "primary": "ds_21"
       },
@@ -395,7 +395,7 @@
     },
     "viz_22": {
       "type": "splunk.table",
-      "title": "Source hosts seen for the first time (last 7 days vs 90-day baseline)",
+      "title": "Hôtes sources vus pour la première fois (7 derniers jours vs référence de 90 jours)",
       "dataSources": {
         "primary": "ds_22"
       },
@@ -403,11 +403,11 @@
         "count": 8,
         "wrap": true
       },
-      "description": "Fixed 90-day lookback, independent of the time picker."
+      "description": "Fenêtre fixe de 90 jours, indépendante du sélecteur de période."
     },
     "viz_23": {
       "type": "splunk.table",
-      "title": "Break-glass accounts configuration (lookup)",
+      "title": "Configuration des comptes bris de glace (lookup)",
       "dataSources": {
         "primary": "ds_23"
       },
@@ -420,9 +420,9 @@
   "dataSources": {
     "ds_1": {
       "type": "ds.search",
-      "name": "Break-glass account state (from AD lookup)",
+      "name": "État du compte bris de glace (lookup AD)",
       "options": {
-        "query": "| `adx_users` | lookup adx_breakglass_accounts account AS sam OUTPUT label | where isnotnull(label) | eval status=if(is_disabled=1,\"DISABLED\",\"ENABLED\"), locked=if(is_locked=1,\"LOCKED\",\"no\"), never_expires=if(pwd_never_expires=1,\"YES\",\"no\"), pwd_last_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), last_logon_replicated=strftime(last_logon,\"%Y-%m-%d %H:%M\"), privileged=if(is_privileged=1,\"YES\",\"no\") | table sam status locked pwd_last_set pwd_age_days never_expires last_logon_replicated privileged priv_groups",
+        "query": "| `adx_users` | lookup adx_breakglass_accounts account AS sam OUTPUT label | where isnotnull(label) | eval status=if(is_disabled=1,\"DÉSACTIVÉ\",\"ACTIF\"), locked=if(is_locked=1,\"VERROUILLÉ\",\"non\"), never_expires=if(pwd_never_expires=1,\"OUI\",\"non\"), pwd_last_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), last_logon_replicated=strftime(last_logon,\"%Y-%m-%d %H:%M\"), privileged=if(is_privileged=1,\"OUI\",\"non\") | table sam status locked pwd_last_set pwd_age_days never_expires last_logon_replicated privileged priv_groups | rename sam as \"Compte\", status as \"Statut\", locked as \"Verrouillé\", pwd_last_set as \"MdP défini le\", pwd_age_days as \"Âge du mot de passe (j)\", never_expires as \"MdP sans expiration\", last_logon_replicated as \"Dernière connexion (répliquée)\", privileged as \"Privilégié\", priv_groups as \"Groupes privilégiés\"",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -431,9 +431,9 @@
     },
     "ds_2": {
       "type": "ds.search",
-      "name": "Days since last logon (90 d lookback)",
+      "name": "Jours depuis la dernière connexion (sur 90 j)",
       "options": {
-        "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | stats max(_time) as t | eval days=if(isnull(t),\"none in 90 d\",floor((now()-t)/86400)) | fields days",
+        "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | stats max(_time) as t | eval days=if(isnull(t),\"aucune sur 90 j\",floor((now()-t)/86400)) | fields days",
         "queryParameters": {
           "earliest": "-90d@d",
           "latest": "now"
@@ -442,9 +442,9 @@
     },
     "ds_3": {
       "type": "ds.search",
-      "name": "Days since last password change/reset (1 y lookback)",
+      "name": "Jours depuis le dernier changement/reset du mot de passe (sur 1 an)",
       "options": {
-        "query": "`adx_breakglass_events` | search (event_id=4723 OR event_id=4724 OR event_id=4794) tgt_bg=* | stats max(_time) as t | eval days=if(isnull(t),\"none in 1 y\",floor((now()-t)/86400)) | fields days",
+        "query": "`adx_breakglass_events` | search (event_id=4723 OR event_id=4724 OR event_id=4794) tgt_bg=* | stats max(_time) as t | eval days=if(isnull(t),\"aucun sur 1 an\",floor((now()-t)/86400)) | fields days",
         "queryParameters": {
           "earliest": "-365d@d",
           "latest": "now"
@@ -453,7 +453,7 @@
     },
     "ds_4": {
       "type": "ds.search",
-      "name": "Password age from AD lookup (days)",
+      "name": "Âge du mot de passe d'après le lookup AD (jours)",
       "options": {
         "query": "| `adx_users` | lookup adx_breakglass_accounts account AS sam OUTPUT label | where isnotnull(label) | stats max(pwd_age_days) as days",
         "queryParameters": {
@@ -464,7 +464,7 @@
     },
     "ds_5": {
       "type": "ds.search",
-      "name": "Logons since the password was last set (90 d)",
+      "name": "Connexions depuis la dernière définition du mot de passe (90 j)",
       "options": {
         "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | eval kind=\"logon\" | append [| `adx_users` | lookup adx_breakglass_accounts account AS sam OUTPUT label | where isnotnull(label) | stats max(pwd_last_set) as pls | eval _time=pls, kind=\"pwd\"] | eventstats max(eval(if(kind=\"pwd\",_time,null()))) as pls | where kind=\"logon\" AND _time>pls | stats count",
         "queryParameters": {
@@ -475,7 +475,7 @@
     },
     "ds_6": {
       "type": "ds.search",
-      "name": "Successful logons",
+      "name": "Connexions réussies",
       "options": {
         "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | stats count",
         "queryParameters": {
@@ -486,7 +486,7 @@
     },
     "ds_7": {
       "type": "ds.search",
-      "name": "Failed logons",
+      "name": "Connexions échouées",
       "options": {
         "query": "`adx_breakglass_events` | search (event_id=4625 OR event_id=4771) tgt_bg=* | stats count",
         "queryParameters": {
@@ -497,7 +497,7 @@
     },
     "ds_8": {
       "type": "ds.search",
-      "name": "Password changes / resets",
+      "name": "Changements / resets de mot de passe",
       "options": {
         "query": "`adx_breakglass_events` | search (event_id=4723 OR event_id=4724 OR event_id=4794) tgt_bg=* | stats count",
         "queryParameters": {
@@ -508,7 +508,7 @@
     },
     "ds_9": {
       "type": "ds.search",
-      "name": "Account modifications",
+      "name": "Modifications du compte",
       "options": {
         "query": "`adx_breakglass_events` | search (event_id=4738 OR event_id=4722 OR event_id=4725 OR event_id=4726 OR event_id=4781 OR event_id=4767 OR event_id=4740 OR event_id=5136) tgt_bg=* | stats count",
         "queryParameters": {
@@ -519,7 +519,7 @@
     },
     "ds_10": {
       "type": "ds.search",
-      "name": "Group membership changes",
+      "name": "Changements d'appartenance aux groupes",
       "options": {
         "query": "`adx_breakglass_events` | search is_group_event=1 tgt_bg=* | stats count",
         "queryParameters": {
@@ -530,7 +530,7 @@
     },
     "ds_11": {
       "type": "ds.search",
-      "name": "Actions performed BY the account",
+      "name": "Actions effectuées PAR le compte",
       "options": {
         "query": "`adx_breakglass_events` | search act_bg=* (category=\"Account Management\" OR category=\"Group Management\" OR category=\"Directory Service Changes\") | stats count",
         "queryParameters": {
@@ -541,7 +541,7 @@
     },
     "ds_12": {
       "type": "ds.search",
-      "name": "Off-hours logons",
+      "name": "Connexions hors horaires",
       "options": {
         "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | `adx_offhours_filter` | stats count",
         "queryParameters": {
@@ -552,7 +552,7 @@
     },
     "ds_13": {
       "type": "ds.search",
-      "name": "Break-glass activity over time (by action)",
+      "name": "Activité du compte bris de glace dans le temps (par action)",
       "options": {
         "query": "`adx_breakglass_events` | timechart count by action",
         "queryParameters": {
@@ -563,9 +563,9 @@
     },
     "ds_14": {
       "type": "ds.search",
-      "name": "Change log: who changed the account, when, from where",
+      "name": "Journal des changements : qui a modifié le compte, quand, depuis où",
       "options": {
-        "query": "`adx_breakglass_events` | search tgt_bg=* (category=\"Account Management\" OR category=\"Group Management\" OR category=\"Directory Service Changes\") | eval changed_by=actor_user, group=group_name, object_attribute=if(event_id=\"5136\", AttributeLDAPDisplayName.\" = \".coalesce(AttributeValue,\"\"), null()) | sort - _time | table _time action target_user changed_by group object_attribute src_host src_ip dc event_id",
+        "query": "`adx_breakglass_events` | search tgt_bg=* (category=\"Account Management\" OR category=\"Group Management\" OR category=\"Directory Service Changes\") | eval changed_by=actor_user, group=group_name, object_attribute=if(event_id=\"5136\", AttributeLDAPDisplayName.\" = \".coalesce(AttributeValue,\"\"), null()) | sort - _time | table _time action target_user changed_by group object_attribute src_host src_ip dc event_id | rename _time as \"Heure\", action as \"Action\", target_user as \"Compte cible\", changed_by as \"Modifié par\", group as \"Groupe\", object_attribute as \"Attribut modifié\", src_host as \"Hôte source\", src_ip as \"IP source\", dc as \"DC\", event_id as \"ID événement\"",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"
@@ -574,9 +574,9 @@
     },
     "ds_15": {
       "type": "ds.search",
-      "name": "Account usage: logons",
+      "name": "Utilisation du compte : connexions",
       "options": {
-        "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | lookup adx_logon_types logon_type OUTPUT logon_type_label | eval auth_package=coalesce(AuthenticationPackageName, Authentication_Package), process=coalesce(LogonProcessName, Logon_Process) | sort - _time | table _time target_user logon_type_label src_ip src_host dc auth_package process",
+        "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | lookup adx_logon_types logon_type OUTPUT logon_type_label | eval auth_package=coalesce(AuthenticationPackageName, Authentication_Package), process=coalesce(LogonProcessName, Logon_Process) | sort - _time | table _time target_user logon_type_label src_ip src_host dc auth_package process | rename _time as \"Heure\", target_user as \"Compte cible\", logon_type_label as \"Type de session\", src_ip as \"IP source\", src_host as \"Hôte source\", dc as \"DC\", auth_package as \"Package d'authentification\", process as \"Processus\"",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"
@@ -585,9 +585,9 @@
     },
     "ds_16": {
       "type": "ds.search",
-      "name": "Failed attempts",
+      "name": "Tentatives échouées",
       "options": {
-        "query": "`adx_breakglass_events` | search (event_id=4625 OR event_id=4771) tgt_bg=* | eval code=coalesce(Sub_Status, SubStatus, Failure_Code, Status) | lookup adx_failure_codes code OUTPUT reason | sort - _time | table _time action target_user reason code src_ip src_host dc",
+        "query": "`adx_breakglass_events` | search (event_id=4625 OR event_id=4771) tgt_bg=* | eval code=coalesce(Sub_Status, SubStatus, Failure_Code, Status) | lookup adx_failure_codes code OUTPUT reason | sort - _time | table _time action target_user reason code src_ip src_host dc | rename _time as \"Heure\", action as \"Action\", target_user as \"Compte cible\", reason as \"Raison\", code as \"Code\", src_ip as \"IP source\", src_host as \"Hôte source\", dc as \"DC\"",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"
@@ -596,9 +596,9 @@
     },
     "ds_17": {
       "type": "ds.search",
-      "name": "Actions performed BY the break-glass account",
+      "name": "Actions effectuées PAR le compte bris de glace",
       "options": {
-        "query": "`adx_breakglass_events` | search act_bg=* (category=\"Account Management\" OR category=\"Group Management\" OR category=\"Directory Service Changes\") | eval affected_object=coalesce(group_name.\" <- \".target_user, target_user) | sort - _time | table _time action actor_user affected_object src_host src_ip dc",
+        "query": "`adx_breakglass_events` | search act_bg=* (category=\"Account Management\" OR category=\"Group Management\" OR category=\"Directory Service Changes\") | eval affected_object=coalesce(group_name.\" <- \".target_user, target_user) | sort - _time | table _time action actor_user affected_object src_host src_ip dc | rename _time as \"Heure\", action as \"Action\", actor_user as \"Acteur\", affected_object as \"Objet concerné\", src_host as \"Hôte source\", src_ip as \"IP source\", dc as \"DC\"",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"
@@ -607,9 +607,9 @@
     },
     "ds_18": {
       "type": "ds.search",
-      "name": "Privileged sessions and explicit-credential use",
+      "name": "Sessions privilégiées et usage d'identifiants explicites",
       "options": {
-        "query": "`adx_breakglass_events` | search (event_id=4672 OR event_id=4648) | eval privileges=coalesce(PrivilegeList, Privileges) | sort - _time | table _time action target_user actor_user src_host dc privileges",
+        "query": "`adx_breakglass_events` | search (event_id=4672 OR event_id=4648) | eval privileges=coalesce(PrivilegeList, Privileges) | sort - _time | table _time action target_user actor_user src_host dc privileges | rename _time as \"Heure\", action as \"Action\", target_user as \"Compte cible\", actor_user as \"Acteur\", src_host as \"Hôte source\", dc as \"DC\", privileges as \"Privilèges\"",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"
@@ -618,9 +618,9 @@
     },
     "ds_19": {
       "type": "ds.search",
-      "name": "Usage by source host / IP",
+      "name": "Utilisation par hôte / IP source",
       "options": {
-        "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | eval source=coalesce(src_host, src_ip, \"local / unknown\") | stats count by source | sort - count | head 15",
+        "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | eval source=coalesce(src_host, src_ip, \"local / inconnu\") | stats count by source | sort - count | head 15",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"
@@ -629,7 +629,7 @@
     },
     "ds_20": {
       "type": "ds.search",
-      "name": "Who changes the account (actors)",
+      "name": "Qui modifie le compte (acteurs)",
       "options": {
         "query": "`adx_breakglass_events` | search tgt_bg=* (category=\"Account Management\" OR category=\"Group Management\") | stats count by actor_user | sort - count",
         "queryParameters": {
@@ -640,7 +640,7 @@
     },
     "ds_21": {
       "type": "ds.search",
-      "name": "Logons by hour of day",
+      "name": "Connexions par heure de la journée",
       "options": {
         "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | eval hour=strftime(_time,\"%H\") | stats count by hour | sort hour",
         "queryParameters": {
@@ -651,9 +651,9 @@
     },
     "ds_22": {
       "type": "ds.search",
-      "name": "Source hosts seen for the first time (last 7 days vs 90-day baseline)",
+      "name": "Hôtes sources vus pour la première fois (7 derniers jours vs référence de 90 jours)",
       "options": {
-        "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | eval source=coalesce(src_host, src_ip, \"local / unknown\") | stats min(_time) as first_seen, max(_time) as last_seen, count by source | where first_seen>relative_time(now(),\"-7d\") | eval first_seen=strftime(first_seen,\"%Y-%m-%d %H:%M\"), last_seen=strftime(last_seen,\"%Y-%m-%d %H:%M\")",
+        "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | eval source=coalesce(src_host, src_ip, \"local / inconnu\") | stats min(_time) as first_seen, max(_time) as last_seen, count by source | where first_seen>relative_time(now(),\"-7d\") | eval first_seen=strftime(first_seen,\"%Y-%m-%d %H:%M\"), last_seen=strftime(last_seen,\"%Y-%m-%d %H:%M\") | table source first_seen last_seen count | rename source as \"Source\", first_seen as \"Première vue\", last_seen as \"Dernière vue\", count as \"Nombre\"",
         "queryParameters": {
           "earliest": "-90d@d",
           "latest": "now"
@@ -662,9 +662,9 @@
     },
     "ds_23": {
       "type": "ds.search",
-      "name": "Break-glass accounts configuration (lookup)",
+      "name": "Configuration des comptes bris de glace (lookup)",
       "options": {
-        "query": "| inputlookup adx_breakglass_accounts.csv",
+        "query": "| inputlookup adx_breakglass_accounts.csv | table account label owner notes | rename account as \"Compte\", label as \"Libellé\", owner as \"Propriétaire\", notes as \"Notes\"",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
