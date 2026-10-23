@@ -338,7 +338,7 @@
       "type": "ds.search",
       "name": "Comptes privilégiés (actifs)",
       "options": {
-        "query": "| `adx_users` | where is_disabled=0 AND is_privileged=1 | eval never_expires=if(pwd_never_expires=1,\"OUI\",\"non\"), smartcard=if(smartcard_required=1,\"yes\",\"non\"), last_logon=strftime(last_logon,\"%Y-%m-%d\"), groups=mvjoin(priv_groups,\", \") | sort - pwd_age_days | table sam display_name groups pwd_age_days never_expires smartcard last_logon days_since_logon ou | rename sam as \"Compte\", display_name as \"Nom affiché\", groups as \"Groupes privilégiés\", pwd_age_days as \"Âge du mot de passe (j)\", never_expires as \"MdP sans expiration\", smartcard as \"Carte à puce\", last_logon as \"Dernière connexion\", days_since_logon as \"Jours sans connexion\", ou as \"OU\"",
+        "query": "| `adx_users` | where is_disabled=0 AND is_privileged=1 | eval never_expires=if(pwd_never_expires=1,\"OUI\",\"non\"), smartcard=if(smartcard_required=1,\"yes\",\"non\"), last_logon=strftime(last_logon,\"%Y-%m-%d\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d\"), groups=mvjoin(priv_groups,\", \") | sort - pwd_age_days | table sam display_name groups pwd_set pwd_age_days never_expires smartcard last_logon days_since_logon ou | rename sam as \"Compte\", display_name as \"Nom affiché\", groups as \"Groupes privilégiés\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", never_expires as \"MdP sans expiration\", smartcard as \"Carte à puce\", last_logon as \"Dernière connexion\", days_since_logon as \"Jours sans connexion\", ou as \"OU\"",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
