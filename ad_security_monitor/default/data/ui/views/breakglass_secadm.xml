@@ -53,7 +53,19 @@
             "value": "#B0413E"
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` `adx_risk` | where sam=\"$row.Compte.value$\" | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_2": {
       "type": "splunk.singlevalue",
@@ -64,7 +76,19 @@
       "options": {
         "sparklineDisplay": "off",
         "trendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | stats max(_time) as t | eval days=if(isnull(t),\"aucune sur 90 j\",floor((now()-t)/86400)) | fields days",
+            "earliest": "-90d@d",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_3": {
       "type": "splunk.singlevalue",
@@ -75,7 +99,19 @@
       "options": {
         "sparklineDisplay": "off",
         "trendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_breakglass_events` | search (event_id=4723 OR event_id=4724 OR event_id=4794) tgt_bg=* | stats max(_time) as t | eval days=if(isnull(t),\"aucun sur 1 an\",floor((now()-t)/86400)) | fields days",
+            "earliest": "-365d@d",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_4": {
       "type": "splunk.singlevalue",
@@ -86,7 +122,19 @@
       "options": {
         "sparklineDisplay": "off",
         "trendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | lookup adx_breakglass_accounts account AS sam OUTPUT label | where isnotnull(label) `adx_risk` | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_5": {
       "type": "splunk.singlevalue",
@@ -110,7 +158,19 @@
             "from": 1
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | eval kind=\"logon\" | append [| `adx_users` | lookup adx_breakglass_accounts account AS sam OUTPUT label | where isnotnull(label) | stats max(pwd_last_set) as pls | eval _time=pls, kind=\"pwd\"] | eventstats max(eval(if(kind=\"pwd\",_time,null()))) as pls | where kind=\"logon\" AND _time>pls `adx_risk` | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-90d@d",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_6": {
       "type": "splunk.singlevalue",
@@ -134,7 +194,19 @@
             "from": 1
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | table _time action event_id target_user actor_user src_ip src_host dc",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_7": {
       "type": "splunk.singlevalue",
@@ -158,7 +230,19 @@
             "from": 1
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_breakglass_events` | search (event_id=4625 OR event_id=4771) tgt_bg=* | table _time action event_id target_user actor_user src_ip src_host dc",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_8": {
       "type": "splunk.singlevalue",
@@ -182,7 +266,19 @@
             "from": 1
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_breakglass_events` | search (event_id=4723 OR event_id=4724 OR event_id=4794) tgt_bg=* | table _time action event_id target_user actor_user src_ip src_host dc",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_9": {
       "type": "splunk.singlevalue",
@@ -206,7 +302,19 @@
             "from": 1
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_breakglass_events` | search (event_id=4738 OR event_id=4722 OR event_id=4725 OR event_id=4726 OR event_id=4781 OR event_id=4767 OR event_id=4740 OR event_id=5136) tgt_bg=* | table _time action event_id target_user actor_user src_ip src_host dc",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_10": {
       "type": "splunk.singlevalue",
@@ -230,7 +338,19 @@
             "from": 1
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_breakglass_events` | search is_group_event=1 tgt_bg=* | table _time action event_id target_user actor_user src_ip src_host dc",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_11": {
       "type": "splunk.singlevalue",
@@ -254,7 +374,19 @@
             "from": 1
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_breakglass_events` | search act_bg=* (category=\"Account Management\" OR category=\"Group Management\" OR category=\"Directory Service Changes\") | table _time action event_id target_user actor_user src_ip src_host dc",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_12": {
       "type": "splunk.singlevalue",
@@ -278,7 +410,19 @@
             "from": 1
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | `adx_offhours_filter` | table _time action event_id target_user actor_user src_ip src_host dc",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_13": {
       "type": "splunk.column",
@@ -289,7 +433,19 @@
       "options": {
         "legendDisplay": "bottom",
         "stackMode": "stacked"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_breakglass_events` | timechart count by action",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_14": {
       "type": "splunk.table",
@@ -317,7 +473,19 @@
             "value": "#F8BE34"
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_breakglass_events` | search tgt_bg=* (category=\"Account Management\" OR category=\"Group Management\" OR category=\"Directory Service Changes\") | eval changed_by=actor_user, group=group_name, object_attribute=if(event_id=\"5136\", AttributeLDAPDisplayName.\" = \".coalesce(AttributeValue,\"\"), null()) | sort - _time | table _time action target_user changed_by group object_attribute src_host src_ip dc event_id | rename _time as \"Heure\", action as \"Action\", target_user as \"Compte cible\", changed_by as \"Modifié par\", group as \"Groupe\", object_attribute as \"Attribut modifié\", src_host as \"Hôte source\", src_ip as \"IP source\", dc as \"DC\", event_id as \"ID événement\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_15": {
       "type": "splunk.table",
@@ -328,7 +496,19 @@
       "options": {
         "count": 10,
         "wrap": true
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | lookup adx_logon_types logon_type OUTPUT logon_type_label | eval auth_package=coalesce(AuthenticationPackageName, Authentication_Package), process=coalesce(LogonProcessName, Logon_Process) | sort - _time | table _time target_user logon_type_label src_ip src_host dc auth_package process | rename _time as \"Heure\", target_user as \"Compte cible\", logon_type_label as \"Type de session\", src_ip as \"IP source\", src_host as \"Hôte source\", dc as \"DC\", auth_package as \"Package d'authentification\", process as \"Processus\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_16": {
       "type": "splunk.table",
@@ -339,7 +519,19 @@
       "options": {
         "count": 10,
         "wrap": true
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_breakglass_events` | search (event_id=4625 OR event_id=4771) tgt_bg=* | eval code=coalesce(Sub_Status, SubStatus, Failure_Code, Status) | lookup adx_failure_codes code OUTPUT reason | sort - _time | table _time action target_user reason code src_ip src_host dc | rename _time as \"Heure\", action as \"Action\", target_user as \"Compte cible\", reason as \"Raison\", code as \"Code\", src_ip as \"IP source\", src_host as \"Hôte source\", dc as \"DC\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_17": {
       "type": "splunk.table",
@@ -350,7 +542,19 @@
       "options": {
         "count": 10,
         "wrap": true
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_breakglass_events` | search act_bg=* (category=\"Account Management\" OR category=\"Group Management\" OR category=\"Directory Service Changes\") | eval affected_object=coalesce(group_name.\" <- \".target_user, target_user) | sort - _time | table _time action actor_user affected_object src_host src_ip dc | rename _time as \"Heure\", action as \"Action\", actor_user as \"Acteur\", affected_object as \"Objet concerné\", src_host as \"Hôte source\", src_ip as \"IP source\", dc as \"DC\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_18": {
       "type": "splunk.table",
@@ -361,7 +565,19 @@
       "options": {
         "count": 10,
         "wrap": true
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_breakglass_events` | search (event_id=4672 OR event_id=4648) | eval privileges=coalesce(PrivilegeList, Privileges) | sort - _time | table _time action target_user actor_user src_host dc privileges | rename _time as \"Heure\", action as \"Action\", target_user as \"Compte cible\", actor_user as \"Acteur\", src_host as \"Hôte source\", dc as \"DC\", privileges as \"Privilèges\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_19": {
       "type": "splunk.bar",
@@ -371,7 +587,19 @@
       },
       "options": {
         "legendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | eval source=coalesce(src_host, src_ip, \"local / inconnu\") | stats count by source | sort - count | head 15",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_20": {
       "type": "splunk.pie",
@@ -381,7 +609,19 @@
       },
       "options": {
         "legendDisplay": "bottom"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_breakglass_events` | search tgt_bg=* (category=\"Account Management\" OR category=\"Group Management\") | stats count by actor_user | sort - count",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_21": {
       "type": "splunk.column",
@@ -391,7 +631,19 @@
       },
       "options": {
         "legendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | eval hour=strftime(_time,\"%H\") | stats count by hour | sort hour",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_22": {
       "type": "splunk.table",
@@ -403,7 +655,19 @@
         "count": 8,
         "wrap": true
       },
-      "description": "Fenêtre fixe de 90 jours, indépendante du sélecteur de période."
+      "description": "Fenêtre fixe de 90 jours, indépendante du sélecteur de période.",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_breakglass_events` | search event_id=4624 tgt_bg=* | eval source=coalesce(src_host, src_ip, \"local / inconnu\") | stats min(_time) as first_seen, max(_time) as last_seen, count by source | where first_seen>relative_time(now(),\"-7d\") | eval first_seen=strftime(first_seen,\"%Y-%m-%d %H:%M\"), last_seen=strftime(last_seen,\"%Y-%m-%d %H:%M\") | table source first_seen last_seen count | rename source as \"Source\", first_seen as \"Première vue\", last_seen as \"Dernière vue\", count as \"Nombre\"",
+            "earliest": "-90d@d",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_23": {
       "type": "splunk.table",
@@ -414,7 +678,19 @@
       "options": {
         "count": 5,
         "wrap": true
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| inputlookup adx_breakglass_accounts.csv | table account label owner notes | rename account as \"Compte\", label as \"Libellé\", owner as \"Propriétaire\", notes as \"Notes\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     }
   },
   "dataSources": {

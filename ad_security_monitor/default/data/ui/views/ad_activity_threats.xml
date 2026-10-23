@@ -26,7 +26,19 @@
       "options": {
         "sparklineDisplay": "off",
         "trendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` EventCode IN (4720)",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_2": {
       "type": "splunk.singlevalue",
@@ -37,7 +49,19 @@
       "options": {
         "sparklineDisplay": "off",
         "trendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` EventCode IN (4726)",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_3": {
       "type": "splunk.singlevalue",
@@ -48,7 +72,19 @@
       "options": {
         "sparklineDisplay": "off",
         "trendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` EventCode IN (4725)",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_4": {
       "type": "splunk.singlevalue",
@@ -59,7 +95,19 @@
       "options": {
         "sparklineDisplay": "off",
         "trendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` EventCode IN (4722)",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_5": {
       "type": "splunk.singlevalue",
@@ -70,7 +118,19 @@
       "options": {
         "sparklineDisplay": "off",
         "trendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` EventCode IN (4724)",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_6": {
       "type": "splunk.singlevalue",
@@ -99,7 +159,19 @@
             "from": 50
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` EventCode IN (4740)",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_7": {
       "type": "splunk.singlevalue",
@@ -123,7 +195,19 @@
             "from": 1
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` `adx_normalize` | search is_group_event=1 | where match(group_name,\"(?i)^(`adx_priv_group_names`)(?![\\w -])\") | table _time action event_id target_user actor_user src_ip src_host dc",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_8": {
       "type": "splunk.singlevalue",
@@ -147,7 +231,19 @@
             "from": 1
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` EventCode IN (1102,4719)",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_9": {
       "type": "splunk.column",
@@ -158,7 +254,19 @@
       "options": {
         "legendDisplay": "bottom",
         "stackMode": "stacked"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` `adx_normalize` | search event_id IN (4720,4722,4723,4724,4725,4726,4738,4740,4767,4781) | lookup adx_event_catalog event_id OUTPUT action | timechart count by action",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_10": {
       "type": "splunk.table",
@@ -169,7 +277,19 @@
       "options": {
         "count": 10,
         "wrap": true
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` `adx_normalize` | search is_group_event=1 | where match(group_name,\"(?i)^(`adx_priv_group_names`)(?![\\w -])\") | lookup adx_event_catalog event_id OUTPUT action | rename actor_user as changed_by, target_user as member | sort - _time | table _time action group_name member changed_by dc | rename _time as \"Heure\", action as \"Action\", group_name as \"Groupe\", member as \"Membre\", changed_by as \"Modifié par\", dc as \"DC\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_11": {
       "type": "splunk.table",
@@ -181,7 +301,19 @@
         "count": 10,
         "wrap": true
       },
-      "description": "Journal d'audit effacé (1102), politique d'audit modifiée (4719), mot de passe DSRM défini (4794), SID History ajouté (4765/4766)."
+      "description": "Journal d'audit effacé (1102), politique d'audit modifiée (4719), mot de passe DSRM défini (4794), SID History ajouté (4765/4766).",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` `adx_normalize` | search event_id IN (1102,4719,4794,4765,4766) | lookup adx_event_catalog event_id OUTPUT action severity | sort - _time | table _time action severity actor_user target_user dc | rename _time as \"Heure\", action as \"Action\", severity as \"Gravité\", actor_user as \"Acteur\", target_user as \"Compte cible\", dc as \"DC\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_12": {
       "type": "splunk.table",
@@ -192,7 +324,19 @@
       "options": {
         "count": 8,
         "wrap": true
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` `adx_normalize` | search event_id=4724 | stats count, dc(target_user) as accounts, latest(_time) as last by actor_user | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table actor_user count accounts last | rename actor_user as \"Acteur\", count as \"Nombre\", accounts as \"Comptes\", last as \"Dernière occurrence\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_13": {
       "type": "splunk.table",
@@ -203,7 +347,19 @@
       "options": {
         "count": 8,
         "wrap": true
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` `adx_normalize` | search event_id=4740 | stats count, values(src_host) as caller_computers, latest(_time) as last by target_user | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table target_user count caller_computers last | rename target_user as \"Compte cible\", count as \"Nombre\", caller_computers as \"Postes appelants\", last as \"Dernière occurrence\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_14": {
       "type": "splunk.table",
@@ -214,7 +370,19 @@
       "options": {
         "count": 8,
         "wrap": true
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` `adx_normalize` | search event_id IN (4720,4726,4725) | lookup adx_event_catalog event_id OUTPUT action | rename actor_user as by_admin | sort - _time | table _time action target_user by_admin dc | rename _time as \"Heure\", action as \"Action\", target_user as \"Compte cible\", by_admin as \"Par l'admin\", dc as \"DC\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_15": {
       "type": "splunk.table",
@@ -226,7 +394,19 @@
         "count": 8,
         "wrap": true
       },
-      "description": "Une même source en échec sur de nombreux comptes distincts (seuil : macro adx_spray_threshold)."
+      "description": "Une même source en échec sur de nombreux comptes distincts (seuil : macro adx_spray_threshold).",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` (EventCode=4625 OR EventCode=4771 OR (EventCode=4776 NOT Error_Code=0x0)) `adx_normalize` | stats count as attempts, dc(target_user) as accounts, min(_time) as first, max(_time) as last, values(target_user) as sample by src_ip src_host | where accounts>=`adx_spray_threshold` | eval sample=mvindex(sample,0,4), first=strftime(first,\"%Y-%m-%d %H:%M\"), last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - accounts | table src_ip src_host attempts accounts first last sample | rename src_ip as \"IP source\", src_host as \"Hôte source\", attempts as \"Tentatives\", accounts as \"Comptes\", first as \"Première\", last as \"Dernière occurrence\", sample as \"Exemples\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_16": {
       "type": "splunk.table",
@@ -237,7 +417,19 @@
       "options": {
         "count": 8,
         "wrap": true
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` EventCode=4625 | eval code=coalesce(Sub_Status, SubStatus, Status) | lookup adx_failure_codes code OUTPUT reason | stats count by code reason | sort - count | table code reason count | rename code as \"Code\", reason as \"Raison\", count as \"Nombre\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_17": {
       "type": "splunk.table",
@@ -248,7 +440,19 @@
       "options": {
         "count": 8,
         "wrap": true
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` EventCode=4769 `adx_normalize` | eval enc=coalesce(TicketEncryptionType, Ticket_Encryption_Type), svc=coalesce(ServiceName, Service_Name) | where enc=\"0x17\" AND lower(svc)!=\"krbtgt\" AND substr(svc,-1)!=\"$$\" | stats dc(svc) as spns, count, values(svc) as sample by target_user src_ip | where spns>=5 | eval sample=mvindex(sample,0,4) | sort - spns | table target_user src_ip spns count sample | rename target_user as \"Compte cible\", src_ip as \"IP source\", spns as \"SPN distincts\", count as \"Nombre\", sample as \"Exemples\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_18": {
       "type": "splunk.table",
@@ -260,7 +464,19 @@
         "count": 8,
         "wrap": true
       },
-      "description": "Nécessite « Audit Directory Service Access » et une SACL à la racine du domaine ; les comptes machines (DC$) sont exclus."
+      "description": "Nécessite « Audit Directory Service Access » et une SACL à la racine du domaine ; les comptes machines (DC$) sont exclus.",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` EventCode=4662 (\"1131f6aa-9c07-11d1-f79f-00c04fc2dcd2\" OR \"1131f6ad-9c07-11d1-f79f-00c04fc2dcd2\" OR \"89e95b76-444d-4c62-991a-0facbeda640c\") `adx_normalize` | where substr(actor_user,-1)!=\"$$\" | stats count, latest(_time) as last by actor_user dc | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | table actor_user dc count last | rename actor_user as \"Acteur\", dc as \"DC\", count as \"Nombre\", last as \"Dernière occurrence\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     }
   },
   "dataSources": {

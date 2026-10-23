@@ -26,7 +26,19 @@
       "options": {
         "sparklineDisplay": "off",
         "trendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") `adx_risk` | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_2": {
       "type": "splunk.singlevalue",
@@ -37,7 +49,19 @@
       "options": {
         "sparklineDisplay": "off",
         "trendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 `adx_risk` | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_3": {
       "type": "splunk.singlevalue",
@@ -48,7 +72,19 @@
       "options": {
         "sparklineDisplay": "off",
         "trendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=1 `adx_risk` | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_4": {
       "type": "splunk.singlevalue",
@@ -77,7 +113,19 @@
             "from": 50
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND pwd_never_expires=1 `adx_risk` | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_5": {
       "type": "splunk.singlevalue",
@@ -101,7 +149,19 @@
             "from": 1
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_locked=1 `adx_risk` | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_6": {
       "type": "splunk.singlevalue",
@@ -125,7 +185,19 @@
             "from": 1
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND pwd_not_required=1 `adx_risk` | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_7": {
       "type": "splunk.singlevalue",
@@ -149,7 +221,19 @@
             "from": 1
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND is_expired=1 `adx_risk` | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_8": {
       "type": "splunk.singlevalue",
@@ -179,7 +263,19 @@
             "from": 50
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND days_since_logon>`adx_stale_days` `adx_risk` | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_9": {
       "type": "splunk.singlevalue",
@@ -190,7 +286,19 @@
       "options": {
         "sparklineDisplay": "off",
         "trendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND is_privileged=1 `adx_risk` | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_10": {
       "type": "splunk.singlevalue",
@@ -214,7 +322,19 @@
             "from": 180
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | where sam=\"krbtgt\" `adx_risk` | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_11": {
       "type": "splunk.singlevalue",
@@ -244,7 +364,19 @@
             "from": 50
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND pwd_expired=1 `adx_risk` | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_12": {
       "type": "splunk.singlevalue",
@@ -273,7 +405,19 @@
             "from": 50
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND isnotnull(pwd_days_left) AND pwd_days_left>=0 AND pwd_days_left<=14 `adx_risk` | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_13": {
       "type": "splunk.singlevalue",
@@ -284,7 +428,19 @@
       "options": {
         "sparklineDisplay": "off",
         "trendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND must_change_pwd=1 `adx_risk` | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_14": {
       "type": "splunk.singlevalue",
@@ -313,7 +469,19 @@
             "from": 50
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_pwd_violations` | where isnotnull(violations) `adx_risk` | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_15": {
       "type": "splunk.singlevalue",
@@ -337,7 +505,19 @@
             "from": 1
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND is_privileged=1 AND pwd_age_days>`adx_priv_max_pwd_age_days` `adx_risk` | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_16": {
       "type": "splunk.bar",
@@ -348,7 +528,19 @@
       "options": {
         "legendDisplay": "off"
       },
-      "description": "Basé sur les indicateurs UAC, l'âge du mot de passe et l'appartenance privilégiée. AD n'expose pas le contenu des mots de passe : les mots de passe faibles, compromis ou de dictionnaire nécessitent un audit hors ligne (ex. DSInternals Test-PasswordQuality) ou une protection des mots de passe Entra/AD."
+      "description": "Basé sur les indicateurs UAC, l'âge du mot de passe et l'appartenance privilégiée. AD n'expose pas le contenu des mots de passe : les mots de passe faibles, compromis ou de dictionnaire nécessitent un audit hors ligne (ex. DSInternals Test-PasswordQuality) ou une protection des mots de passe Entra/AD.",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | `adx_pwd_violations` | mvexpand violations | stats count by violations | sort - count",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_17": {
       "type": "splunk.table",
@@ -372,7 +564,19 @@
             "value": "#F8BE34"
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` `adx_risk` | where sam=\"$row.Compte.value$\" | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_18": {
       "type": "splunk.table",
@@ -401,7 +605,19 @@
             "value": "#F8BE34"
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` `adx_risk` | where sam=\"$row.Compte.value$\" | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_19": {
       "type": "splunk.pie",
@@ -411,7 +627,19 @@
       },
       "options": {
         "legendDisplay": "bottom"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | eval state=if(is_disabled=1,\"Désactivé\",\"Actif\") | stats count by state",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_20": {
       "type": "splunk.pie",
@@ -421,7 +649,19 @@
       },
       "options": {
         "legendDisplay": "bottom"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 | eval posture=case(pwd_never_expires=1,\"N'expire jamais\", pwd_age_days>`adx_max_pwd_age_days`,\"Plus ancien que la politique\", isnull(pwd_age_days),\"Inconnu\", true(),\"Dans la politique\") | stats count by posture",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_21": {
       "type": "splunk.column",
@@ -431,7 +671,19 @@
       },
       "options": {
         "legendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND isnotnull(pwd_age_days) | eval b=case(pwd_age_days<=30,\"1) 0-30 d\", pwd_age_days<=90,\"2) 31-90 d\", pwd_age_days<=180,\"3) 91-180 d\", pwd_age_days<=365,\"4) 181-365 d\", true(),\"5) > 1 an\") | stats count by b | sort b",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_22": {
       "type": "splunk.column",
@@ -441,7 +693,19 @@
       },
       "options": {
         "legendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 | eval b=case(isnull(days_since_logon),\"6) Jamais / inconnu\", days_since_logon<=7,\"1) <= 7 d\", days_since_logon<=30,\"2) 8-30 d\", days_since_logon<=90,\"3) 31-90 d\", days_since_logon<=180,\"4) 91-180 d\", true(),\"5) > 180 d\") | stats count by b | sort b",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_23": {
       "type": "splunk.bar",
@@ -451,7 +715,19 @@
       },
       "options": {
         "legendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND pwd_never_expires=1 | stats count by ou | sort - count | head 15",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_24": {
       "type": "splunk.table",
@@ -475,7 +751,19 @@
             "value": "#F8BE34"
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` `adx_risk` | where sam=\"$row.Compte.value$\" | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_25": {
       "type": "splunk.table",
@@ -486,7 +774,19 @@
       "options": {
         "count": 12,
         "wrap": true
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` `adx_risk` | where sam=\"$row.Compte.value$\" | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_26": {
       "type": "splunk.table",
@@ -497,7 +797,19 @@
       "options": {
         "count": 12,
         "wrap": true
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` `adx_risk` | where sam=\"$row.Compte.value$\" | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_27": {
       "type": "splunk.table",
@@ -508,7 +820,19 @@
       "options": {
         "count": 8,
         "wrap": true
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` `adx_risk` | where sam=\"$row.Compte.value$\" | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_28": {
       "type": "splunk.table",
@@ -519,7 +843,19 @@
       "options": {
         "count": 8,
         "wrap": true
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` `adx_risk` | where sam=\"$row.Compte.value$\" | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_29": {
       "type": "splunk.table",
@@ -530,7 +866,19 @@
       "options": {
         "count": 8,
         "wrap": true
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_users` `adx_risk` | where sam=\"$row.Compte.value$\" | eval etat=if(is_disabled=1,\"Désactivé\",\"Actif\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d %H:%M\"), derniere_connexion=strftime(last_logon,\"%Y-%m-%d\"), cree_le=strftime(created,\"%Y-%m-%d\"), groupes=mvjoin(priv_groups,\", \"), raisons=mvjoin(review_reasons,\" | \") | table sam display_name upn etat risk_level risk_score raisons department description location ou pwd_set pwd_age_days derniere_connexion cree_le groupes review_status decision reviewer review_date comment | rename sam as \"Compte\", display_name as \"Nom affiché\", upn as \"UPN\", etat as \"État\", risk_level as \"Niveau de risque\", risk_score as \"Score\", raisons as \"Raisons de la revue\", department as \"Service\", description as \"Description\", location as \"Localisation\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", derniere_connexion as \"Dernière connexion\", cree_le as \"Créé le\", groupes as \"Groupes privilégiés\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_30": {
       "type": "splunk.line",
@@ -541,7 +889,19 @@
       "options": {
         "legendDisplay": "bottom"
       },
-      "description": "L'historique est construit par la recherche enregistrée « AD - KPI Snapshot to Summary Index », désactivée par défaut. Activez-la pour suivre l'évolution de ces chiffres."
+      "description": "L'historique est construit par la recherche enregistrée « AD - KPI Snapshot to Summary Index », désactivée par défaut. Activez-la pour suivre l'évolution de ces chiffres.",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "index=summary sourcetype=adx_kpi_snapshot | timechart span=1d max(never_expire_enabled) as \"Never expires (enabled)\", max(disabled) as \"Désactivé\", max(stale_enabled) as \"Stale enabled\", max(locked) as \"Locked\"",
+            "earliest": "-90d@d",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_31": {
       "type": "splunk.bar",
@@ -551,7 +911,19 @@
       },
       "options": {
         "legendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_computers` | where is_disabled=0 | stats count by os | sort - count | head 10",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_32": {
       "type": "splunk.singlevalue",
@@ -580,7 +952,19 @@
             "from": 50
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| `adx_computers` | where is_disabled=0 AND days_since_logon>`adx_stale_days` | eval derniere_connexion=strftime(last_logon,\"%Y-%m-%d\") | table sam os ou derniere_connexion days_since_logon is_disabled | rename sam as \"Compte\", os as \"OS\", ou as \"OU\", derniere_connexion as \"Dernière connexion\", days_since_logon as \"Jours sans connexion\", is_disabled as \"Désactivé (1=oui)\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     }
   },
   "dataSources": {
