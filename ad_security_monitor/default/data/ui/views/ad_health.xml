@@ -67,7 +67,19 @@
       "options": {
         "sparklineDisplay": "off",
         "trendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_dc_health`",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_2": {
       "type": "splunk.singlevalue",
@@ -91,7 +103,19 @@
             "from": 1
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_dc_health` | where status=\"PROBLÈME\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_3": {
       "type": "splunk.singlevalue",
@@ -115,7 +139,19 @@
             "from": 1
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_dc_health` | where sysvol!=\"True\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_4": {
       "type": "splunk.singlevalue",
@@ -139,7 +175,19 @@
             "from": 1
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_dns_health` | where status=\"PROBLÈME\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_5": {
       "type": "splunk.singlevalue",
@@ -150,7 +198,19 @@
       "options": {
         "sparklineDisplay": "off",
         "trendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_dc_health` | where gc=\"True\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_6": {
       "type": "splunk.singlevalue",
@@ -179,7 +239,19 @@
             "from": 50
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Netlogon\" msad_affinity=NO_CLIENT_SITE",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_7": {
       "type": "splunk.singlevalue",
@@ -203,7 +275,19 @@
             "from": 1
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| multisearch [search `adx_msad_index` (sourcetype=\"MSAD:NT6:Health\" OR sourcetype=\"MSAD:NT6:Replication\" OR sourcetype=\"MSAD:NT6:Netlogon\" OR sourcetype=\"MSAD:NT6:DNS-Health\") | fields host sourcetype _time] [search `adx_perfmon_index` (sourcetype=\"Perfmon:NTDS\" OR sourcetype=\"Perfmon:Processor\") | fields host sourcetype _time] | stats max(_time) as last by host sourcetype | where last<now()-3600",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_8": {
       "type": "splunk.table",
@@ -232,7 +316,19 @@
             "value": "#B0413E"
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_dc_health` | eval last_report=minutes_ago.\" min ago\", problem=coalesce(mvjoin(problem,\"; \"),\"-\") | sort - status, site, Server | table site Server status problem os gc rodc fsmo istg sysvol procs_ok dns_register svc_down usn forest_level domain_level schema last_report | rename site as \"Site\", Server as \"Serveur\", status as \"Statut\", problem as \"Problème\", os as \"OS\", gc as \"GC\", rodc as \"RODC\", fsmo as \"Rôles FSMO\", istg as \"ISTG\", sysvol as \"SYSVOL\", procs_ok as \"Processus OK\", dns_register as \"Enregistrement DNS\", svc_down as \"Services arrêtés\", usn as \"USN max\", forest_level as \"Niveau forêt\", domain_level as \"Niveau domaine\", schema as \"Schéma\", last_report as \"Dernier rapport\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_9": {
       "type": "splunk.pie",
@@ -242,7 +338,19 @@
       },
       "options": {
         "legendDisplay": "bottom"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_dc_health` | stats count by os",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_10": {
       "type": "splunk.bar",
@@ -252,7 +360,19 @@
       },
       "options": {
         "legendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_dc_health` | stats count by site",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_11": {
       "type": "splunk.table",
@@ -263,7 +383,19 @@
       "options": {
         "count": 6,
         "wrap": true
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_dc_health` | where len(fsmo)>0 | table Server fsmo site | rename Server as \"Serveur\", fsmo as \"Rôles FSMO\", site as \"Site\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_12": {
       "type": "splunk.table",
@@ -292,7 +424,19 @@
             "value": "#B0413E"
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_dns_health` | eval problem=coalesce(mvjoin(problem,\"; \"),\"-\"), forwarders=mvjoin(forwarders,\", \"), last_report=minutes_ago.\" min ago\" | sort - status, Server | table Server status problem dns_status started dnssec no_recursion scavenging_h forwarders os last_report | rename Server as \"Serveur\", status as \"Statut\", problem as \"Problème\", dns_status as \"Statut DNS\", started as \"Démarré\", dnssec as \"DNSSEC\", no_recursion as \"Sans récursion\", scavenging_h as \"Nettoyage (h)\", forwarders as \"Redirecteurs\", os as \"OS\", last_report as \"Dernier rapport\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_13": {
       "type": "splunk.line",
@@ -302,7 +446,19 @@
       },
       "options": {
         "legendDisplay": "bottom"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Health\" | timechart span=1h max(HighestUSN) by Server limit=15",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_14": {
       "type": "splunk.column",
@@ -313,7 +469,19 @@
       "options": {
         "legendDisplay": "bottom",
         "stackMode": "stacked"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Netlogon\" | fillnull value=\"OTHER\" msad_affinity | timechart span=1h count by msad_affinity",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_15": {
       "type": "splunk.table",
@@ -325,7 +493,19 @@
         "count": 10,
         "wrap": true
       },
-      "description": "Clients qui s'authentifient depuis une IP absente de tout sous-réseau AD (Netlogon NO_CLIENT_SITE) : ils peuvent être servis par un DC distant. Ajoutez ces sous-réseaux au bon site dans AD Sites and Services. Le regroupement en /24 est une approximation."
+      "description": "Clients qui s'authentifient depuis une IP absente de tout sous-réseau AD (Netlogon NO_CLIENT_SITE) : ils peuvent être servis par un DC distant. Ajoutez ces sous-réseaux au bon site dans AD Sites and Services. Le regroupement en /24 est une approximation.",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Netlogon\" msad_affinity=NO_CLIENT_SITE | eval subnet=replace(src_ip,\"^(\\d+\\.\\d+\\.\\d+)\\.\\d+\",\"\\1.0/24\") | stats count as requests, dc(src_ip) as clients, dc(src_host) as hosts, values(host) as seen_by_dc, latest(src_host) as sample_host by subnet | sort - requests | table subnet requests clients hosts seen_by_dc sample_host | rename subnet as \"Sous-réseau\", requests as \"Requêtes\", clients as \"Clients\", hosts as \"Hôtes\", seen_by_dc as \"Vu par les DC\", sample_host as \"Hôte exemple\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_16": {
       "type": "splunk.table",
@@ -336,7 +516,19 @@
       "options": {
         "count": 10,
         "wrap": true
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_msad_index` sourcetype=\"MSAD:NT6:Netlogon\" msad_affinity=NO_CLIENT_SITE | stats count as requests, latest(src_ip) as src_ip, latest(src_domain) as domain, values(host) as seen_by_dc by src_host | sort - requests | table src_host requests src_ip domain seen_by_dc | rename src_host as \"Hôte source\", requests as \"Requêtes\", src_ip as \"IP source\", domain as \"Domaine\", seen_by_dc as \"Vu par les DC\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_17": {
       "type": "splunk.table",
@@ -348,7 +540,19 @@
         "count": 15,
         "wrap": true
       },
-      "description": "Cellule vide = ce DC n'a jamais envoyé cette source au cours des dernières 24 h."
+      "description": "Cellule vide = ce DC n'a jamais envoyé cette source au cours des dernières 24 h.",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "| multisearch [search `adx_msad_index` (sourcetype=\"MSAD:NT6:Health\" OR sourcetype=\"MSAD:NT6:Replication\" OR sourcetype=\"MSAD:NT6:Netlogon\" OR sourcetype=\"MSAD:NT6:DNS-Health\") | fields host sourcetype _time] [search `adx_perfmon_index` (sourcetype=\"Perfmon:NTDS\" OR sourcetype=\"Perfmon:Processor\" OR sourcetype=\"Perfmon:DNS\" OR sourcetype=\"Perfmon:DFS_Replicated_Folders\") | fields host sourcetype _time] | stats max(_time) as last by host sourcetype | eval minutes_ago=round((now()-last)/60,0) | chart latest(minutes_ago) as m over host by sourcetype | rename host as \"DC\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_18": {
       "type": "splunk.line",
@@ -358,7 +562,19 @@
       },
       "options": {
         "legendDisplay": "bottom"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_perfmon_index` sourcetype=\"Perfmon:NTDS\" counter=\"LDAP Searches/sec\" | timechart span=5m avg(Value) by host limit=15",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_19": {
       "type": "splunk.line",
@@ -368,7 +584,19 @@
       },
       "options": {
         "legendDisplay": "bottom"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_perfmon_index` sourcetype=\"Perfmon:NTDS\" counter=\"DRA Pending Replication Operations\" | timechart span=5m avg(Value) by host limit=15",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_20": {
       "type": "splunk.line",
@@ -378,7 +606,19 @@
       },
       "options": {
         "legendDisplay": "bottom"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_perfmon_index` sourcetype=\"Perfmon:NTDS\" counter=\"DS Threads in Use\" | timechart span=5m avg(Value) by host limit=15",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_21": {
       "type": "splunk.line",
@@ -388,7 +628,19 @@
       },
       "options": {
         "legendDisplay": "bottom"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_perfmon_index` sourcetype=\"Perfmon:Processor\" counter=\"% Processor Time\" instance=\"_Total\" | timechart span=5m avg(Value) by host limit=15",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_22": {
       "type": "splunk.line",
@@ -398,7 +650,19 @@
       },
       "options": {
         "legendDisplay": "bottom"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_perfmon_index` sourcetype=\"Perfmon:DNS\" counter=\"Total Query Received/sec\" | timechart span=5m avg(Value) by host limit=15",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_23": {
       "type": "splunk.line",
@@ -408,7 +672,19 @@
       },
       "options": {
         "legendDisplay": "bottom"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_perfmon_index` sourcetype=\"Perfmon:DNS\" counter=\"Recursive Query Failure/sec\" | timechart span=5m avg(Value) by host limit=15",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_24": {
       "type": "splunk.line",
@@ -419,7 +695,19 @@
       "options": {
         "legendDisplay": "bottom"
       },
-      "description": "Choisissez un sourcetype Perfmon puis un compteur (NTDS, DNS, Dossiers répliqués DFS, Interface réseau, Processeur)."
+      "description": "Choisissez un sourcetype Perfmon puis un compteur (NTDS, DNS, Dossiers répliqués DFS, Interface réseau, Processeur).",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_perfmon_index` sourcetype=\"$pm_st$\" counter=\"$pm_counter$\" | eval series=host.\" \".coalesce(instance,\"\") | timechart span=5m avg(Value) by series limit=15",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     }
   },
   "dataSources": {

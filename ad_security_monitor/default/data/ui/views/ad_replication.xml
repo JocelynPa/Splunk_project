@@ -26,7 +26,19 @@
       "options": {
         "sparklineDisplay": "off",
         "trendDisplay": "off"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_data`",
+            "earliest": "-30m",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_2": {
       "type": "splunk.singlevalue",
@@ -50,7 +62,19 @@
             "from": 1
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_links` | where last_result!=\"0\" | table dc partner naming_context last_result last_success_epoch lag_min",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_3": {
       "type": "splunk.singlevalue",
@@ -79,7 +103,19 @@
             "from": 240
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_links` | table dc partner naming_context last_result last_success_epoch lag_min",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_4": {
       "type": "splunk.singlevalue",
@@ -108,7 +144,19 @@
             "from": 10
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012)",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_5": {
       "type": "splunk.singlevalue",
@@ -132,7 +180,19 @@
             "from": 1
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1388,1988,2042,2095,4012)",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_6": {
       "type": "splunk.singlevalue",
@@ -156,7 +216,19 @@
             "from": 30
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_data` | stats max(_time) as t | eval m=round((now()-t)/60,0) | fields m",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_7": {
       "type": "splunk.table",
@@ -189,7 +261,19 @@
             "value": "#B0413E"
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_links` | eval last_success=strftime(last_success_epoch,\"%Y-%m-%d %H:%M\"), last_attempt=strftime(last_attempt_epoch,\"%Y-%m-%d %H:%M\"), status=case(last_result!=\"0\",\"EN ÉCHEC\", lag_min>240,\"EN RETARD\", true(),\"OK\") | sort - status, - lag_min | table dc partner naming_context transport status last_success last_attempt lag_min last_result | rename dc as \"DC\", partner as \"Partenaire\", naming_context as \"Partition\", transport as \"Transport\", status as \"Statut\", last_success as \"Dernier succès\", last_attempt as \"Dernière tentative\", lag_min as \"Retard (min)\", last_result as \"Dernier résultat\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_8": {
       "type": "splunk.column",
@@ -200,7 +284,19 @@
       "options": {
         "legendDisplay": "bottom",
         "stackMode": "stacked"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_data` | where Result!=\"0\" | timechart span=1h count by host",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_9": {
       "type": "splunk.column",
@@ -211,7 +307,19 @@
       "options": {
         "legendDisplay": "bottom",
         "stackMode": "stacked"
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) | timechart count by EventCode",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_10": {
       "type": "splunk.table",
@@ -243,7 +351,19 @@
             "value": "#F8BE34"
           }
         ]
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description severity | eval dc=coalesce(Computer, ComputerName, host), message=substr(coalesce(Message, _raw),1,300) | sort - _time | table _time dc event_id severity description message | rename _time as \"Heure\", dc as \"DC\", event_id as \"ID événement\", severity as \"Gravité\", description as \"Description\", message as \"Message\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_11": {
       "type": "splunk.table",
@@ -254,7 +374,19 @@
       "options": {
         "count": 10,
         "wrap": true
-      }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description | eval dc=coalesce(Computer, ComputerName, host) | stats count, latest(_time) as last by dc event_id description | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table dc event_id description count last | rename dc as \"DC\", event_id as \"ID événement\", description as \"Description\", count as \"Nombre\", last as \"Dernière occurrence\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_12": {
       "type": "splunk.table",
@@ -266,7 +398,19 @@
         "count": 8,
         "wrap": true
       },
-      "description": "Nécessite la stratégie d'audit « Audit Detailed Directory Service Replication » (événements Sécurité 4932/4933)."
+      "description": "Nécessite la stratégie d'audit « Audit Detailed Directory Service Replication » (événements Sécurité 4932/4933).",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` (EventCode=4932 OR EventCode=4933) | eval dc=coalesce(Computer, ComputerName, host), status_code=coalesce(Status_Code, StatusCode, Status), naming_context=coalesce(Naming_Context, NamingContext), source_dra=coalesce(Source_DRA, SourceDRA) | stats count, sum(eval(if(EventCode=4933 AND status_code!=\"0\",1,0))) as failed_syncs by dc naming_context | sort - failed_syncs | table dc naming_context count failed_syncs | rename dc as \"DC\", naming_context as \"Partition\", count as \"Nombre\", failed_syncs as \"Synchros en échec\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     },
     "viz_13": {
       "type": "splunk.table",
@@ -278,7 +422,19 @@
         "count": 8,
         "wrap": true
       },
-      "description": "Clients dont l'horloge dérive de plus de 5 minutes par rapport au DC : effet typique d'une synchronisation horaire AD défaillante."
+      "description": "Clients dont l'horloge dérive de plus de 5 minutes par rapport au DC : effet typique d'une synchronisation horaire AD défaillante.",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` EventCode=4771 (Failure_Code=0x25 OR Result_Code=0x25) | eval client=coalesce(IpAddress, Client_Address, src_ip), user=coalesce(TargetUserName, Account_Name) | stats count, latest(_time) as last by client user | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table client user count last | rename client as \"Client\", user as \"Utilisateur\", count as \"Nombre\", last as \"Dernière occurrence\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     }
   },
   "dataSources": {
