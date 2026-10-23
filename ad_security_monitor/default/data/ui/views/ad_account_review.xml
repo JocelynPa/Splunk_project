@@ -312,7 +312,7 @@
     },
     "viz_11": {
       "type": "splunk.table",
-      "title": "Charge de revue par responsable (managedBy)",
+      "title": "Charge de revue par service (department)",
       "dataSources": {
         "primary": "ds_11"
       },
@@ -336,7 +336,7 @@
           }
         }
       },
-      "description": "Comptes actifs sans managedBy, description ni service : personne ne peut les attester pendant la revue.",
+      "description": "Comptes actifs sans description ni service : personne ne peut les attester pendant la revue.",
       "context": {
         "col0ColorConfig": [
           {
@@ -486,7 +486,7 @@
       "type": "ds.search",
       "name": "Comptes à revoir",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") `adx_risk` | where $scope$ AND $rstatus$ | where risk_score>=$min_risk$ | eval state=if(is_disabled=1,\"Désactivé\",\"Actif\"), last_logon=strftime(last_logon,\"%Y-%m-%d\"), created=strftime(created,\"%Y-%m-%d\"), groups=mvjoin(priv_groups,\", \"), reasons=mvjoin(review_reasons,\" | \") | sort - risk_score, - pwd_age_days | table sam display_name risk_level risk_score reasons state department title description managedBy groups pwd_age_days last_logon created review_status decision reviewer review_date comment ou | rename sam as \"Compte\", display_name as \"Nom affiché\", risk_level as \"Niveau de risque\", risk_score as \"Score\", reasons as \"Raisons de la revue\", state as \"État\", department as \"Service\", title as \"Fonction\", description as \"Description\", managedBy as \"Responsable (managedBy)\", groups as \"Groupes privilégiés\", pwd_age_days as \"Âge du mot de passe (j)\", last_logon as \"Dernière connexion\", created as \"Créé le\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\", ou as \"OU\"",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") `adx_risk` | where $scope$ AND $rstatus$ | where risk_score>=$min_risk$ | eval state=if(is_disabled=1,\"Désactivé\",\"Actif\"), last_logon=strftime(last_logon,\"%Y-%m-%d\"), created=strftime(created,\"%Y-%m-%d\"), groups=mvjoin(priv_groups,\", \"), reasons=mvjoin(review_reasons,\" | \") | sort - risk_score, - pwd_age_days | table sam display_name upn risk_level risk_score reasons state department description location groups pwd_age_days last_logon created review_status decision reviewer review_date comment ou | rename sam as \"Compte\", display_name as \"Nom affiché\", risk_level as \"Niveau de risque\", risk_score as \"Score\", reasons as \"Raisons de la revue\", state as \"État\", department as \"Service\", upn as \"UPN\", description as \"Description\", location as \"Localisation\", groups as \"Groupes privilégiés\", pwd_age_days as \"Âge du mot de passe (j)\", last_logon as \"Dernière connexion\", created as \"Créé le\", review_status as \"Statut de revue\", decision as \"Décision\", reviewer as \"Relecteur\", review_date as \"Date de revue\", comment as \"Commentaire\", ou as \"OU\"",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -495,9 +495,9 @@
     },
     "ds_11": {
       "type": "ds.search",
-      "name": "Charge de revue par responsable (managedBy)",
+      "name": "Charge de revue par service (department)",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") `adx_risk` | where $scope$ AND $rstatus$ | eval owner=coalesce(mvindex(managedBy,0),\"(aucun responsable)\") | stats count as accounts, sum(eval(if(risk_level=\"ÉLEVÉ\",1,0))) as high, sum(eval(if(review_status!=\"Revu\",1,0))) as to_review by owner | sort - high, - to_review | rename owner as \"Responsable\", accounts as \"Comptes\", high as \"Risque élevé\", to_review as \"À revoir\"",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") `adx_risk` | where $scope$ AND $rstatus$ | eval owner=coalesce(mvindex(department,0),\"(non renseigné)\") | stats count as accounts, sum(eval(if(risk_level=\"ÉLEVÉ\",1,0))) as high, sum(eval(if(review_status!=\"Revu\",1,0))) as to_review by owner | sort - high, - to_review | rename owner as \"Service\", accounts as \"Comptes\", high as \"Risque élevé\", to_review as \"À revoir\"",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -508,7 +508,7 @@
       "type": "ds.search",
       "name": "Comptes sans information de responsable",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") `adx_risk` | where $scope$ AND $rstatus$ | where is_disabled=0 AND isnull(managedBy) AND (isnull(description) OR description=\"\") AND (isnull(department) OR department=\"\") | eval last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort - risk_score | table sam display_name risk_level last_logon ou | rename sam as \"Compte\", display_name as \"Nom affiché\", risk_level as \"Niveau de risque\", last_logon as \"Dernière connexion\", ou as \"OU\"",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") `adx_risk` | where $scope$ AND $rstatus$ | where is_disabled=0 AND (isnull(description) OR description=\"\") AND (isnull(department) OR department=\"\") | eval last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort - risk_score | table sam display_name risk_level last_logon ou | rename sam as \"Compte\", display_name as \"Nom affiché\", risk_level as \"Niveau de risque\", last_logon as \"Dernière connexion\", ou as \"OU\"",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
