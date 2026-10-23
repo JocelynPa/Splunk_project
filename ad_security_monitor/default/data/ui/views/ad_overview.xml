@@ -841,7 +841,7 @@
       "type": "ds.search",
       "name": "Mot de passe sans expiration - comptes actifs",
       "options": {
-        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND pwd_never_expires=1 | eval privileged=if(is_privileged=1,\"OUI\",\"non\"), last_logon=strftime(last_logon,\"%Y-%m-%d\") | sort - is_privileged, - pwd_age_days | table sam display_name ou pwd_age_days last_logon privileged | rename sam as \"Compte\", display_name as \"Nom affiché\", ou as \"OU\", pwd_age_days as \"Âge du mot de passe (j)\", last_logon as \"Dernière connexion\", privileged as \"Privilégié\"",
+        "query": "| `adx_users` | where match(ou,\"(?i)$ou_f$\") | where is_disabled=0 AND pwd_never_expires=1 | eval privileged=if(is_privileged=1,\"OUI\",\"non\"), last_logon=strftime(last_logon,\"%Y-%m-%d\"), pwd_set=strftime(pwd_last_set,\"%Y-%m-%d\") | sort - is_privileged, - pwd_age_days | table sam display_name ou pwd_set pwd_age_days last_logon privileged | rename sam as \"Compte\", display_name as \"Nom affiché\", ou as \"OU\", pwd_set as \"Mot de passe changé le\", pwd_age_days as \"Âge du mot de passe (j)\", last_logon as \"Dernière connexion\", privileged as \"Privilégié\"",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
