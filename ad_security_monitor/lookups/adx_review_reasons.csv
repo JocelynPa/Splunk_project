@@ -1,0 +1,18 @@
+code,reason
+ALL,Toutes les raisons actuelles du compte
+PRIVILEGED,Compte privilégié
+NEVER_EXPIRES,Mot de passe n'expire jamais
+PWD_NOT_REQUIRED,Mot de passe non requis
+NO_PREAUTH,Sans pré-authentification Kerberos (AS-REP roastable)
+DELEGATION,Délégation non contrainte
+PWD_EXPIRED,Mot de passe expiré
+PRIV_PWD_OLD,Mot de passe privilégié trop ancien
+STALE,Aucune connexion depuis plus de la limite d'inactivité
+NEVER_LOGGED,Jamais connecté
+ACCT_EXPIRED,Compte expiré mais actif
+DISABLED_PRIV,Désactivé mais toujours privilégié
+DISABLED_OLD,Désactivé depuis longtemps (à supprimer)
+SPN_OLD_PWD,Compte de service (SPN) avec ancien mot de passe
+ADMINCOUNT,Résidu adminCount
+REVERSIBLE,Chiffrement réversible du mot de passe
+DES_ONLY,Clés Kerberos DES uniquement
