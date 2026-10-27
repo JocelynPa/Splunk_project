@@ -76,7 +76,7 @@ and alerts follow the file. An account is matched both when it is the
 
 1. Open **Revue des comptes AD (SecOps)**, pick the scope (OU, privileged, service accounts...) and *Needs review*.
 2. Use *Open in Search > Export CSV* on the "Accounts to review" table to send the list to the account owners.
-3. Record each decision in `lookups/adx_review_decisions.csv` (`sam,decision,reviewer,review_date,comment`, date as `YYYY-MM-DD`; edit it with the Lookup Editor app or re-upload the CSV). The dashboard then shows the review status and flags reviews older than `adx_review_days` (default 180) as overdue.
+3. Record decisions **per review reason** in `lookups/adx_review_decisions.csv` (`sam,reason,decision,reviewer,review_date,comment`; `reason` = a code from `lookups/adx_review_reasons.csv`, listed in the dashboard, or `ALL` for every current reason; date as `YYYY-MM-DD`; edit with the Lookup Editor app or re-upload the CSV). An account is **Revu** when every one of its current reasons has a decision newer than `adx_review_days` (default 180) days, **Revue partielle** when only some are handled (a new reason appearing after the review also makes it partial), **Revue en retard** when its decisions have expired, **Jamais revu** when none exists, and **Conforme** when it has no reason to be reviewed.
 4. Scoring weights are in the `adx_risk` macro (ÉLEVÉ >= 6, MOYEN >= 3, FAIBLE >= 1); `adx_disabled_days` (180) sets when a disabled account becomes a delete candidate.
 
 ## Notes and limits
