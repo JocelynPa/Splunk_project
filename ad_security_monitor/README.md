@@ -49,7 +49,7 @@ All dashboards are in **French** (titles, panels, column headers, displayed valu
 | `adx_review_days`, `adx_disabled_days` | Review cycle and disabled-account age (days) | 180, 180 |
 | `adx_stale_days`, `adx_max_pwd_age_days`, `adx_priv_max_pwd_age_days`, `adx_krbtgt_max_age_days`, `adx_spray_threshold` | Thresholds (`adx_max_pwd_age_days` should match your domain maximum password age) | 90, 90, 180, 180, 10 |
 | `adx_offhours_filter` | What counts as off-hours | before 07:00, from 19:00, weekends |
-| `adx_priv_group_names` | Privileged groups (EN + FR names) | Domain Admins, Admins du domaine, ... |
+| `adx_is_priv_group(1)`, `adx_memberof_priv` | Privileged group names (EN + FR), written inline in both macros (keep in sync); groups with `adminCount=1` are also privileged | Domain Admins, Admins du domaine, ... |
 | `adx_normalize` | Maps Splunk_TA_windows field names to `target_user`, `actor_user`, `src_ip`, `src_host`, ... | see file |
 | `adx_users` / `adx_computers` | Maps lookup columns (`sAMAccountName`, `userAccountControl`, `pwdLastSet`, `lastLogonTimestamp`, `accountExpires`, `memberOf`, `distinguishedName`, `lockoutTime`) | see file |
 
