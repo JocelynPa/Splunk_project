@@ -225,7 +225,7 @@
         {
           "type": "drilldown.linkToSearch",
           "options": {
-            "query": "| inputlookup `adx_groups_lookup` | eval grp=coalesce(cn, sAMAccountName, name) | where match(grp,\"(?i)^(`adx_priv_group_names`)(?![\\\\w -])\") | stats max(membercount) as members by grp | sort - members",
+            "query": "| inputlookup `adx_groups_lookup` | eval grp=coalesce(cn, sAMAccountName, name) | where `adx_is_priv_group(grp)` | stats max(membercount) as members by grp | sort - members",
             "earliest": "-24h",
             "latest": "now",
             "type": "custom",
@@ -249,7 +249,7 @@
         {
           "type": "drilldown.linkToSearch",
           "options": {
-            "query": "| inputlookup `adx_groups_lookup` | eval grp=coalesce(cn, sAMAccountName, name) | where match(grp,\"(?i)^(`adx_priv_group_names`)(?![\\\\w -])\") | eval members=membercount | sort - members | table grp members groupType_Name OU | rename grp as \"Groupe\", members as \"Membres\", groupType_Name as \"Type de groupe\", OU as \"OU\"",
+            "query": "| inputlookup `adx_groups_lookup` | eval grp=coalesce(cn, sAMAccountName, name) | where `adx_is_priv_group(grp)` | eval members=membercount | sort - members | table grp members groupType_Name OU | rename grp as \"Groupe\", members as \"Membres\", groupType_Name as \"Type de groupe\", OU as \"OU\"",
             "earliest": "-24h",
             "latest": "now",
             "type": "custom",
@@ -379,7 +379,7 @@
         {
           "type": "drilldown.linkToSearch",
           "options": {
-            "query": "`adx_security_events` `adx_normalize` | search is_group_event=1 | where match(group_name,\"(?i)^(`adx_priv_group_names`)(?![\\\\w -])\") | lookup adx_event_catalog event_id OUTPUT action | rename actor_user as changed_by, target_user as member | sort - _time | table _time action group_name member changed_by dc | rename _time as \"Heure\", action as \"Action\", group_name as \"Groupe\", member as \"Membre\", changed_by as \"Modifié par\", dc as \"DC\"",
+            "query": "`adx_security_events` `adx_normalize` | search is_group_event=1 | where `adx_is_priv_group(group_name)` | lookup adx_event_catalog event_id OUTPUT action | rename actor_user as changed_by, target_user as member | sort - _time | table _time action group_name member changed_by dc | rename _time as \"Heure\", action as \"Action\", group_name as \"Groupe\", member as \"Membre\", changed_by as \"Modifié par\", dc as \"DC\"",
             "earliest": "$global_time.earliest$",
             "latest": "$global_time.latest$",
             "type": "custom",
@@ -460,7 +460,7 @@
       "type": "ds.search",
       "name": "Membres par groupe privilégié",
       "options": {
-        "query": "| inputlookup `adx_groups_lookup` | eval grp=coalesce(cn, sAMAccountName, name) | where match(grp,\"(?i)^(`adx_priv_group_names`)(?![\\\\w -])\") | stats max(membercount) as members by grp | sort - members",
+        "query": "| inputlookup `adx_groups_lookup` | eval grp=coalesce(cn, sAMAccountName, name) | where `adx_is_priv_group(grp)` | stats max(membercount) as members by grp | sort - members",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -471,7 +471,7 @@
       "type": "ds.search",
       "name": "Groupes privilégiés",
       "options": {
-        "query": "| inputlookup `adx_groups_lookup` | eval grp=coalesce(cn, sAMAccountName, name) | where match(grp,\"(?i)^(`adx_priv_group_names`)(?![\\\\w -])\") | eval members=membercount | sort - members | table grp members groupType_Name OU | rename grp as \"Groupe\", members as \"Membres\", groupType_Name as \"Type de groupe\", OU as \"OU\"",
+        "query": "| inputlookup `adx_groups_lookup` | eval grp=coalesce(cn, sAMAccountName, name) | where `adx_is_priv_group(grp)` | eval members=membercount | sort - members | table grp members groupType_Name OU | rename grp as \"Groupe\", members as \"Membres\", groupType_Name as \"Type de groupe\", OU as \"OU\"",
         "queryParameters": {
           "earliest": "-5m",
           "latest": "now"
@@ -515,7 +515,7 @@
       "type": "ds.search",
       "name": "Changements récents d'appartenance aux groupes privilégiés",
       "options": {
-        "query": "`adx_security_events` `adx_normalize` | search is_group_event=1 | where match(group_name,\"(?i)^(`adx_priv_group_names`)(?![\\\\w -])\") | lookup adx_event_catalog event_id OUTPUT action | rename actor_user as changed_by, target_user as member | sort - _time | table _time action group_name member changed_by dc | rename _time as \"Heure\", action as \"Action\", group_name as \"Groupe\", member as \"Membre\", changed_by as \"Modifié par\", dc as \"DC\"",
+        "query": "`adx_security_events` `adx_normalize` | search is_group_event=1 | where `adx_is_priv_group(group_name)` | lookup adx_event_catalog event_id OUTPUT action | rename actor_user as changed_by, target_user as member | sort - _time | table _time action group_name member changed_by dc | rename _time as \"Heure\", action as \"Action\", group_name as \"Groupe\", member as \"Membre\", changed_by as \"Modifié par\", dc as \"DC\"",
         "queryParameters": {
           "earliest": "$global_time.earliest$",
           "latest": "$global_time.latest$"
