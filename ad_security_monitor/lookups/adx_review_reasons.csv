@@ -16,3 +16,4 @@ SPN_OLD_PWD,Compte de service (SPN) avec ancien mot de passe
 ADMINCOUNT,Résidu adminCount
 REVERSIBLE,Chiffrement réversible du mot de passe
 DES_ONLY,Clés Kerberos DES uniquement
+PSO_MISSING,Compte privilégié sans PSO (politique de domaine par défaut)
