@@ -1,0 +1,6 @@
+env,pso_name,precedence,applies_to_group,tier,min_length,history,complexity,reversible_encryption,min_age_days,max_age_days,lockout_threshold,lockout_window_min,lockout_duration_min,description
+Prod,PSO_U_USERS,2,GG_APP-PSO_USERS,privileged,12,5,true,false,1,180,5,30,30,Password Settings Object pour les comptes utilisateurs à privilèges
+Maquette,PSO_U_USERS,2,GG_APP-PSO_USERS,privileged,12,5,true,false,1,180,5,30,30,Password Settings Object pour les comptes utilisateurs à privilèges
+Maquette,PSO_Users_T0,2,GG_PSO_T0,T0,16,5,true,false,1,90,3,30,30,PSO pour les utilisateurs du Tier 0
+Maquette,PSO_Users_T1,2,GG_PSO_T1,T1,14,5,true,false,1,120,5,30,30,PSO pour les utilisateurs du Tier 1
+Maquette,PSO_Users_T2,2,GG_PSO_T2,T2,12,5,true,false,1,180,5,30,30,PSO pour les utilisateurs du Tier 2
