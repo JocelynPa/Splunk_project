@@ -17,11 +17,34 @@
   },
   "defaults": {},
   "visualizations": {
-    "viz_1": {
+    "viz_general_sum": {
+      "type": "splunk.table",
+      "title": "Synthèse par tête d'infra",
+      "description": "Un onglet par domaine / forêt AD (numérotés par ordre alphabétique du domaine ; lookups/adx_infra_heads.csv permet de fixer numéro et libellé). Cliquez sur un onglet « Tête n » pour le détail.",
+      "dataSources": {
+        "primary": "ds_general_sum"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      }
+    },
+    "viz_general_map": {
+      "type": "splunk.table",
+      "title": "Correspondance onglets / domaines / DC",
+      "dataSources": {
+        "primary": "ds_general_map"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      }
+    },
+    "viz_1_general": {
       "type": "splunk.singlevalue",
       "title": "DC qui remontent l'état de réplication",
       "dataSources": {
-        "primary": "ds_1"
+        "primary": "ds_1_general"
       },
       "options": {
         "sparklineDisplay": "off",
@@ -40,11 +63,11 @@
         }
       ]
     },
-    "viz_2": {
+    "viz_2_general": {
       "type": "splunk.singlevalue",
       "title": "Liens de réplication en échec",
       "dataSources": {
-        "primary": "ds_2"
+        "primary": "ds_2_general"
       },
       "options": {
         "sparklineDisplay": "off",
@@ -76,11 +99,11 @@
         }
       ]
     },
-    "viz_3": {
+    "viz_3_general": {
       "type": "splunk.singlevalue",
       "title": "Délai max depuis le dernier succès (min)",
       "dataSources": {
-        "primary": "ds_3"
+        "primary": "ds_3_general"
       },
       "options": {
         "sparklineDisplay": "off",
@@ -117,11 +140,11 @@
         }
       ]
     },
-    "viz_4": {
+    "viz_4_general": {
       "type": "splunk.singlevalue",
       "title": "Événements d'erreur de réplication",
       "dataSources": {
-        "primary": "ds_4"
+        "primary": "ds_4_general"
       },
       "options": {
         "sparklineDisplay": "off",
@@ -158,11 +181,11 @@
         }
       ]
     },
-    "viz_5": {
+    "viz_5_general": {
       "type": "splunk.singlevalue",
       "title": "Événements critiques (objets lingering, tombstone, USN rollback)",
       "dataSources": {
-        "primary": "ds_5"
+        "primary": "ds_5_general"
       },
       "options": {
         "sparklineDisplay": "off",
@@ -194,11 +217,11 @@
         }
       ]
     },
-    "viz_6": {
+    "viz_6_general": {
       "type": "splunk.singlevalue",
       "title": "Minutes depuis le dernier événement de réplication",
       "dataSources": {
-        "primary": "ds_6"
+        "primary": "ds_6_general"
       },
       "options": {
         "sparklineDisplay": "off",
@@ -230,11 +253,11 @@
         }
       ]
     },
-    "viz_7": {
+    "viz_7_general": {
       "type": "splunk.table",
       "title": "Liens de réplication - état actuel",
       "dataSources": {
-        "primary": "ds_7"
+        "primary": "ds_7_general"
       },
       "options": {
         "count": 15,
@@ -275,11 +298,11 @@
         }
       ]
     },
-    "viz_8": {
+    "viz_8_general": {
       "type": "splunk.column",
       "title": "Événements de réplication en échec par DC",
       "dataSources": {
-        "primary": "ds_8"
+        "primary": "ds_8_general"
       },
       "options": {
         "legendDisplay": "bottom",
@@ -298,11 +321,11 @@
         }
       ]
     },
-    "viz_9": {
+    "viz_9_general": {
       "type": "splunk.column",
       "title": "Événements liés à la réplication dans le temps",
       "dataSources": {
-        "primary": "ds_9"
+        "primary": "ds_9_general"
       },
       "options": {
         "legendDisplay": "bottom",
@@ -321,11 +344,11 @@
         }
       ]
     },
-    "viz_10": {
+    "viz_10_general": {
       "type": "splunk.table",
       "title": "Événements de réplication Directory Service / DFSR",
       "dataSources": {
-        "primary": "ds_10"
+        "primary": "ds_10_general"
       },
       "options": {
         "count": 10,
@@ -365,11 +388,11 @@
         }
       ]
     },
-    "viz_11": {
+    "viz_11_general": {
       "type": "splunk.table",
       "title": "Erreurs de réplication par DC et par événement",
       "dataSources": {
-        "primary": "ds_11"
+        "primary": "ds_11_general"
       },
       "options": {
         "count": 10,
@@ -388,11 +411,11 @@
         }
       ]
     },
-    "viz_12": {
+    "viz_12_general": {
       "type": "splunk.table",
       "title": "Sécurité 4932/4933 : début/fin de synchronisation de réplica",
       "dataSources": {
-        "primary": "ds_12"
+        "primary": "ds_12_general"
       },
       "options": {
         "count": 8,
@@ -412,11 +435,11 @@
         }
       ]
     },
-    "viz_13": {
+    "viz_13_general": {
       "type": "splunk.table",
       "title": "Échecs Kerberos par décalage d'horloge (événement 4771, code 0x25) - synchronisation horaire",
       "dataSources": {
-        "primary": "ds_13"
+        "primary": "ds_13_general"
       },
       "options": {
         "count": 8,
@@ -435,10 +458,2618 @@
           }
         }
       ]
+    },
+    "viz_h1_banner": {
+      "type": "splunk.singlevalue",
+      "title": "Tête d'infra 1 - domaine / forêt AD",
+      "dataSources": {
+        "primary": "ds_h1_banner"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorFontSize": 28
+      }
+    },
+    "viz_1_h1": {
+      "type": "splunk.singlevalue",
+      "title": "DC qui remontent l'état de réplication",
+      "dataSources": {
+        "primary": "ds_1_h1"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_data` `adx_head_filter(host,1)`",
+            "earliest": "-30m",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_2_h1": {
+      "type": "splunk.singlevalue",
+      "title": "Liens de réplication en échec",
+      "dataSources": {
+        "primary": "ds_2_h1"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_links` `adx_head_filter(dc,1)` | where last_result!=\"0\" | table dc partner naming_context last_result last_success_epoch lag_min",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_3_h1": {
+      "type": "splunk.singlevalue",
+      "title": "Délai max depuis le dernier succès (min)",
+      "dataSources": {
+        "primary": "ds_3_h1"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 60
+          },
+          {
+            "value": "#FFC300",
+            "from": 60,
+            "to": 240
+          },
+          {
+            "value": "#B0413E",
+            "from": 240
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_links` `adx_head_filter(dc,1)` | table dc partner naming_context last_result last_success_epoch lag_min",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_4_h1": {
+      "type": "splunk.singlevalue",
+      "title": "Événements d'erreur de réplication",
+      "dataSources": {
+        "primary": "ds_4_h1"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#FFC300",
+            "from": 1,
+            "to": 10
+          },
+          {
+            "value": "#B0413E",
+            "from": 10
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,1)`",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_5_h1": {
+      "type": "splunk.singlevalue",
+      "title": "Événements critiques (objets lingering, tombstone, USN rollback)",
+      "dataSources": {
+        "primary": "ds_5_h1"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1388,1988,2042,2095,4012) `adx_head_filter(host,1)`",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_6_h1": {
+      "type": "splunk.singlevalue",
+      "title": "Minutes depuis le dernier événement de réplication",
+      "dataSources": {
+        "primary": "ds_6_h1"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 30
+          },
+          {
+            "value": "#B0413E",
+            "from": 30
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_data` `adx_head_filter(host,1)` | stats max(_time) as t | eval m=round((now()-t)/60,0) | fields m",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_7_h1": {
+      "type": "splunk.table",
+      "title": "Liens de réplication - état actuel",
+      "dataSources": {
+        "primary": "ds_7_h1"
+      },
+      "options": {
+        "count": 15,
+        "wrap": true,
+        "columnFormat": {
+          "Statut": {
+            "rowBackgroundColors": "> table | seriesByName(\"Statut\") | matchValue(col0ColorConfig)"
+          }
+        }
+      },
+      "description": "dc = DC qui reçoit les changements, partner = source de réplication (src_host). Source : MSAD:NT6:Replication (LastSuccessfulSync / LastAttemptedSync / Result ; Result 0 = succès). EN RETARD = aucune synchronisation réussie depuis plus de 4 heures.",
+      "context": {
+        "col0ColorConfig": [
+          {
+            "match": "OK",
+            "value": "#65A637"
+          },
+          {
+            "match": "EN RETARD",
+            "value": "#F8BE34"
+          },
+          {
+            "match": "EN ÉCHEC",
+            "value": "#B0413E"
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_links` `adx_head_filter(dc,1)` | eval last_success=strftime(last_success_epoch,\"%Y-%m-%d %H:%M\"), last_attempt=strftime(last_attempt_epoch,\"%Y-%m-%d %H:%M\"), status=case(last_result!=\"0\",\"EN ÉCHEC\", lag_min>240,\"EN RETARD\", true(),\"OK\") | sort - status, - lag_min | table dc partner naming_context transport status last_success last_attempt lag_min last_result | rename dc as \"DC\", partner as \"Partenaire\", naming_context as \"Partition\", transport as \"Transport\", status as \"Statut\", last_success as \"Dernier succès\", last_attempt as \"Dernière tentative\", lag_min as \"Retard (min)\", last_result as \"Dernier résultat\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_8_h1": {
+      "type": "splunk.column",
+      "title": "Événements de réplication en échec par DC",
+      "dataSources": {
+        "primary": "ds_8_h1"
+      },
+      "options": {
+        "legendDisplay": "bottom",
+        "stackMode": "stacked"
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_data` `adx_head_filter(host,1)` | where Result!=\"0\" | timechart span=1h count by host",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_9_h1": {
+      "type": "splunk.column",
+      "title": "Événements liés à la réplication dans le temps",
+      "dataSources": {
+        "primary": "ds_9_h1"
+      },
+      "options": {
+        "legendDisplay": "bottom",
+        "stackMode": "stacked"
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,1)` | timechart count by EventCode",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_10_h1": {
+      "type": "splunk.table",
+      "title": "Événements de réplication Directory Service / DFSR",
+      "dataSources": {
+        "primary": "ds_10_h1"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true,
+        "columnFormat": {
+          "Gravité": {
+            "rowBackgroundColors": "> table | seriesByName(\"Gravité\") | matchValue(col0ColorConfig)"
+          }
+        }
+      },
+      "context": {
+        "col0ColorConfig": [
+          {
+            "match": "critique",
+            "value": "#B0413E"
+          },
+          {
+            "match": "élevée",
+            "value": "#F1813F"
+          },
+          {
+            "match": "moyenne",
+            "value": "#F8BE34"
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,1)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description severity | eval dc=coalesce(Computer, ComputerName, host), message=substr(coalesce(Message, _raw),1,300) | sort - _time | table _time dc event_id severity description message | rename _time as \"Heure\", dc as \"DC\", event_id as \"ID événement\", severity as \"Gravité\", description as \"Description\", message as \"Message\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_11_h1": {
+      "type": "splunk.table",
+      "title": "Erreurs de réplication par DC et par événement",
+      "dataSources": {
+        "primary": "ds_11_h1"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,1)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description | eval dc=coalesce(Computer, ComputerName, host) | stats count, latest(_time) as last by dc event_id description | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table dc event_id description count last | rename dc as \"DC\", event_id as \"ID événement\", description as \"Description\", count as \"Nombre\", last as \"Dernière occurrence\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_12_h1": {
+      "type": "splunk.table",
+      "title": "Sécurité 4932/4933 : début/fin de synchronisation de réplica",
+      "dataSources": {
+        "primary": "ds_12_h1"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      },
+      "description": "Nécessite la stratégie d'audit « Audit Detailed Directory Service Replication » (événements Sécurité 4932/4933).",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` (EventCode=4932 OR EventCode=4933) `adx_head_filter(host,1)` | eval dc=coalesce(Computer, ComputerName, host), status_code=coalesce(Status_Code, StatusCode, Status), naming_context=coalesce(Naming_Context, NamingContext), source_dra=coalesce(Source_DRA, SourceDRA) | stats count, sum(eval(if(EventCode=4933 AND status_code!=\"0\",1,0))) as failed_syncs by dc naming_context | sort - failed_syncs | table dc naming_context count failed_syncs | rename dc as \"DC\", naming_context as \"Partition\", count as \"Nombre\", failed_syncs as \"Synchros en échec\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_13_h1": {
+      "type": "splunk.table",
+      "title": "Échecs Kerberos par décalage d'horloge (événement 4771, code 0x25) - synchronisation horaire",
+      "dataSources": {
+        "primary": "ds_13_h1"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      },
+      "description": "Clients dont l'horloge dérive de plus de 5 minutes par rapport au DC : effet typique d'une synchronisation horaire AD défaillante.",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` EventCode=4771 (Failure_Code=0x25 OR Result_Code=0x25) `adx_head_filter(host,1)` | eval client=coalesce(IpAddress, Client_Address, src_ip), user=coalesce(TargetUserName, Account_Name) | stats count, latest(_time) as last by client user | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table client user count last | rename client as \"Client\", user as \"Utilisateur\", count as \"Nombre\", last as \"Dernière occurrence\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_h2_banner": {
+      "type": "splunk.singlevalue",
+      "title": "Tête d'infra 2 - domaine / forêt AD",
+      "dataSources": {
+        "primary": "ds_h2_banner"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorFontSize": 28
+      }
+    },
+    "viz_1_h2": {
+      "type": "splunk.singlevalue",
+      "title": "DC qui remontent l'état de réplication",
+      "dataSources": {
+        "primary": "ds_1_h2"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_data` `adx_head_filter(host,2)`",
+            "earliest": "-30m",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_2_h2": {
+      "type": "splunk.singlevalue",
+      "title": "Liens de réplication en échec",
+      "dataSources": {
+        "primary": "ds_2_h2"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_links` `adx_head_filter(dc,2)` | where last_result!=\"0\" | table dc partner naming_context last_result last_success_epoch lag_min",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_3_h2": {
+      "type": "splunk.singlevalue",
+      "title": "Délai max depuis le dernier succès (min)",
+      "dataSources": {
+        "primary": "ds_3_h2"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 60
+          },
+          {
+            "value": "#FFC300",
+            "from": 60,
+            "to": 240
+          },
+          {
+            "value": "#B0413E",
+            "from": 240
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_links` `adx_head_filter(dc,2)` | table dc partner naming_context last_result last_success_epoch lag_min",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_4_h2": {
+      "type": "splunk.singlevalue",
+      "title": "Événements d'erreur de réplication",
+      "dataSources": {
+        "primary": "ds_4_h2"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#FFC300",
+            "from": 1,
+            "to": 10
+          },
+          {
+            "value": "#B0413E",
+            "from": 10
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,2)`",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_5_h2": {
+      "type": "splunk.singlevalue",
+      "title": "Événements critiques (objets lingering, tombstone, USN rollback)",
+      "dataSources": {
+        "primary": "ds_5_h2"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1388,1988,2042,2095,4012) `adx_head_filter(host,2)`",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_6_h2": {
+      "type": "splunk.singlevalue",
+      "title": "Minutes depuis le dernier événement de réplication",
+      "dataSources": {
+        "primary": "ds_6_h2"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 30
+          },
+          {
+            "value": "#B0413E",
+            "from": 30
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_data` `adx_head_filter(host,2)` | stats max(_time) as t | eval m=round((now()-t)/60,0) | fields m",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_7_h2": {
+      "type": "splunk.table",
+      "title": "Liens de réplication - état actuel",
+      "dataSources": {
+        "primary": "ds_7_h2"
+      },
+      "options": {
+        "count": 15,
+        "wrap": true,
+        "columnFormat": {
+          "Statut": {
+            "rowBackgroundColors": "> table | seriesByName(\"Statut\") | matchValue(col0ColorConfig)"
+          }
+        }
+      },
+      "description": "dc = DC qui reçoit les changements, partner = source de réplication (src_host). Source : MSAD:NT6:Replication (LastSuccessfulSync / LastAttemptedSync / Result ; Result 0 = succès). EN RETARD = aucune synchronisation réussie depuis plus de 4 heures.",
+      "context": {
+        "col0ColorConfig": [
+          {
+            "match": "OK",
+            "value": "#65A637"
+          },
+          {
+            "match": "EN RETARD",
+            "value": "#F8BE34"
+          },
+          {
+            "match": "EN ÉCHEC",
+            "value": "#B0413E"
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_links` `adx_head_filter(dc,2)` | eval last_success=strftime(last_success_epoch,\"%Y-%m-%d %H:%M\"), last_attempt=strftime(last_attempt_epoch,\"%Y-%m-%d %H:%M\"), status=case(last_result!=\"0\",\"EN ÉCHEC\", lag_min>240,\"EN RETARD\", true(),\"OK\") | sort - status, - lag_min | table dc partner naming_context transport status last_success last_attempt lag_min last_result | rename dc as \"DC\", partner as \"Partenaire\", naming_context as \"Partition\", transport as \"Transport\", status as \"Statut\", last_success as \"Dernier succès\", last_attempt as \"Dernière tentative\", lag_min as \"Retard (min)\", last_result as \"Dernier résultat\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_8_h2": {
+      "type": "splunk.column",
+      "title": "Événements de réplication en échec par DC",
+      "dataSources": {
+        "primary": "ds_8_h2"
+      },
+      "options": {
+        "legendDisplay": "bottom",
+        "stackMode": "stacked"
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_data` `adx_head_filter(host,2)` | where Result!=\"0\" | timechart span=1h count by host",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_9_h2": {
+      "type": "splunk.column",
+      "title": "Événements liés à la réplication dans le temps",
+      "dataSources": {
+        "primary": "ds_9_h2"
+      },
+      "options": {
+        "legendDisplay": "bottom",
+        "stackMode": "stacked"
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,2)` | timechart count by EventCode",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_10_h2": {
+      "type": "splunk.table",
+      "title": "Événements de réplication Directory Service / DFSR",
+      "dataSources": {
+        "primary": "ds_10_h2"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true,
+        "columnFormat": {
+          "Gravité": {
+            "rowBackgroundColors": "> table | seriesByName(\"Gravité\") | matchValue(col0ColorConfig)"
+          }
+        }
+      },
+      "context": {
+        "col0ColorConfig": [
+          {
+            "match": "critique",
+            "value": "#B0413E"
+          },
+          {
+            "match": "élevée",
+            "value": "#F1813F"
+          },
+          {
+            "match": "moyenne",
+            "value": "#F8BE34"
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,2)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description severity | eval dc=coalesce(Computer, ComputerName, host), message=substr(coalesce(Message, _raw),1,300) | sort - _time | table _time dc event_id severity description message | rename _time as \"Heure\", dc as \"DC\", event_id as \"ID événement\", severity as \"Gravité\", description as \"Description\", message as \"Message\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_11_h2": {
+      "type": "splunk.table",
+      "title": "Erreurs de réplication par DC et par événement",
+      "dataSources": {
+        "primary": "ds_11_h2"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,2)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description | eval dc=coalesce(Computer, ComputerName, host) | stats count, latest(_time) as last by dc event_id description | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table dc event_id description count last | rename dc as \"DC\", event_id as \"ID événement\", description as \"Description\", count as \"Nombre\", last as \"Dernière occurrence\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_12_h2": {
+      "type": "splunk.table",
+      "title": "Sécurité 4932/4933 : début/fin de synchronisation de réplica",
+      "dataSources": {
+        "primary": "ds_12_h2"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      },
+      "description": "Nécessite la stratégie d'audit « Audit Detailed Directory Service Replication » (événements Sécurité 4932/4933).",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` (EventCode=4932 OR EventCode=4933) `adx_head_filter(host,2)` | eval dc=coalesce(Computer, ComputerName, host), status_code=coalesce(Status_Code, StatusCode, Status), naming_context=coalesce(Naming_Context, NamingContext), source_dra=coalesce(Source_DRA, SourceDRA) | stats count, sum(eval(if(EventCode=4933 AND status_code!=\"0\",1,0))) as failed_syncs by dc naming_context | sort - failed_syncs | table dc naming_context count failed_syncs | rename dc as \"DC\", naming_context as \"Partition\", count as \"Nombre\", failed_syncs as \"Synchros en échec\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_13_h2": {
+      "type": "splunk.table",
+      "title": "Échecs Kerberos par décalage d'horloge (événement 4771, code 0x25) - synchronisation horaire",
+      "dataSources": {
+        "primary": "ds_13_h2"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      },
+      "description": "Clients dont l'horloge dérive de plus de 5 minutes par rapport au DC : effet typique d'une synchronisation horaire AD défaillante.",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` EventCode=4771 (Failure_Code=0x25 OR Result_Code=0x25) `adx_head_filter(host,2)` | eval client=coalesce(IpAddress, Client_Address, src_ip), user=coalesce(TargetUserName, Account_Name) | stats count, latest(_time) as last by client user | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table client user count last | rename client as \"Client\", user as \"Utilisateur\", count as \"Nombre\", last as \"Dernière occurrence\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_h3_banner": {
+      "type": "splunk.singlevalue",
+      "title": "Tête d'infra 3 - domaine / forêt AD",
+      "dataSources": {
+        "primary": "ds_h3_banner"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorFontSize": 28
+      }
+    },
+    "viz_1_h3": {
+      "type": "splunk.singlevalue",
+      "title": "DC qui remontent l'état de réplication",
+      "dataSources": {
+        "primary": "ds_1_h3"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_data` `adx_head_filter(host,3)`",
+            "earliest": "-30m",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_2_h3": {
+      "type": "splunk.singlevalue",
+      "title": "Liens de réplication en échec",
+      "dataSources": {
+        "primary": "ds_2_h3"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_links` `adx_head_filter(dc,3)` | where last_result!=\"0\" | table dc partner naming_context last_result last_success_epoch lag_min",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_3_h3": {
+      "type": "splunk.singlevalue",
+      "title": "Délai max depuis le dernier succès (min)",
+      "dataSources": {
+        "primary": "ds_3_h3"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 60
+          },
+          {
+            "value": "#FFC300",
+            "from": 60,
+            "to": 240
+          },
+          {
+            "value": "#B0413E",
+            "from": 240
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_links` `adx_head_filter(dc,3)` | table dc partner naming_context last_result last_success_epoch lag_min",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_4_h3": {
+      "type": "splunk.singlevalue",
+      "title": "Événements d'erreur de réplication",
+      "dataSources": {
+        "primary": "ds_4_h3"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#FFC300",
+            "from": 1,
+            "to": 10
+          },
+          {
+            "value": "#B0413E",
+            "from": 10
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,3)`",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_5_h3": {
+      "type": "splunk.singlevalue",
+      "title": "Événements critiques (objets lingering, tombstone, USN rollback)",
+      "dataSources": {
+        "primary": "ds_5_h3"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1388,1988,2042,2095,4012) `adx_head_filter(host,3)`",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_6_h3": {
+      "type": "splunk.singlevalue",
+      "title": "Minutes depuis le dernier événement de réplication",
+      "dataSources": {
+        "primary": "ds_6_h3"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 30
+          },
+          {
+            "value": "#B0413E",
+            "from": 30
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_data` `adx_head_filter(host,3)` | stats max(_time) as t | eval m=round((now()-t)/60,0) | fields m",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_7_h3": {
+      "type": "splunk.table",
+      "title": "Liens de réplication - état actuel",
+      "dataSources": {
+        "primary": "ds_7_h3"
+      },
+      "options": {
+        "count": 15,
+        "wrap": true,
+        "columnFormat": {
+          "Statut": {
+            "rowBackgroundColors": "> table | seriesByName(\"Statut\") | matchValue(col0ColorConfig)"
+          }
+        }
+      },
+      "description": "dc = DC qui reçoit les changements, partner = source de réplication (src_host). Source : MSAD:NT6:Replication (LastSuccessfulSync / LastAttemptedSync / Result ; Result 0 = succès). EN RETARD = aucune synchronisation réussie depuis plus de 4 heures.",
+      "context": {
+        "col0ColorConfig": [
+          {
+            "match": "OK",
+            "value": "#65A637"
+          },
+          {
+            "match": "EN RETARD",
+            "value": "#F8BE34"
+          },
+          {
+            "match": "EN ÉCHEC",
+            "value": "#B0413E"
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_links` `adx_head_filter(dc,3)` | eval last_success=strftime(last_success_epoch,\"%Y-%m-%d %H:%M\"), last_attempt=strftime(last_attempt_epoch,\"%Y-%m-%d %H:%M\"), status=case(last_result!=\"0\",\"EN ÉCHEC\", lag_min>240,\"EN RETARD\", true(),\"OK\") | sort - status, - lag_min | table dc partner naming_context transport status last_success last_attempt lag_min last_result | rename dc as \"DC\", partner as \"Partenaire\", naming_context as \"Partition\", transport as \"Transport\", status as \"Statut\", last_success as \"Dernier succès\", last_attempt as \"Dernière tentative\", lag_min as \"Retard (min)\", last_result as \"Dernier résultat\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_8_h3": {
+      "type": "splunk.column",
+      "title": "Événements de réplication en échec par DC",
+      "dataSources": {
+        "primary": "ds_8_h3"
+      },
+      "options": {
+        "legendDisplay": "bottom",
+        "stackMode": "stacked"
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_data` `adx_head_filter(host,3)` | where Result!=\"0\" | timechart span=1h count by host",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_9_h3": {
+      "type": "splunk.column",
+      "title": "Événements liés à la réplication dans le temps",
+      "dataSources": {
+        "primary": "ds_9_h3"
+      },
+      "options": {
+        "legendDisplay": "bottom",
+        "stackMode": "stacked"
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,3)` | timechart count by EventCode",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_10_h3": {
+      "type": "splunk.table",
+      "title": "Événements de réplication Directory Service / DFSR",
+      "dataSources": {
+        "primary": "ds_10_h3"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true,
+        "columnFormat": {
+          "Gravité": {
+            "rowBackgroundColors": "> table | seriesByName(\"Gravité\") | matchValue(col0ColorConfig)"
+          }
+        }
+      },
+      "context": {
+        "col0ColorConfig": [
+          {
+            "match": "critique",
+            "value": "#B0413E"
+          },
+          {
+            "match": "élevée",
+            "value": "#F1813F"
+          },
+          {
+            "match": "moyenne",
+            "value": "#F8BE34"
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,3)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description severity | eval dc=coalesce(Computer, ComputerName, host), message=substr(coalesce(Message, _raw),1,300) | sort - _time | table _time dc event_id severity description message | rename _time as \"Heure\", dc as \"DC\", event_id as \"ID événement\", severity as \"Gravité\", description as \"Description\", message as \"Message\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_11_h3": {
+      "type": "splunk.table",
+      "title": "Erreurs de réplication par DC et par événement",
+      "dataSources": {
+        "primary": "ds_11_h3"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,3)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description | eval dc=coalesce(Computer, ComputerName, host) | stats count, latest(_time) as last by dc event_id description | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table dc event_id description count last | rename dc as \"DC\", event_id as \"ID événement\", description as \"Description\", count as \"Nombre\", last as \"Dernière occurrence\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_12_h3": {
+      "type": "splunk.table",
+      "title": "Sécurité 4932/4933 : début/fin de synchronisation de réplica",
+      "dataSources": {
+        "primary": "ds_12_h3"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      },
+      "description": "Nécessite la stratégie d'audit « Audit Detailed Directory Service Replication » (événements Sécurité 4932/4933).",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` (EventCode=4932 OR EventCode=4933) `adx_head_filter(host,3)` | eval dc=coalesce(Computer, ComputerName, host), status_code=coalesce(Status_Code, StatusCode, Status), naming_context=coalesce(Naming_Context, NamingContext), source_dra=coalesce(Source_DRA, SourceDRA) | stats count, sum(eval(if(EventCode=4933 AND status_code!=\"0\",1,0))) as failed_syncs by dc naming_context | sort - failed_syncs | table dc naming_context count failed_syncs | rename dc as \"DC\", naming_context as \"Partition\", count as \"Nombre\", failed_syncs as \"Synchros en échec\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_13_h3": {
+      "type": "splunk.table",
+      "title": "Échecs Kerberos par décalage d'horloge (événement 4771, code 0x25) - synchronisation horaire",
+      "dataSources": {
+        "primary": "ds_13_h3"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      },
+      "description": "Clients dont l'horloge dérive de plus de 5 minutes par rapport au DC : effet typique d'une synchronisation horaire AD défaillante.",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` EventCode=4771 (Failure_Code=0x25 OR Result_Code=0x25) `adx_head_filter(host,3)` | eval client=coalesce(IpAddress, Client_Address, src_ip), user=coalesce(TargetUserName, Account_Name) | stats count, latest(_time) as last by client user | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table client user count last | rename client as \"Client\", user as \"Utilisateur\", count as \"Nombre\", last as \"Dernière occurrence\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_h4_banner": {
+      "type": "splunk.singlevalue",
+      "title": "Tête d'infra 4 - domaine / forêt AD",
+      "dataSources": {
+        "primary": "ds_h4_banner"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorFontSize": 28
+      }
+    },
+    "viz_1_h4": {
+      "type": "splunk.singlevalue",
+      "title": "DC qui remontent l'état de réplication",
+      "dataSources": {
+        "primary": "ds_1_h4"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_data` `adx_head_filter(host,4)`",
+            "earliest": "-30m",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_2_h4": {
+      "type": "splunk.singlevalue",
+      "title": "Liens de réplication en échec",
+      "dataSources": {
+        "primary": "ds_2_h4"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_links` `adx_head_filter(dc,4)` | where last_result!=\"0\" | table dc partner naming_context last_result last_success_epoch lag_min",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_3_h4": {
+      "type": "splunk.singlevalue",
+      "title": "Délai max depuis le dernier succès (min)",
+      "dataSources": {
+        "primary": "ds_3_h4"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 60
+          },
+          {
+            "value": "#FFC300",
+            "from": 60,
+            "to": 240
+          },
+          {
+            "value": "#B0413E",
+            "from": 240
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_links` `adx_head_filter(dc,4)` | table dc partner naming_context last_result last_success_epoch lag_min",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_4_h4": {
+      "type": "splunk.singlevalue",
+      "title": "Événements d'erreur de réplication",
+      "dataSources": {
+        "primary": "ds_4_h4"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#FFC300",
+            "from": 1,
+            "to": 10
+          },
+          {
+            "value": "#B0413E",
+            "from": 10
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,4)`",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_5_h4": {
+      "type": "splunk.singlevalue",
+      "title": "Événements critiques (objets lingering, tombstone, USN rollback)",
+      "dataSources": {
+        "primary": "ds_5_h4"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1388,1988,2042,2095,4012) `adx_head_filter(host,4)`",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_6_h4": {
+      "type": "splunk.singlevalue",
+      "title": "Minutes depuis le dernier événement de réplication",
+      "dataSources": {
+        "primary": "ds_6_h4"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 30
+          },
+          {
+            "value": "#B0413E",
+            "from": 30
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_data` `adx_head_filter(host,4)` | stats max(_time) as t | eval m=round((now()-t)/60,0) | fields m",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_7_h4": {
+      "type": "splunk.table",
+      "title": "Liens de réplication - état actuel",
+      "dataSources": {
+        "primary": "ds_7_h4"
+      },
+      "options": {
+        "count": 15,
+        "wrap": true,
+        "columnFormat": {
+          "Statut": {
+            "rowBackgroundColors": "> table | seriesByName(\"Statut\") | matchValue(col0ColorConfig)"
+          }
+        }
+      },
+      "description": "dc = DC qui reçoit les changements, partner = source de réplication (src_host). Source : MSAD:NT6:Replication (LastSuccessfulSync / LastAttemptedSync / Result ; Result 0 = succès). EN RETARD = aucune synchronisation réussie depuis plus de 4 heures.",
+      "context": {
+        "col0ColorConfig": [
+          {
+            "match": "OK",
+            "value": "#65A637"
+          },
+          {
+            "match": "EN RETARD",
+            "value": "#F8BE34"
+          },
+          {
+            "match": "EN ÉCHEC",
+            "value": "#B0413E"
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_links` `adx_head_filter(dc,4)` | eval last_success=strftime(last_success_epoch,\"%Y-%m-%d %H:%M\"), last_attempt=strftime(last_attempt_epoch,\"%Y-%m-%d %H:%M\"), status=case(last_result!=\"0\",\"EN ÉCHEC\", lag_min>240,\"EN RETARD\", true(),\"OK\") | sort - status, - lag_min | table dc partner naming_context transport status last_success last_attempt lag_min last_result | rename dc as \"DC\", partner as \"Partenaire\", naming_context as \"Partition\", transport as \"Transport\", status as \"Statut\", last_success as \"Dernier succès\", last_attempt as \"Dernière tentative\", lag_min as \"Retard (min)\", last_result as \"Dernier résultat\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_8_h4": {
+      "type": "splunk.column",
+      "title": "Événements de réplication en échec par DC",
+      "dataSources": {
+        "primary": "ds_8_h4"
+      },
+      "options": {
+        "legendDisplay": "bottom",
+        "stackMode": "stacked"
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_data` `adx_head_filter(host,4)` | where Result!=\"0\" | timechart span=1h count by host",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_9_h4": {
+      "type": "splunk.column",
+      "title": "Événements liés à la réplication dans le temps",
+      "dataSources": {
+        "primary": "ds_9_h4"
+      },
+      "options": {
+        "legendDisplay": "bottom",
+        "stackMode": "stacked"
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,4)` | timechart count by EventCode",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_10_h4": {
+      "type": "splunk.table",
+      "title": "Événements de réplication Directory Service / DFSR",
+      "dataSources": {
+        "primary": "ds_10_h4"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true,
+        "columnFormat": {
+          "Gravité": {
+            "rowBackgroundColors": "> table | seriesByName(\"Gravité\") | matchValue(col0ColorConfig)"
+          }
+        }
+      },
+      "context": {
+        "col0ColorConfig": [
+          {
+            "match": "critique",
+            "value": "#B0413E"
+          },
+          {
+            "match": "élevée",
+            "value": "#F1813F"
+          },
+          {
+            "match": "moyenne",
+            "value": "#F8BE34"
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,4)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description severity | eval dc=coalesce(Computer, ComputerName, host), message=substr(coalesce(Message, _raw),1,300) | sort - _time | table _time dc event_id severity description message | rename _time as \"Heure\", dc as \"DC\", event_id as \"ID événement\", severity as \"Gravité\", description as \"Description\", message as \"Message\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_11_h4": {
+      "type": "splunk.table",
+      "title": "Erreurs de réplication par DC et par événement",
+      "dataSources": {
+        "primary": "ds_11_h4"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,4)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description | eval dc=coalesce(Computer, ComputerName, host) | stats count, latest(_time) as last by dc event_id description | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table dc event_id description count last | rename dc as \"DC\", event_id as \"ID événement\", description as \"Description\", count as \"Nombre\", last as \"Dernière occurrence\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_12_h4": {
+      "type": "splunk.table",
+      "title": "Sécurité 4932/4933 : début/fin de synchronisation de réplica",
+      "dataSources": {
+        "primary": "ds_12_h4"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      },
+      "description": "Nécessite la stratégie d'audit « Audit Detailed Directory Service Replication » (événements Sécurité 4932/4933).",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` (EventCode=4932 OR EventCode=4933) `adx_head_filter(host,4)` | eval dc=coalesce(Computer, ComputerName, host), status_code=coalesce(Status_Code, StatusCode, Status), naming_context=coalesce(Naming_Context, NamingContext), source_dra=coalesce(Source_DRA, SourceDRA) | stats count, sum(eval(if(EventCode=4933 AND status_code!=\"0\",1,0))) as failed_syncs by dc naming_context | sort - failed_syncs | table dc naming_context count failed_syncs | rename dc as \"DC\", naming_context as \"Partition\", count as \"Nombre\", failed_syncs as \"Synchros en échec\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_13_h4": {
+      "type": "splunk.table",
+      "title": "Échecs Kerberos par décalage d'horloge (événement 4771, code 0x25) - synchronisation horaire",
+      "dataSources": {
+        "primary": "ds_13_h4"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      },
+      "description": "Clients dont l'horloge dérive de plus de 5 minutes par rapport au DC : effet typique d'une synchronisation horaire AD défaillante.",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` EventCode=4771 (Failure_Code=0x25 OR Result_Code=0x25) `adx_head_filter(host,4)` | eval client=coalesce(IpAddress, Client_Address, src_ip), user=coalesce(TargetUserName, Account_Name) | stats count, latest(_time) as last by client user | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table client user count last | rename client as \"Client\", user as \"Utilisateur\", count as \"Nombre\", last as \"Dernière occurrence\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_h5_banner": {
+      "type": "splunk.singlevalue",
+      "title": "Tête d'infra 5 - domaine / forêt AD",
+      "dataSources": {
+        "primary": "ds_h5_banner"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorFontSize": 28
+      }
+    },
+    "viz_1_h5": {
+      "type": "splunk.singlevalue",
+      "title": "DC qui remontent l'état de réplication",
+      "dataSources": {
+        "primary": "ds_1_h5"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_data` `adx_head_filter(host,5)`",
+            "earliest": "-30m",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_2_h5": {
+      "type": "splunk.singlevalue",
+      "title": "Liens de réplication en échec",
+      "dataSources": {
+        "primary": "ds_2_h5"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_links` `adx_head_filter(dc,5)` | where last_result!=\"0\" | table dc partner naming_context last_result last_success_epoch lag_min",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_3_h5": {
+      "type": "splunk.singlevalue",
+      "title": "Délai max depuis le dernier succès (min)",
+      "dataSources": {
+        "primary": "ds_3_h5"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 60
+          },
+          {
+            "value": "#FFC300",
+            "from": 60,
+            "to": 240
+          },
+          {
+            "value": "#B0413E",
+            "from": 240
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_links` `adx_head_filter(dc,5)` | table dc partner naming_context last_result last_success_epoch lag_min",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_4_h5": {
+      "type": "splunk.singlevalue",
+      "title": "Événements d'erreur de réplication",
+      "dataSources": {
+        "primary": "ds_4_h5"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#FFC300",
+            "from": 1,
+            "to": 10
+          },
+          {
+            "value": "#B0413E",
+            "from": 10
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,5)`",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_5_h5": {
+      "type": "splunk.singlevalue",
+      "title": "Événements critiques (objets lingering, tombstone, USN rollback)",
+      "dataSources": {
+        "primary": "ds_5_h5"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1388,1988,2042,2095,4012) `adx_head_filter(host,5)`",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_6_h5": {
+      "type": "splunk.singlevalue",
+      "title": "Minutes depuis le dernier événement de réplication",
+      "dataSources": {
+        "primary": "ds_6_h5"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 30
+          },
+          {
+            "value": "#B0413E",
+            "from": 30
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_data` `adx_head_filter(host,5)` | stats max(_time) as t | eval m=round((now()-t)/60,0) | fields m",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_7_h5": {
+      "type": "splunk.table",
+      "title": "Liens de réplication - état actuel",
+      "dataSources": {
+        "primary": "ds_7_h5"
+      },
+      "options": {
+        "count": 15,
+        "wrap": true,
+        "columnFormat": {
+          "Statut": {
+            "rowBackgroundColors": "> table | seriesByName(\"Statut\") | matchValue(col0ColorConfig)"
+          }
+        }
+      },
+      "description": "dc = DC qui reçoit les changements, partner = source de réplication (src_host). Source : MSAD:NT6:Replication (LastSuccessfulSync / LastAttemptedSync / Result ; Result 0 = succès). EN RETARD = aucune synchronisation réussie depuis plus de 4 heures.",
+      "context": {
+        "col0ColorConfig": [
+          {
+            "match": "OK",
+            "value": "#65A637"
+          },
+          {
+            "match": "EN RETARD",
+            "value": "#F8BE34"
+          },
+          {
+            "match": "EN ÉCHEC",
+            "value": "#B0413E"
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_links` `adx_head_filter(dc,5)` | eval last_success=strftime(last_success_epoch,\"%Y-%m-%d %H:%M\"), last_attempt=strftime(last_attempt_epoch,\"%Y-%m-%d %H:%M\"), status=case(last_result!=\"0\",\"EN ÉCHEC\", lag_min>240,\"EN RETARD\", true(),\"OK\") | sort - status, - lag_min | table dc partner naming_context transport status last_success last_attempt lag_min last_result | rename dc as \"DC\", partner as \"Partenaire\", naming_context as \"Partition\", transport as \"Transport\", status as \"Statut\", last_success as \"Dernier succès\", last_attempt as \"Dernière tentative\", lag_min as \"Retard (min)\", last_result as \"Dernier résultat\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_8_h5": {
+      "type": "splunk.column",
+      "title": "Événements de réplication en échec par DC",
+      "dataSources": {
+        "primary": "ds_8_h5"
+      },
+      "options": {
+        "legendDisplay": "bottom",
+        "stackMode": "stacked"
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_data` `adx_head_filter(host,5)` | where Result!=\"0\" | timechart span=1h count by host",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_9_h5": {
+      "type": "splunk.column",
+      "title": "Événements liés à la réplication dans le temps",
+      "dataSources": {
+        "primary": "ds_9_h5"
+      },
+      "options": {
+        "legendDisplay": "bottom",
+        "stackMode": "stacked"
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,5)` | timechart count by EventCode",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_10_h5": {
+      "type": "splunk.table",
+      "title": "Événements de réplication Directory Service / DFSR",
+      "dataSources": {
+        "primary": "ds_10_h5"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true,
+        "columnFormat": {
+          "Gravité": {
+            "rowBackgroundColors": "> table | seriesByName(\"Gravité\") | matchValue(col0ColorConfig)"
+          }
+        }
+      },
+      "context": {
+        "col0ColorConfig": [
+          {
+            "match": "critique",
+            "value": "#B0413E"
+          },
+          {
+            "match": "élevée",
+            "value": "#F1813F"
+          },
+          {
+            "match": "moyenne",
+            "value": "#F8BE34"
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,5)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description severity | eval dc=coalesce(Computer, ComputerName, host), message=substr(coalesce(Message, _raw),1,300) | sort - _time | table _time dc event_id severity description message | rename _time as \"Heure\", dc as \"DC\", event_id as \"ID événement\", severity as \"Gravité\", description as \"Description\", message as \"Message\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_11_h5": {
+      "type": "splunk.table",
+      "title": "Erreurs de réplication par DC et par événement",
+      "dataSources": {
+        "primary": "ds_11_h5"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,5)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description | eval dc=coalesce(Computer, ComputerName, host) | stats count, latest(_time) as last by dc event_id description | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table dc event_id description count last | rename dc as \"DC\", event_id as \"ID événement\", description as \"Description\", count as \"Nombre\", last as \"Dernière occurrence\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_12_h5": {
+      "type": "splunk.table",
+      "title": "Sécurité 4932/4933 : début/fin de synchronisation de réplica",
+      "dataSources": {
+        "primary": "ds_12_h5"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      },
+      "description": "Nécessite la stratégie d'audit « Audit Detailed Directory Service Replication » (événements Sécurité 4932/4933).",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` (EventCode=4932 OR EventCode=4933) `adx_head_filter(host,5)` | eval dc=coalesce(Computer, ComputerName, host), status_code=coalesce(Status_Code, StatusCode, Status), naming_context=coalesce(Naming_Context, NamingContext), source_dra=coalesce(Source_DRA, SourceDRA) | stats count, sum(eval(if(EventCode=4933 AND status_code!=\"0\",1,0))) as failed_syncs by dc naming_context | sort - failed_syncs | table dc naming_context count failed_syncs | rename dc as \"DC\", naming_context as \"Partition\", count as \"Nombre\", failed_syncs as \"Synchros en échec\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_13_h5": {
+      "type": "splunk.table",
+      "title": "Échecs Kerberos par décalage d'horloge (événement 4771, code 0x25) - synchronisation horaire",
+      "dataSources": {
+        "primary": "ds_13_h5"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      },
+      "description": "Clients dont l'horloge dérive de plus de 5 minutes par rapport au DC : effet typique d'une synchronisation horaire AD défaillante.",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` EventCode=4771 (Failure_Code=0x25 OR Result_Code=0x25) `adx_head_filter(host,5)` | eval client=coalesce(IpAddress, Client_Address, src_ip), user=coalesce(TargetUserName, Account_Name) | stats count, latest(_time) as last by client user | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table client user count last | rename client as \"Client\", user as \"Utilisateur\", count as \"Nombre\", last as \"Dernière occurrence\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_h6_banner": {
+      "type": "splunk.singlevalue",
+      "title": "Tête d'infra 6 - domaine / forêt AD",
+      "dataSources": {
+        "primary": "ds_h6_banner"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorFontSize": 28
+      }
+    },
+    "viz_1_h6": {
+      "type": "splunk.singlevalue",
+      "title": "DC qui remontent l'état de réplication",
+      "dataSources": {
+        "primary": "ds_1_h6"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off"
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_data` `adx_head_filter(host,6)`",
+            "earliest": "-30m",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_2_h6": {
+      "type": "splunk.singlevalue",
+      "title": "Liens de réplication en échec",
+      "dataSources": {
+        "primary": "ds_2_h6"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_links` `adx_head_filter(dc,6)` | where last_result!=\"0\" | table dc partner naming_context last_result last_success_epoch lag_min",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_3_h6": {
+      "type": "splunk.singlevalue",
+      "title": "Délai max depuis le dernier succès (min)",
+      "dataSources": {
+        "primary": "ds_3_h6"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 60
+          },
+          {
+            "value": "#FFC300",
+            "from": 60,
+            "to": 240
+          },
+          {
+            "value": "#B0413E",
+            "from": 240
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_links` `adx_head_filter(dc,6)` | table dc partner naming_context last_result last_success_epoch lag_min",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_4_h6": {
+      "type": "splunk.singlevalue",
+      "title": "Événements d'erreur de réplication",
+      "dataSources": {
+        "primary": "ds_4_h6"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#FFC300",
+            "from": 1,
+            "to": 10
+          },
+          {
+            "value": "#B0413E",
+            "from": 10
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,6)`",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_5_h6": {
+      "type": "splunk.singlevalue",
+      "title": "Événements critiques (objets lingering, tombstone, USN rollback)",
+      "dataSources": {
+        "primary": "ds_5_h6"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 1
+          },
+          {
+            "value": "#B0413E",
+            "from": 1
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1388,1988,2042,2095,4012) `adx_head_filter(host,6)`",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_6_h6": {
+      "type": "splunk.singlevalue",
+      "title": "Minutes depuis le dernier événement de réplication",
+      "dataSources": {
+        "primary": "ds_6_h6"
+      },
+      "options": {
+        "sparklineDisplay": "off",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(majorColorEditorConfig)"
+      },
+      "context": {
+        "majorColorEditorConfig": [
+          {
+            "value": "#65A637",
+            "to": 30
+          },
+          {
+            "value": "#B0413E",
+            "from": 30
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_data` `adx_head_filter(host,6)` | stats max(_time) as t | eval m=round((now()-t)/60,0) | fields m",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_7_h6": {
+      "type": "splunk.table",
+      "title": "Liens de réplication - état actuel",
+      "dataSources": {
+        "primary": "ds_7_h6"
+      },
+      "options": {
+        "count": 15,
+        "wrap": true,
+        "columnFormat": {
+          "Statut": {
+            "rowBackgroundColors": "> table | seriesByName(\"Statut\") | matchValue(col0ColorConfig)"
+          }
+        }
+      },
+      "description": "dc = DC qui reçoit les changements, partner = source de réplication (src_host). Source : MSAD:NT6:Replication (LastSuccessfulSync / LastAttemptedSync / Result ; Result 0 = succès). EN RETARD = aucune synchronisation réussie depuis plus de 4 heures.",
+      "context": {
+        "col0ColorConfig": [
+          {
+            "match": "OK",
+            "value": "#65A637"
+          },
+          {
+            "match": "EN RETARD",
+            "value": "#F8BE34"
+          },
+          {
+            "match": "EN ÉCHEC",
+            "value": "#B0413E"
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_links` `adx_head_filter(dc,6)` | eval last_success=strftime(last_success_epoch,\"%Y-%m-%d %H:%M\"), last_attempt=strftime(last_attempt_epoch,\"%Y-%m-%d %H:%M\"), status=case(last_result!=\"0\",\"EN ÉCHEC\", lag_min>240,\"EN RETARD\", true(),\"OK\") | sort - status, - lag_min | table dc partner naming_context transport status last_success last_attempt lag_min last_result | rename dc as \"DC\", partner as \"Partenaire\", naming_context as \"Partition\", transport as \"Transport\", status as \"Statut\", last_success as \"Dernier succès\", last_attempt as \"Dernière tentative\", lag_min as \"Retard (min)\", last_result as \"Dernier résultat\"",
+            "earliest": "-24h",
+            "latest": "now",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_8_h6": {
+      "type": "splunk.column",
+      "title": "Événements de réplication en échec par DC",
+      "dataSources": {
+        "primary": "ds_8_h6"
+      },
+      "options": {
+        "legendDisplay": "bottom",
+        "stackMode": "stacked"
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_repl_data` `adx_head_filter(host,6)` | where Result!=\"0\" | timechart span=1h count by host",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_9_h6": {
+      "type": "splunk.column",
+      "title": "Événements liés à la réplication dans le temps",
+      "dataSources": {
+        "primary": "ds_9_h6"
+      },
+      "options": {
+        "legendDisplay": "bottom",
+        "stackMode": "stacked"
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,6)` | timechart count by EventCode",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_10_h6": {
+      "type": "splunk.table",
+      "title": "Événements de réplication Directory Service / DFSR",
+      "dataSources": {
+        "primary": "ds_10_h6"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true,
+        "columnFormat": {
+          "Gravité": {
+            "rowBackgroundColors": "> table | seriesByName(\"Gravité\") | matchValue(col0ColorConfig)"
+          }
+        }
+      },
+      "context": {
+        "col0ColorConfig": [
+          {
+            "match": "critique",
+            "value": "#B0413E"
+          },
+          {
+            "match": "élevée",
+            "value": "#F1813F"
+          },
+          {
+            "match": "moyenne",
+            "value": "#F8BE34"
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,6)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description severity | eval dc=coalesce(Computer, ComputerName, host), message=substr(coalesce(Message, _raw),1,300) | sort - _time | table _time dc event_id severity description message | rename _time as \"Heure\", dc as \"DC\", event_id as \"ID événement\", severity as \"Gravité\", description as \"Description\", message as \"Message\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_11_h6": {
+      "type": "splunk.table",
+      "title": "Erreurs de réplication par DC et par événement",
+      "dataSources": {
+        "primary": "ds_11_h6"
+      },
+      "options": {
+        "count": 10,
+        "wrap": true
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,6)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description | eval dc=coalesce(Computer, ComputerName, host) | stats count, latest(_time) as last by dc event_id description | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table dc event_id description count last | rename dc as \"DC\", event_id as \"ID événement\", description as \"Description\", count as \"Nombre\", last as \"Dernière occurrence\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_12_h6": {
+      "type": "splunk.table",
+      "title": "Sécurité 4932/4933 : début/fin de synchronisation de réplica",
+      "dataSources": {
+        "primary": "ds_12_h6"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      },
+      "description": "Nécessite la stratégie d'audit « Audit Detailed Directory Service Replication » (événements Sécurité 4932/4933).",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` (EventCode=4932 OR EventCode=4933) `adx_head_filter(host,6)` | eval dc=coalesce(Computer, ComputerName, host), status_code=coalesce(Status_Code, StatusCode, Status), naming_context=coalesce(Naming_Context, NamingContext), source_dra=coalesce(Source_DRA, SourceDRA) | stats count, sum(eval(if(EventCode=4933 AND status_code!=\"0\",1,0))) as failed_syncs by dc naming_context | sort - failed_syncs | table dc naming_context count failed_syncs | rename dc as \"DC\", naming_context as \"Partition\", count as \"Nombre\", failed_syncs as \"Synchros en échec\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
+    },
+    "viz_13_h6": {
+      "type": "splunk.table",
+      "title": "Échecs Kerberos par décalage d'horloge (événement 4771, code 0x25) - synchronisation horaire",
+      "dataSources": {
+        "primary": "ds_13_h6"
+      },
+      "options": {
+        "count": 8,
+        "wrap": true
+      },
+      "description": "Clients dont l'horloge dérive de plus de 5 minutes par rapport au DC : effet typique d'une synchronisation horaire AD défaillante.",
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToSearch",
+          "options": {
+            "query": "`adx_security_events` EventCode=4771 (Failure_Code=0x25 OR Result_Code=0x25) `adx_head_filter(host,6)` | eval client=coalesce(IpAddress, Client_Address, src_ip), user=coalesce(TargetUserName, Account_Name) | stats count, latest(_time) as last by client user | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table client user count last | rename client as \"Client\", user as \"Utilisateur\", count as \"Nombre\", last as \"Dernière occurrence\"",
+            "earliest": "$global_time.earliest$",
+            "latest": "$global_time.latest$",
+            "type": "custom",
+            "newTab": true
+          }
+        }
+      ]
     }
   },
   "dataSources": {
-    "ds_1": {
+    "ds_general_sum": {
+      "type": "ds.search",
+      "name": "Synthèse par tête",
+      "options": {
+        "query": "`adx_repl_links` `adx_head_tag(dc)` | stats dc(dc) as dcs, count as liens, sum(eval(if(last_result!=\"0\",1,0))) as en_echec, max(lag_min) as retard_max by head_id head_label domain | sort 0 head_id | rename head_id as \"Onglet\", head_label as \"Tête d'infra\", domain as \"Domaine\", dcs as \"DC\", liens as \"Liens de réplication\", en_echec as \"Liens en échec\", retard_max as \"Retard max (min)\"",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_general_map": {
+      "type": "ds.search",
+      "name": "Correspondance onglets",
+      "options": {
+        "query": "`adx_dc_head` | stats values(host) as dcs by head_id head_label domain | sort 0 head_id | eval dcs=mvjoin(dcs,\", \") | rename head_id as \"Onglet\", head_label as \"Tête d'infra\", domain as \"Domaine\", dcs as \"Contrôleurs de domaine\"",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_1_general": {
       "type": "ds.search",
       "name": "DC qui remontent l'état de réplication",
       "options": {
@@ -449,7 +3080,7 @@
         }
       }
     },
-    "ds_2": {
+    "ds_2_general": {
       "type": "ds.search",
       "name": "Liens de réplication en échec",
       "options": {
@@ -460,7 +3091,7 @@
         }
       }
     },
-    "ds_3": {
+    "ds_3_general": {
       "type": "ds.search",
       "name": "Délai max depuis le dernier succès (min)",
       "options": {
@@ -471,7 +3102,7 @@
         }
       }
     },
-    "ds_4": {
+    "ds_4_general": {
       "type": "ds.search",
       "name": "Événements d'erreur de réplication",
       "options": {
@@ -482,7 +3113,7 @@
         }
       }
     },
-    "ds_5": {
+    "ds_5_general": {
       "type": "ds.search",
       "name": "Événements critiques (objets lingering, tombstone, USN rollback)",
       "options": {
@@ -493,7 +3124,7 @@
         }
       }
     },
-    "ds_6": {
+    "ds_6_general": {
       "type": "ds.search",
       "name": "Minutes depuis le dernier événement de réplication",
       "options": {
@@ -504,7 +3135,7 @@
         }
       }
     },
-    "ds_7": {
+    "ds_7_general": {
       "type": "ds.search",
       "name": "Liens de réplication - état actuel",
       "options": {
@@ -515,7 +3146,7 @@
         }
       }
     },
-    "ds_8": {
+    "ds_8_general": {
       "type": "ds.search",
       "name": "Événements de réplication en échec par DC",
       "options": {
@@ -526,7 +3157,7 @@
         }
       }
     },
-    "ds_9": {
+    "ds_9_general": {
       "type": "ds.search",
       "name": "Événements liés à la réplication dans le temps",
       "options": {
@@ -537,7 +3168,7 @@
         }
       }
     },
-    "ds_10": {
+    "ds_10_general": {
       "type": "ds.search",
       "name": "Événements de réplication Directory Service / DFSR",
       "options": {
@@ -548,7 +3179,7 @@
         }
       }
     },
-    "ds_11": {
+    "ds_11_general": {
       "type": "ds.search",
       "name": "Erreurs de réplication par DC et par événement",
       "options": {
@@ -559,7 +3190,7 @@
         }
       }
     },
-    "ds_12": {
+    "ds_12_general": {
       "type": "ds.search",
       "name": "Sécurité 4932/4933 : début/fin de synchronisation de réplica",
       "options": {
@@ -570,7 +3201,7 @@
         }
       }
     },
-    "ds_13": {
+    "ds_13_general": {
       "type": "ds.search",
       "name": "Échecs Kerberos par décalage d'horloge (événement 4771, code 0x25) - synchronisation horaire",
       "options": {
@@ -580,150 +3211,2031 @@
           "latest": "$global_time.latest$"
         }
       }
+    },
+    "ds_h1_banner": {
+      "type": "ds.search",
+      "name": "Domaine",
+      "options": {
+        "query": "`adx_dc_head` | where head_id=1 | stats values(domain) as domaine, values(host) as dcs | eval domaine=mvjoin(domaine,\" / \"), dcs=mvjoin(dcs,\", \") | fields domaine",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_1_h1": {
+      "type": "ds.search",
+      "name": "DC qui remontent l'état de réplication",
+      "options": {
+        "query": "`adx_repl_data` `adx_head_filter(host,1)` | stats dc(host)",
+        "queryParameters": {
+          "earliest": "-30m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_2_h1": {
+      "type": "ds.search",
+      "name": "Liens de réplication en échec",
+      "options": {
+        "query": "`adx_repl_links` `adx_head_filter(dc,1)` | where last_result!=\"0\" | stats count",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_3_h1": {
+      "type": "ds.search",
+      "name": "Délai max depuis le dernier succès (min)",
+      "options": {
+        "query": "`adx_repl_links` `adx_head_filter(dc,1)` | stats max(lag_min)",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_4_h1": {
+      "type": "ds.search",
+      "name": "Événements d'erreur de réplication",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,1)` | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_5_h1": {
+      "type": "ds.search",
+      "name": "Événements critiques (objets lingering, tombstone, USN rollback)",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1388,1988,2042,2095,4012) `adx_head_filter(host,1)` | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_6_h1": {
+      "type": "ds.search",
+      "name": "Minutes depuis le dernier événement de réplication",
+      "options": {
+        "query": "`adx_repl_data` `adx_head_filter(host,1)` | stats max(_time) as t | eval m=round((now()-t)/60,0) | fields m",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_7_h1": {
+      "type": "ds.search",
+      "name": "Liens de réplication - état actuel",
+      "options": {
+        "query": "`adx_repl_links` `adx_head_filter(dc,1)` | eval last_success=strftime(last_success_epoch,\"%Y-%m-%d %H:%M\"), last_attempt=strftime(last_attempt_epoch,\"%Y-%m-%d %H:%M\"), status=case(last_result!=\"0\",\"EN ÉCHEC\", lag_min>240,\"EN RETARD\", true(),\"OK\") | sort - status, - lag_min | table dc partner naming_context transport status last_success last_attempt lag_min last_result | rename dc as \"DC\", partner as \"Partenaire\", naming_context as \"Partition\", transport as \"Transport\", status as \"Statut\", last_success as \"Dernier succès\", last_attempt as \"Dernière tentative\", lag_min as \"Retard (min)\", last_result as \"Dernier résultat\"",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_8_h1": {
+      "type": "ds.search",
+      "name": "Événements de réplication en échec par DC",
+      "options": {
+        "query": "`adx_repl_data` `adx_head_filter(host,1)` | where Result!=\"0\" | timechart span=1h count by host",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_9_h1": {
+      "type": "ds.search",
+      "name": "Événements liés à la réplication dans le temps",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,1)` | timechart count by EventCode",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_10_h1": {
+      "type": "ds.search",
+      "name": "Événements de réplication Directory Service / DFSR",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,1)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description severity | eval dc=coalesce(Computer, ComputerName, host), message=substr(coalesce(Message, _raw),1,300) | sort - _time | table _time dc event_id severity description message | rename _time as \"Heure\", dc as \"DC\", event_id as \"ID événement\", severity as \"Gravité\", description as \"Description\", message as \"Message\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_11_h1": {
+      "type": "ds.search",
+      "name": "Erreurs de réplication par DC et par événement",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,1)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description | eval dc=coalesce(Computer, ComputerName, host) | stats count, latest(_time) as last by dc event_id description | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table dc event_id description count last | rename dc as \"DC\", event_id as \"ID événement\", description as \"Description\", count as \"Nombre\", last as \"Dernière occurrence\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_12_h1": {
+      "type": "ds.search",
+      "name": "Sécurité 4932/4933 : début/fin de synchronisation de réplica",
+      "options": {
+        "query": "`adx_security_events` (EventCode=4932 OR EventCode=4933) `adx_head_filter(host,1)` | eval dc=coalesce(Computer, ComputerName, host), status_code=coalesce(Status_Code, StatusCode, Status), naming_context=coalesce(Naming_Context, NamingContext), source_dra=coalesce(Source_DRA, SourceDRA) | stats count, sum(eval(if(EventCode=4933 AND status_code!=\"0\",1,0))) as failed_syncs by dc naming_context | sort - failed_syncs | table dc naming_context count failed_syncs | rename dc as \"DC\", naming_context as \"Partition\", count as \"Nombre\", failed_syncs as \"Synchros en échec\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_13_h1": {
+      "type": "ds.search",
+      "name": "Échecs Kerberos par décalage d'horloge (événement 4771, code 0x25) - synchronisation horaire",
+      "options": {
+        "query": "`adx_security_events` EventCode=4771 (Failure_Code=0x25 OR Result_Code=0x25) `adx_head_filter(host,1)` | eval client=coalesce(IpAddress, Client_Address, src_ip), user=coalesce(TargetUserName, Account_Name) | stats count, latest(_time) as last by client user | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table client user count last | rename client as \"Client\", user as \"Utilisateur\", count as \"Nombre\", last as \"Dernière occurrence\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_h2_banner": {
+      "type": "ds.search",
+      "name": "Domaine",
+      "options": {
+        "query": "`adx_dc_head` | where head_id=2 | stats values(domain) as domaine, values(host) as dcs | eval domaine=mvjoin(domaine,\" / \"), dcs=mvjoin(dcs,\", \") | fields domaine",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_1_h2": {
+      "type": "ds.search",
+      "name": "DC qui remontent l'état de réplication",
+      "options": {
+        "query": "`adx_repl_data` `adx_head_filter(host,2)` | stats dc(host)",
+        "queryParameters": {
+          "earliest": "-30m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_2_h2": {
+      "type": "ds.search",
+      "name": "Liens de réplication en échec",
+      "options": {
+        "query": "`adx_repl_links` `adx_head_filter(dc,2)` | where last_result!=\"0\" | stats count",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_3_h2": {
+      "type": "ds.search",
+      "name": "Délai max depuis le dernier succès (min)",
+      "options": {
+        "query": "`adx_repl_links` `adx_head_filter(dc,2)` | stats max(lag_min)",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_4_h2": {
+      "type": "ds.search",
+      "name": "Événements d'erreur de réplication",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,2)` | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_5_h2": {
+      "type": "ds.search",
+      "name": "Événements critiques (objets lingering, tombstone, USN rollback)",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1388,1988,2042,2095,4012) `adx_head_filter(host,2)` | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_6_h2": {
+      "type": "ds.search",
+      "name": "Minutes depuis le dernier événement de réplication",
+      "options": {
+        "query": "`adx_repl_data` `adx_head_filter(host,2)` | stats max(_time) as t | eval m=round((now()-t)/60,0) | fields m",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_7_h2": {
+      "type": "ds.search",
+      "name": "Liens de réplication - état actuel",
+      "options": {
+        "query": "`adx_repl_links` `adx_head_filter(dc,2)` | eval last_success=strftime(last_success_epoch,\"%Y-%m-%d %H:%M\"), last_attempt=strftime(last_attempt_epoch,\"%Y-%m-%d %H:%M\"), status=case(last_result!=\"0\",\"EN ÉCHEC\", lag_min>240,\"EN RETARD\", true(),\"OK\") | sort - status, - lag_min | table dc partner naming_context transport status last_success last_attempt lag_min last_result | rename dc as \"DC\", partner as \"Partenaire\", naming_context as \"Partition\", transport as \"Transport\", status as \"Statut\", last_success as \"Dernier succès\", last_attempt as \"Dernière tentative\", lag_min as \"Retard (min)\", last_result as \"Dernier résultat\"",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_8_h2": {
+      "type": "ds.search",
+      "name": "Événements de réplication en échec par DC",
+      "options": {
+        "query": "`adx_repl_data` `adx_head_filter(host,2)` | where Result!=\"0\" | timechart span=1h count by host",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_9_h2": {
+      "type": "ds.search",
+      "name": "Événements liés à la réplication dans le temps",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,2)` | timechart count by EventCode",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_10_h2": {
+      "type": "ds.search",
+      "name": "Événements de réplication Directory Service / DFSR",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,2)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description severity | eval dc=coalesce(Computer, ComputerName, host), message=substr(coalesce(Message, _raw),1,300) | sort - _time | table _time dc event_id severity description message | rename _time as \"Heure\", dc as \"DC\", event_id as \"ID événement\", severity as \"Gravité\", description as \"Description\", message as \"Message\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_11_h2": {
+      "type": "ds.search",
+      "name": "Erreurs de réplication par DC et par événement",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,2)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description | eval dc=coalesce(Computer, ComputerName, host) | stats count, latest(_time) as last by dc event_id description | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table dc event_id description count last | rename dc as \"DC\", event_id as \"ID événement\", description as \"Description\", count as \"Nombre\", last as \"Dernière occurrence\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_12_h2": {
+      "type": "ds.search",
+      "name": "Sécurité 4932/4933 : début/fin de synchronisation de réplica",
+      "options": {
+        "query": "`adx_security_events` (EventCode=4932 OR EventCode=4933) `adx_head_filter(host,2)` | eval dc=coalesce(Computer, ComputerName, host), status_code=coalesce(Status_Code, StatusCode, Status), naming_context=coalesce(Naming_Context, NamingContext), source_dra=coalesce(Source_DRA, SourceDRA) | stats count, sum(eval(if(EventCode=4933 AND status_code!=\"0\",1,0))) as failed_syncs by dc naming_context | sort - failed_syncs | table dc naming_context count failed_syncs | rename dc as \"DC\", naming_context as \"Partition\", count as \"Nombre\", failed_syncs as \"Synchros en échec\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_13_h2": {
+      "type": "ds.search",
+      "name": "Échecs Kerberos par décalage d'horloge (événement 4771, code 0x25) - synchronisation horaire",
+      "options": {
+        "query": "`adx_security_events` EventCode=4771 (Failure_Code=0x25 OR Result_Code=0x25) `adx_head_filter(host,2)` | eval client=coalesce(IpAddress, Client_Address, src_ip), user=coalesce(TargetUserName, Account_Name) | stats count, latest(_time) as last by client user | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table client user count last | rename client as \"Client\", user as \"Utilisateur\", count as \"Nombre\", last as \"Dernière occurrence\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_h3_banner": {
+      "type": "ds.search",
+      "name": "Domaine",
+      "options": {
+        "query": "`adx_dc_head` | where head_id=3 | stats values(domain) as domaine, values(host) as dcs | eval domaine=mvjoin(domaine,\" / \"), dcs=mvjoin(dcs,\", \") | fields domaine",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_1_h3": {
+      "type": "ds.search",
+      "name": "DC qui remontent l'état de réplication",
+      "options": {
+        "query": "`adx_repl_data` `adx_head_filter(host,3)` | stats dc(host)",
+        "queryParameters": {
+          "earliest": "-30m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_2_h3": {
+      "type": "ds.search",
+      "name": "Liens de réplication en échec",
+      "options": {
+        "query": "`adx_repl_links` `adx_head_filter(dc,3)` | where last_result!=\"0\" | stats count",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_3_h3": {
+      "type": "ds.search",
+      "name": "Délai max depuis le dernier succès (min)",
+      "options": {
+        "query": "`adx_repl_links` `adx_head_filter(dc,3)` | stats max(lag_min)",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_4_h3": {
+      "type": "ds.search",
+      "name": "Événements d'erreur de réplication",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,3)` | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_5_h3": {
+      "type": "ds.search",
+      "name": "Événements critiques (objets lingering, tombstone, USN rollback)",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1388,1988,2042,2095,4012) `adx_head_filter(host,3)` | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_6_h3": {
+      "type": "ds.search",
+      "name": "Minutes depuis le dernier événement de réplication",
+      "options": {
+        "query": "`adx_repl_data` `adx_head_filter(host,3)` | stats max(_time) as t | eval m=round((now()-t)/60,0) | fields m",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_7_h3": {
+      "type": "ds.search",
+      "name": "Liens de réplication - état actuel",
+      "options": {
+        "query": "`adx_repl_links` `adx_head_filter(dc,3)` | eval last_success=strftime(last_success_epoch,\"%Y-%m-%d %H:%M\"), last_attempt=strftime(last_attempt_epoch,\"%Y-%m-%d %H:%M\"), status=case(last_result!=\"0\",\"EN ÉCHEC\", lag_min>240,\"EN RETARD\", true(),\"OK\") | sort - status, - lag_min | table dc partner naming_context transport status last_success last_attempt lag_min last_result | rename dc as \"DC\", partner as \"Partenaire\", naming_context as \"Partition\", transport as \"Transport\", status as \"Statut\", last_success as \"Dernier succès\", last_attempt as \"Dernière tentative\", lag_min as \"Retard (min)\", last_result as \"Dernier résultat\"",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_8_h3": {
+      "type": "ds.search",
+      "name": "Événements de réplication en échec par DC",
+      "options": {
+        "query": "`adx_repl_data` `adx_head_filter(host,3)` | where Result!=\"0\" | timechart span=1h count by host",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_9_h3": {
+      "type": "ds.search",
+      "name": "Événements liés à la réplication dans le temps",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,3)` | timechart count by EventCode",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_10_h3": {
+      "type": "ds.search",
+      "name": "Événements de réplication Directory Service / DFSR",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,3)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description severity | eval dc=coalesce(Computer, ComputerName, host), message=substr(coalesce(Message, _raw),1,300) | sort - _time | table _time dc event_id severity description message | rename _time as \"Heure\", dc as \"DC\", event_id as \"ID événement\", severity as \"Gravité\", description as \"Description\", message as \"Message\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_11_h3": {
+      "type": "ds.search",
+      "name": "Erreurs de réplication par DC et par événement",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,3)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description | eval dc=coalesce(Computer, ComputerName, host) | stats count, latest(_time) as last by dc event_id description | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table dc event_id description count last | rename dc as \"DC\", event_id as \"ID événement\", description as \"Description\", count as \"Nombre\", last as \"Dernière occurrence\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_12_h3": {
+      "type": "ds.search",
+      "name": "Sécurité 4932/4933 : début/fin de synchronisation de réplica",
+      "options": {
+        "query": "`adx_security_events` (EventCode=4932 OR EventCode=4933) `adx_head_filter(host,3)` | eval dc=coalesce(Computer, ComputerName, host), status_code=coalesce(Status_Code, StatusCode, Status), naming_context=coalesce(Naming_Context, NamingContext), source_dra=coalesce(Source_DRA, SourceDRA) | stats count, sum(eval(if(EventCode=4933 AND status_code!=\"0\",1,0))) as failed_syncs by dc naming_context | sort - failed_syncs | table dc naming_context count failed_syncs | rename dc as \"DC\", naming_context as \"Partition\", count as \"Nombre\", failed_syncs as \"Synchros en échec\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_13_h3": {
+      "type": "ds.search",
+      "name": "Échecs Kerberos par décalage d'horloge (événement 4771, code 0x25) - synchronisation horaire",
+      "options": {
+        "query": "`adx_security_events` EventCode=4771 (Failure_Code=0x25 OR Result_Code=0x25) `adx_head_filter(host,3)` | eval client=coalesce(IpAddress, Client_Address, src_ip), user=coalesce(TargetUserName, Account_Name) | stats count, latest(_time) as last by client user | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table client user count last | rename client as \"Client\", user as \"Utilisateur\", count as \"Nombre\", last as \"Dernière occurrence\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_h4_banner": {
+      "type": "ds.search",
+      "name": "Domaine",
+      "options": {
+        "query": "`adx_dc_head` | where head_id=4 | stats values(domain) as domaine, values(host) as dcs | eval domaine=mvjoin(domaine,\" / \"), dcs=mvjoin(dcs,\", \") | fields domaine",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_1_h4": {
+      "type": "ds.search",
+      "name": "DC qui remontent l'état de réplication",
+      "options": {
+        "query": "`adx_repl_data` `adx_head_filter(host,4)` | stats dc(host)",
+        "queryParameters": {
+          "earliest": "-30m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_2_h4": {
+      "type": "ds.search",
+      "name": "Liens de réplication en échec",
+      "options": {
+        "query": "`adx_repl_links` `adx_head_filter(dc,4)` | where last_result!=\"0\" | stats count",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_3_h4": {
+      "type": "ds.search",
+      "name": "Délai max depuis le dernier succès (min)",
+      "options": {
+        "query": "`adx_repl_links` `adx_head_filter(dc,4)` | stats max(lag_min)",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_4_h4": {
+      "type": "ds.search",
+      "name": "Événements d'erreur de réplication",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,4)` | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_5_h4": {
+      "type": "ds.search",
+      "name": "Événements critiques (objets lingering, tombstone, USN rollback)",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1388,1988,2042,2095,4012) `adx_head_filter(host,4)` | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_6_h4": {
+      "type": "ds.search",
+      "name": "Minutes depuis le dernier événement de réplication",
+      "options": {
+        "query": "`adx_repl_data` `adx_head_filter(host,4)` | stats max(_time) as t | eval m=round((now()-t)/60,0) | fields m",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_7_h4": {
+      "type": "ds.search",
+      "name": "Liens de réplication - état actuel",
+      "options": {
+        "query": "`adx_repl_links` `adx_head_filter(dc,4)` | eval last_success=strftime(last_success_epoch,\"%Y-%m-%d %H:%M\"), last_attempt=strftime(last_attempt_epoch,\"%Y-%m-%d %H:%M\"), status=case(last_result!=\"0\",\"EN ÉCHEC\", lag_min>240,\"EN RETARD\", true(),\"OK\") | sort - status, - lag_min | table dc partner naming_context transport status last_success last_attempt lag_min last_result | rename dc as \"DC\", partner as \"Partenaire\", naming_context as \"Partition\", transport as \"Transport\", status as \"Statut\", last_success as \"Dernier succès\", last_attempt as \"Dernière tentative\", lag_min as \"Retard (min)\", last_result as \"Dernier résultat\"",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_8_h4": {
+      "type": "ds.search",
+      "name": "Événements de réplication en échec par DC",
+      "options": {
+        "query": "`adx_repl_data` `adx_head_filter(host,4)` | where Result!=\"0\" | timechart span=1h count by host",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_9_h4": {
+      "type": "ds.search",
+      "name": "Événements liés à la réplication dans le temps",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,4)` | timechart count by EventCode",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_10_h4": {
+      "type": "ds.search",
+      "name": "Événements de réplication Directory Service / DFSR",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,4)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description severity | eval dc=coalesce(Computer, ComputerName, host), message=substr(coalesce(Message, _raw),1,300) | sort - _time | table _time dc event_id severity description message | rename _time as \"Heure\", dc as \"DC\", event_id as \"ID événement\", severity as \"Gravité\", description as \"Description\", message as \"Message\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_11_h4": {
+      "type": "ds.search",
+      "name": "Erreurs de réplication par DC et par événement",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,4)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description | eval dc=coalesce(Computer, ComputerName, host) | stats count, latest(_time) as last by dc event_id description | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table dc event_id description count last | rename dc as \"DC\", event_id as \"ID événement\", description as \"Description\", count as \"Nombre\", last as \"Dernière occurrence\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_12_h4": {
+      "type": "ds.search",
+      "name": "Sécurité 4932/4933 : début/fin de synchronisation de réplica",
+      "options": {
+        "query": "`adx_security_events` (EventCode=4932 OR EventCode=4933) `adx_head_filter(host,4)` | eval dc=coalesce(Computer, ComputerName, host), status_code=coalesce(Status_Code, StatusCode, Status), naming_context=coalesce(Naming_Context, NamingContext), source_dra=coalesce(Source_DRA, SourceDRA) | stats count, sum(eval(if(EventCode=4933 AND status_code!=\"0\",1,0))) as failed_syncs by dc naming_context | sort - failed_syncs | table dc naming_context count failed_syncs | rename dc as \"DC\", naming_context as \"Partition\", count as \"Nombre\", failed_syncs as \"Synchros en échec\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_13_h4": {
+      "type": "ds.search",
+      "name": "Échecs Kerberos par décalage d'horloge (événement 4771, code 0x25) - synchronisation horaire",
+      "options": {
+        "query": "`adx_security_events` EventCode=4771 (Failure_Code=0x25 OR Result_Code=0x25) `adx_head_filter(host,4)` | eval client=coalesce(IpAddress, Client_Address, src_ip), user=coalesce(TargetUserName, Account_Name) | stats count, latest(_time) as last by client user | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table client user count last | rename client as \"Client\", user as \"Utilisateur\", count as \"Nombre\", last as \"Dernière occurrence\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_h5_banner": {
+      "type": "ds.search",
+      "name": "Domaine",
+      "options": {
+        "query": "`adx_dc_head` | where head_id=5 | stats values(domain) as domaine, values(host) as dcs | eval domaine=mvjoin(domaine,\" / \"), dcs=mvjoin(dcs,\", \") | fields domaine",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_1_h5": {
+      "type": "ds.search",
+      "name": "DC qui remontent l'état de réplication",
+      "options": {
+        "query": "`adx_repl_data` `adx_head_filter(host,5)` | stats dc(host)",
+        "queryParameters": {
+          "earliest": "-30m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_2_h5": {
+      "type": "ds.search",
+      "name": "Liens de réplication en échec",
+      "options": {
+        "query": "`adx_repl_links` `adx_head_filter(dc,5)` | where last_result!=\"0\" | stats count",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_3_h5": {
+      "type": "ds.search",
+      "name": "Délai max depuis le dernier succès (min)",
+      "options": {
+        "query": "`adx_repl_links` `adx_head_filter(dc,5)` | stats max(lag_min)",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_4_h5": {
+      "type": "ds.search",
+      "name": "Événements d'erreur de réplication",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,5)` | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_5_h5": {
+      "type": "ds.search",
+      "name": "Événements critiques (objets lingering, tombstone, USN rollback)",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1388,1988,2042,2095,4012) `adx_head_filter(host,5)` | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_6_h5": {
+      "type": "ds.search",
+      "name": "Minutes depuis le dernier événement de réplication",
+      "options": {
+        "query": "`adx_repl_data` `adx_head_filter(host,5)` | stats max(_time) as t | eval m=round((now()-t)/60,0) | fields m",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_7_h5": {
+      "type": "ds.search",
+      "name": "Liens de réplication - état actuel",
+      "options": {
+        "query": "`adx_repl_links` `adx_head_filter(dc,5)` | eval last_success=strftime(last_success_epoch,\"%Y-%m-%d %H:%M\"), last_attempt=strftime(last_attempt_epoch,\"%Y-%m-%d %H:%M\"), status=case(last_result!=\"0\",\"EN ÉCHEC\", lag_min>240,\"EN RETARD\", true(),\"OK\") | sort - status, - lag_min | table dc partner naming_context transport status last_success last_attempt lag_min last_result | rename dc as \"DC\", partner as \"Partenaire\", naming_context as \"Partition\", transport as \"Transport\", status as \"Statut\", last_success as \"Dernier succès\", last_attempt as \"Dernière tentative\", lag_min as \"Retard (min)\", last_result as \"Dernier résultat\"",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_8_h5": {
+      "type": "ds.search",
+      "name": "Événements de réplication en échec par DC",
+      "options": {
+        "query": "`adx_repl_data` `adx_head_filter(host,5)` | where Result!=\"0\" | timechart span=1h count by host",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_9_h5": {
+      "type": "ds.search",
+      "name": "Événements liés à la réplication dans le temps",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,5)` | timechart count by EventCode",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_10_h5": {
+      "type": "ds.search",
+      "name": "Événements de réplication Directory Service / DFSR",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,5)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description severity | eval dc=coalesce(Computer, ComputerName, host), message=substr(coalesce(Message, _raw),1,300) | sort - _time | table _time dc event_id severity description message | rename _time as \"Heure\", dc as \"DC\", event_id as \"ID événement\", severity as \"Gravité\", description as \"Description\", message as \"Message\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_11_h5": {
+      "type": "ds.search",
+      "name": "Erreurs de réplication par DC et par événement",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,5)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description | eval dc=coalesce(Computer, ComputerName, host) | stats count, latest(_time) as last by dc event_id description | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table dc event_id description count last | rename dc as \"DC\", event_id as \"ID événement\", description as \"Description\", count as \"Nombre\", last as \"Dernière occurrence\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_12_h5": {
+      "type": "ds.search",
+      "name": "Sécurité 4932/4933 : début/fin de synchronisation de réplica",
+      "options": {
+        "query": "`adx_security_events` (EventCode=4932 OR EventCode=4933) `adx_head_filter(host,5)` | eval dc=coalesce(Computer, ComputerName, host), status_code=coalesce(Status_Code, StatusCode, Status), naming_context=coalesce(Naming_Context, NamingContext), source_dra=coalesce(Source_DRA, SourceDRA) | stats count, sum(eval(if(EventCode=4933 AND status_code!=\"0\",1,0))) as failed_syncs by dc naming_context | sort - failed_syncs | table dc naming_context count failed_syncs | rename dc as \"DC\", naming_context as \"Partition\", count as \"Nombre\", failed_syncs as \"Synchros en échec\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_13_h5": {
+      "type": "ds.search",
+      "name": "Échecs Kerberos par décalage d'horloge (événement 4771, code 0x25) - synchronisation horaire",
+      "options": {
+        "query": "`adx_security_events` EventCode=4771 (Failure_Code=0x25 OR Result_Code=0x25) `adx_head_filter(host,5)` | eval client=coalesce(IpAddress, Client_Address, src_ip), user=coalesce(TargetUserName, Account_Name) | stats count, latest(_time) as last by client user | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table client user count last | rename client as \"Client\", user as \"Utilisateur\", count as \"Nombre\", last as \"Dernière occurrence\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_h6_banner": {
+      "type": "ds.search",
+      "name": "Domaine",
+      "options": {
+        "query": "`adx_dc_head` | where head_id=6 | stats values(domain) as domaine, values(host) as dcs | eval domaine=mvjoin(domaine,\" / \"), dcs=mvjoin(dcs,\", \") | fields domaine",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_1_h6": {
+      "type": "ds.search",
+      "name": "DC qui remontent l'état de réplication",
+      "options": {
+        "query": "`adx_repl_data` `adx_head_filter(host,6)` | stats dc(host)",
+        "queryParameters": {
+          "earliest": "-30m",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_2_h6": {
+      "type": "ds.search",
+      "name": "Liens de réplication en échec",
+      "options": {
+        "query": "`adx_repl_links` `adx_head_filter(dc,6)` | where last_result!=\"0\" | stats count",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_3_h6": {
+      "type": "ds.search",
+      "name": "Délai max depuis le dernier succès (min)",
+      "options": {
+        "query": "`adx_repl_links` `adx_head_filter(dc,6)` | stats max(lag_min)",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_4_h6": {
+      "type": "ds.search",
+      "name": "Événements d'erreur de réplication",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,6)` | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_5_h6": {
+      "type": "ds.search",
+      "name": "Événements critiques (objets lingering, tombstone, USN rollback)",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1388,1988,2042,2095,4012) `adx_head_filter(host,6)` | stats count",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_6_h6": {
+      "type": "ds.search",
+      "name": "Minutes depuis le dernier événement de réplication",
+      "options": {
+        "query": "`adx_repl_data` `adx_head_filter(host,6)` | stats max(_time) as t | eval m=round((now()-t)/60,0) | fields m",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_7_h6": {
+      "type": "ds.search",
+      "name": "Liens de réplication - état actuel",
+      "options": {
+        "query": "`adx_repl_links` `adx_head_filter(dc,6)` | eval last_success=strftime(last_success_epoch,\"%Y-%m-%d %H:%M\"), last_attempt=strftime(last_attempt_epoch,\"%Y-%m-%d %H:%M\"), status=case(last_result!=\"0\",\"EN ÉCHEC\", lag_min>240,\"EN RETARD\", true(),\"OK\") | sort - status, - lag_min | table dc partner naming_context transport status last_success last_attempt lag_min last_result | rename dc as \"DC\", partner as \"Partenaire\", naming_context as \"Partition\", transport as \"Transport\", status as \"Statut\", last_success as \"Dernier succès\", last_attempt as \"Dernière tentative\", lag_min as \"Retard (min)\", last_result as \"Dernier résultat\"",
+        "queryParameters": {
+          "earliest": "-24h",
+          "latest": "now"
+        }
+      }
+    },
+    "ds_8_h6": {
+      "type": "ds.search",
+      "name": "Événements de réplication en échec par DC",
+      "options": {
+        "query": "`adx_repl_data` `adx_head_filter(host,6)` | where Result!=\"0\" | timechart span=1h count by host",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_9_h6": {
+      "type": "ds.search",
+      "name": "Événements liés à la réplication dans le temps",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,6)` | timechart count by EventCode",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_10_h6": {
+      "type": "ds.search",
+      "name": "Événements de réplication Directory Service / DFSR",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,6)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description severity | eval dc=coalesce(Computer, ComputerName, host), message=substr(coalesce(Message, _raw),1,300) | sort - _time | table _time dc event_id severity description message | rename _time as \"Heure\", dc as \"DC\", event_id as \"ID événement\", severity as \"Gravité\", description as \"Description\", message as \"Message\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_11_h6": {
+      "type": "ds.search",
+      "name": "Erreurs de réplication par DC et par événement",
+      "options": {
+        "query": "`adx_ds_events` EventCode IN (1308,1311,1388,1566,1865,1925,1988,2042,2087,2088,2095,2213,4012) `adx_head_filter(host,6)` | rename EventCode as event_id | lookup adx_replication_events event_id OUTPUT description | eval dc=coalesce(Computer, ComputerName, host) | stats count, latest(_time) as last by dc event_id description | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table dc event_id description count last | rename dc as \"DC\", event_id as \"ID événement\", description as \"Description\", count as \"Nombre\", last as \"Dernière occurrence\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_12_h6": {
+      "type": "ds.search",
+      "name": "Sécurité 4932/4933 : début/fin de synchronisation de réplica",
+      "options": {
+        "query": "`adx_security_events` (EventCode=4932 OR EventCode=4933) `adx_head_filter(host,6)` | eval dc=coalesce(Computer, ComputerName, host), status_code=coalesce(Status_Code, StatusCode, Status), naming_context=coalesce(Naming_Context, NamingContext), source_dra=coalesce(Source_DRA, SourceDRA) | stats count, sum(eval(if(EventCode=4933 AND status_code!=\"0\",1,0))) as failed_syncs by dc naming_context | sort - failed_syncs | table dc naming_context count failed_syncs | rename dc as \"DC\", naming_context as \"Partition\", count as \"Nombre\", failed_syncs as \"Synchros en échec\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
+    },
+    "ds_13_h6": {
+      "type": "ds.search",
+      "name": "Échecs Kerberos par décalage d'horloge (événement 4771, code 0x25) - synchronisation horaire",
+      "options": {
+        "query": "`adx_security_events` EventCode=4771 (Failure_Code=0x25 OR Result_Code=0x25) `adx_head_filter(host,6)` | eval client=coalesce(IpAddress, Client_Address, src_ip), user=coalesce(TargetUserName, Account_Name) | stats count, latest(_time) as last by client user | eval last=strftime(last,\"%Y-%m-%d %H:%M\") | sort - count | table client user count last | rename client as \"Client\", user as \"Utilisateur\", count as \"Nombre\", last as \"Dernière occurrence\"",
+        "queryParameters": {
+          "earliest": "$global_time.earliest$",
+          "latest": "$global_time.latest$"
+        }
+      }
     }
   },
   "layout": {
-    "type": "grid",
-    "options": {
-      "width": 1440,
-      "height": 1820,
-      "display": "auto-scale"
+    "tabs": {
+      "items": [
+        {
+          "layoutId": "layout_general",
+          "label": "Général"
+        },
+        {
+          "layoutId": "layout_h1",
+          "label": "Tête 1"
+        },
+        {
+          "layoutId": "layout_h2",
+          "label": "Tête 2"
+        },
+        {
+          "layoutId": "layout_h3",
+          "label": "Tête 3"
+        },
+        {
+          "layoutId": "layout_h4",
+          "label": "Tête 4"
+        },
+        {
+          "layoutId": "layout_h5",
+          "label": "Tête 5"
+        },
+        {
+          "layoutId": "layout_h6",
+          "label": "Tête 6"
+        }
+      ]
     },
-    "structure": [
-      {
-        "item": "viz_1",
-        "type": "block",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "w": 240,
-          "h": 130
-        }
-      },
-      {
-        "item": "viz_2",
-        "type": "block",
-        "position": {
-          "x": 240,
-          "y": 0,
-          "w": 240,
-          "h": 130
-        }
-      },
-      {
-        "item": "viz_3",
-        "type": "block",
-        "position": {
-          "x": 480,
-          "y": 0,
-          "w": 240,
-          "h": 130
-        }
-      },
-      {
-        "item": "viz_4",
-        "type": "block",
-        "position": {
-          "x": 720,
-          "y": 0,
-          "w": 240,
-          "h": 130
-        }
-      },
-      {
-        "item": "viz_5",
-        "type": "block",
-        "position": {
-          "x": 960,
-          "y": 0,
-          "w": 240,
-          "h": 130
-        }
-      },
-      {
-        "item": "viz_6",
-        "type": "block",
-        "position": {
-          "x": 1200,
-          "y": 0,
-          "w": 240,
-          "h": 130
-        }
-      },
-      {
-        "item": "viz_7",
-        "type": "block",
-        "position": {
-          "x": 0,
-          "y": 130,
-          "w": 1440,
-          "h": 516
-        }
-      },
-      {
-        "item": "viz_8",
-        "type": "block",
-        "position": {
-          "x": 0,
-          "y": 646,
-          "w": 720,
-          "h": 340
-        }
-      },
-      {
-        "item": "viz_9",
-        "type": "block",
-        "position": {
-          "x": 720,
-          "y": 646,
-          "w": 720,
-          "h": 340
-        }
-      },
-      {
-        "item": "viz_10",
-        "type": "block",
-        "position": {
-          "x": 0,
-          "y": 986,
-          "w": 720,
-          "h": 450
-        }
-      },
-      {
-        "item": "viz_11",
-        "type": "block",
-        "position": {
-          "x": 720,
-          "y": 986,
-          "w": 720,
-          "h": 450
-        }
-      },
-      {
-        "item": "viz_12",
-        "type": "block",
-        "position": {
-          "x": 0,
-          "y": 1436,
-          "w": 720,
-          "h": 384
-        }
-      },
-      {
-        "item": "viz_13",
-        "type": "block",
-        "position": {
-          "x": 720,
-          "y": 1436,
-          "w": 720,
-          "h": 384
-        }
-      }
-    ],
+    "options": {},
     "globalInputs": [
       "input_global_trp"
     ]
+  },
+  "layoutDefinitions": {
+    "layout_general": {
+      "type": "grid",
+      "options": {
+        "width": 1440,
+        "height": 2150,
+        "display": "auto-scale"
+      },
+      "structure": [
+        {
+          "item": "viz_general_sum",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "w": 720,
+            "h": 330
+          }
+        },
+        {
+          "item": "viz_general_map",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 0,
+            "w": 720,
+            "h": 330
+          }
+        },
+        {
+          "item": "viz_1_general",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 330,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_2_general",
+          "type": "block",
+          "position": {
+            "x": 240,
+            "y": 330,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_3_general",
+          "type": "block",
+          "position": {
+            "x": 480,
+            "y": 330,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_4_general",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 330,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_5_general",
+          "type": "block",
+          "position": {
+            "x": 960,
+            "y": 330,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_6_general",
+          "type": "block",
+          "position": {
+            "x": 1200,
+            "y": 330,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_7_general",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 460,
+            "w": 1440,
+            "h": 516
+          }
+        },
+        {
+          "item": "viz_8_general",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 976,
+            "w": 720,
+            "h": 340
+          }
+        },
+        {
+          "item": "viz_9_general",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 976,
+            "w": 720,
+            "h": 340
+          }
+        },
+        {
+          "item": "viz_10_general",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 1316,
+            "w": 720,
+            "h": 450
+          }
+        },
+        {
+          "item": "viz_11_general",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 1316,
+            "w": 720,
+            "h": 450
+          }
+        },
+        {
+          "item": "viz_12_general",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 1766,
+            "w": 720,
+            "h": 384
+          }
+        },
+        {
+          "item": "viz_13_general",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 1766,
+            "w": 720,
+            "h": 384
+          }
+        }
+      ]
+    },
+    "layout_h1": {
+      "type": "grid",
+      "options": {
+        "width": 1440,
+        "height": 1930,
+        "display": "auto-scale"
+      },
+      "structure": [
+        {
+          "item": "viz_h1_banner",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "w": 1440,
+            "h": 110
+          }
+        },
+        {
+          "item": "viz_1_h1",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_2_h1",
+          "type": "block",
+          "position": {
+            "x": 240,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_3_h1",
+          "type": "block",
+          "position": {
+            "x": 480,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_4_h1",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_5_h1",
+          "type": "block",
+          "position": {
+            "x": 960,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_6_h1",
+          "type": "block",
+          "position": {
+            "x": 1200,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_7_h1",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 240,
+            "w": 1440,
+            "h": 516
+          }
+        },
+        {
+          "item": "viz_8_h1",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 756,
+            "w": 720,
+            "h": 340
+          }
+        },
+        {
+          "item": "viz_9_h1",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 756,
+            "w": 720,
+            "h": 340
+          }
+        },
+        {
+          "item": "viz_10_h1",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 1096,
+            "w": 720,
+            "h": 450
+          }
+        },
+        {
+          "item": "viz_11_h1",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 1096,
+            "w": 720,
+            "h": 450
+          }
+        },
+        {
+          "item": "viz_12_h1",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 1546,
+            "w": 720,
+            "h": 384
+          }
+        },
+        {
+          "item": "viz_13_h1",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 1546,
+            "w": 720,
+            "h": 384
+          }
+        }
+      ]
+    },
+    "layout_h2": {
+      "type": "grid",
+      "options": {
+        "width": 1440,
+        "height": 1930,
+        "display": "auto-scale"
+      },
+      "structure": [
+        {
+          "item": "viz_h2_banner",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "w": 1440,
+            "h": 110
+          }
+        },
+        {
+          "item": "viz_1_h2",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_2_h2",
+          "type": "block",
+          "position": {
+            "x": 240,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_3_h2",
+          "type": "block",
+          "position": {
+            "x": 480,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_4_h2",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_5_h2",
+          "type": "block",
+          "position": {
+            "x": 960,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_6_h2",
+          "type": "block",
+          "position": {
+            "x": 1200,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_7_h2",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 240,
+            "w": 1440,
+            "h": 516
+          }
+        },
+        {
+          "item": "viz_8_h2",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 756,
+            "w": 720,
+            "h": 340
+          }
+        },
+        {
+          "item": "viz_9_h2",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 756,
+            "w": 720,
+            "h": 340
+          }
+        },
+        {
+          "item": "viz_10_h2",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 1096,
+            "w": 720,
+            "h": 450
+          }
+        },
+        {
+          "item": "viz_11_h2",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 1096,
+            "w": 720,
+            "h": 450
+          }
+        },
+        {
+          "item": "viz_12_h2",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 1546,
+            "w": 720,
+            "h": 384
+          }
+        },
+        {
+          "item": "viz_13_h2",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 1546,
+            "w": 720,
+            "h": 384
+          }
+        }
+      ]
+    },
+    "layout_h3": {
+      "type": "grid",
+      "options": {
+        "width": 1440,
+        "height": 1930,
+        "display": "auto-scale"
+      },
+      "structure": [
+        {
+          "item": "viz_h3_banner",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "w": 1440,
+            "h": 110
+          }
+        },
+        {
+          "item": "viz_1_h3",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_2_h3",
+          "type": "block",
+          "position": {
+            "x": 240,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_3_h3",
+          "type": "block",
+          "position": {
+            "x": 480,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_4_h3",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_5_h3",
+          "type": "block",
+          "position": {
+            "x": 960,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_6_h3",
+          "type": "block",
+          "position": {
+            "x": 1200,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_7_h3",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 240,
+            "w": 1440,
+            "h": 516
+          }
+        },
+        {
+          "item": "viz_8_h3",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 756,
+            "w": 720,
+            "h": 340
+          }
+        },
+        {
+          "item": "viz_9_h3",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 756,
+            "w": 720,
+            "h": 340
+          }
+        },
+        {
+          "item": "viz_10_h3",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 1096,
+            "w": 720,
+            "h": 450
+          }
+        },
+        {
+          "item": "viz_11_h3",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 1096,
+            "w": 720,
+            "h": 450
+          }
+        },
+        {
+          "item": "viz_12_h3",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 1546,
+            "w": 720,
+            "h": 384
+          }
+        },
+        {
+          "item": "viz_13_h3",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 1546,
+            "w": 720,
+            "h": 384
+          }
+        }
+      ]
+    },
+    "layout_h4": {
+      "type": "grid",
+      "options": {
+        "width": 1440,
+        "height": 1930,
+        "display": "auto-scale"
+      },
+      "structure": [
+        {
+          "item": "viz_h4_banner",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "w": 1440,
+            "h": 110
+          }
+        },
+        {
+          "item": "viz_1_h4",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_2_h4",
+          "type": "block",
+          "position": {
+            "x": 240,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_3_h4",
+          "type": "block",
+          "position": {
+            "x": 480,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_4_h4",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_5_h4",
+          "type": "block",
+          "position": {
+            "x": 960,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_6_h4",
+          "type": "block",
+          "position": {
+            "x": 1200,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_7_h4",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 240,
+            "w": 1440,
+            "h": 516
+          }
+        },
+        {
+          "item": "viz_8_h4",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 756,
+            "w": 720,
+            "h": 340
+          }
+        },
+        {
+          "item": "viz_9_h4",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 756,
+            "w": 720,
+            "h": 340
+          }
+        },
+        {
+          "item": "viz_10_h4",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 1096,
+            "w": 720,
+            "h": 450
+          }
+        },
+        {
+          "item": "viz_11_h4",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 1096,
+            "w": 720,
+            "h": 450
+          }
+        },
+        {
+          "item": "viz_12_h4",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 1546,
+            "w": 720,
+            "h": 384
+          }
+        },
+        {
+          "item": "viz_13_h4",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 1546,
+            "w": 720,
+            "h": 384
+          }
+        }
+      ]
+    },
+    "layout_h5": {
+      "type": "grid",
+      "options": {
+        "width": 1440,
+        "height": 1930,
+        "display": "auto-scale"
+      },
+      "structure": [
+        {
+          "item": "viz_h5_banner",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "w": 1440,
+            "h": 110
+          }
+        },
+        {
+          "item": "viz_1_h5",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_2_h5",
+          "type": "block",
+          "position": {
+            "x": 240,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_3_h5",
+          "type": "block",
+          "position": {
+            "x": 480,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_4_h5",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_5_h5",
+          "type": "block",
+          "position": {
+            "x": 960,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_6_h5",
+          "type": "block",
+          "position": {
+            "x": 1200,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_7_h5",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 240,
+            "w": 1440,
+            "h": 516
+          }
+        },
+        {
+          "item": "viz_8_h5",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 756,
+            "w": 720,
+            "h": 340
+          }
+        },
+        {
+          "item": "viz_9_h5",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 756,
+            "w": 720,
+            "h": 340
+          }
+        },
+        {
+          "item": "viz_10_h5",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 1096,
+            "w": 720,
+            "h": 450
+          }
+        },
+        {
+          "item": "viz_11_h5",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 1096,
+            "w": 720,
+            "h": 450
+          }
+        },
+        {
+          "item": "viz_12_h5",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 1546,
+            "w": 720,
+            "h": 384
+          }
+        },
+        {
+          "item": "viz_13_h5",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 1546,
+            "w": 720,
+            "h": 384
+          }
+        }
+      ]
+    },
+    "layout_h6": {
+      "type": "grid",
+      "options": {
+        "width": 1440,
+        "height": 1930,
+        "display": "auto-scale"
+      },
+      "structure": [
+        {
+          "item": "viz_h6_banner",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "w": 1440,
+            "h": 110
+          }
+        },
+        {
+          "item": "viz_1_h6",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_2_h6",
+          "type": "block",
+          "position": {
+            "x": 240,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_3_h6",
+          "type": "block",
+          "position": {
+            "x": 480,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_4_h6",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_5_h6",
+          "type": "block",
+          "position": {
+            "x": 960,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_6_h6",
+          "type": "block",
+          "position": {
+            "x": 1200,
+            "y": 110,
+            "w": 240,
+            "h": 130
+          }
+        },
+        {
+          "item": "viz_7_h6",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 240,
+            "w": 1440,
+            "h": 516
+          }
+        },
+        {
+          "item": "viz_8_h6",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 756,
+            "w": 720,
+            "h": 340
+          }
+        },
+        {
+          "item": "viz_9_h6",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 756,
+            "w": 720,
+            "h": 340
+          }
+        },
+        {
+          "item": "viz_10_h6",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 1096,
+            "w": 720,
+            "h": 450
+          }
+        },
+        {
+          "item": "viz_11_h6",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 1096,
+            "w": 720,
+            "h": 450
+          }
+        },
+        {
+          "item": "viz_12_h6",
+          "type": "block",
+          "position": {
+            "x": 0,
+            "y": 1546,
+            "w": 720,
+            "h": 384
+          }
+        },
+        {
+          "item": "viz_13_h6",
+          "type": "block",
+          "position": {
+            "x": 720,
+            "y": 1546,
+            "w": 720,
+            "h": 384
+          }
+        }
+      ]
+    }
   }
 }
   ]]></definition>
