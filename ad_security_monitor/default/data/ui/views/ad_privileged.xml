@@ -1,10 +1,10 @@
 <dashboard version="2" theme="dark">
   <label>Comptes AD privilégiés</label>
-  <description>Tout sur les accès privilégiés : membres de Domain/Enterprise/Schema Admins et des autres groupes sensibles (noms EN + FR), âge et expiration des mots de passe, dernière connexion, résidus adminCount, comptes de service Kerberoastables et changements récents d'appartenance aux groupes privilégiés.</description>
+  <description>Tout sur les accès privilégiés : membres de Administrators, Domain Admins, Enterprise Admins, Group Policy Creator Owners, Schema Admins (noms EN + FR) et des groupes T0, âge et expiration des mots de passe, dernière connexion, résidus adminCount, comptes de service Kerberoastables et changements récents d'appartenance aux groupes privilégiés.</description>
   <definition><![CDATA[
 {
   "title": "Comptes AD privilégiés",
-  "description": "Tout sur les accès privilégiés : membres de Domain/Enterprise/Schema Admins et des autres groupes sensibles (noms EN + FR), âge et expiration des mots de passe, dernière connexion, résidus adminCount, comptes de service Kerberoastables et changements récents d'appartenance aux groupes privilégiés.",
+  "description": "Tout sur les accès privilégiés : membres de Administrators, Domain Admins, Enterprise Admins, Group Policy Creator Owners, Schema Admins (noms EN + FR) et des groupes T0, âge et expiration des mots de passe, dernière connexion, résidus adminCount, comptes de service Kerberoastables et changements récents d'appartenance aux groupes privilégiés.",
   "inputs": {
     "input_global_trp": {
       "type": "input.timerange",

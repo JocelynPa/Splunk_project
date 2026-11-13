@@ -49,13 +49,13 @@ All dashboards are in **French** (titles, panels, column headers, displayed valu
 | `adx_review_days`, `adx_disabled_days` | Review cycle and disabled-account age (days) | 180, 180 |
 | `adx_stale_days`, `adx_max_pwd_age_days`, `adx_priv_max_pwd_age_days`, `adx_krbtgt_max_age_days`, `adx_spray_threshold` | Thresholds (`adx_max_pwd_age_days` should match your domain maximum password age) | 90, 90, 180, 180, 10 |
 | `adx_offhours_filter` | What counts as off-hours | before 07:00, from 19:00, weekends |
-| `adx_is_priv_group(1)`, `adx_memberof_priv` | Privileged group names (EN + FR), written inline in both macros (keep in sync); groups with `adminCount=1` are also privileged | Domain Admins, Admins du domaine, ... |
+| `adx_is_priv_group(1)`, `adx_memberof_priv` | Privileged accounts = members of Administrators, Domain Admins, Enterprise Admins, Group Policy Creator Owners, Schema Admins (EN + FR names) or any group whose name contains `t0`; names are written inline in both macros (keep in sync) | see file |
 | `adx_normalize` | Maps Splunk_TA_windows field names to `target_user`, `actor_user`, `src_ip`, `src_host`, ... | see file |
 | `adx_users` / `adx_computers` | Maps lookup columns (`sAMAccountName`, `userAccountControl`, `pwdLastSet`, `lastLogonTimestamp`, `accountExpires`, `memberOf`, `distinguishedName`, `lockoutTime`) | see file |
 
 **Check these two first** - they depend on your environment:
 
-* The lookup names and column names of the AD Objects app. (`AD_Obj_User` has no `memberOf`: privileged membership is derived from the `member` column of `AD_Obj_Group` - direct members only - plus `adminCount=1`, which AD sets on protected accounts including nested privileged members.) Run
+* The lookup names and column names of the AD Objects app. (`AD_Obj_User` has no `memberOf`: privileged membership is derived from the `member` column of `AD_Obj_Group` - direct members only - (`adminCount=1` no longer makes an account privileged; it is only the `ADMINCOUNT` review reason), which AD sets on protected accounts including nested privileged members.) Run
   `| inputlookup <your lookup> | head 1` and adjust `adx_users_lookup` /
   `adx_users` if the columns differ. `userAccountControl` may be the numeric
   bitmask **or** text flags (`ACCOUNTDISABLE`, `DONT_EXPIRE_PASSWORD`, ...);
