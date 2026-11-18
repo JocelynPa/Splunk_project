@@ -51,3 +51,10 @@ system. See
 [`GitDeploy_for_Splunk/README.md`](GitDeploy_for_Splunk/README.md) and
 [`GitDeploy_for_Splunk/INSTALL.md`](GitDeploy_for_Splunk/INSTALL.md) for
 details and install steps.
+
+## index_data_monitor
+
+Proactive monitoring and alerting for indexes that stop receiving data:
+per-index silence thresholds (editable lookup), a throttled alert per silent
+index, status history in a summary index, and a dashboard with drilldown to
+sourcetypes and hosts. See [`index_data_monitor/README.md`](index_data_monitor/README.md).

@@ -1,0 +1,8 @@
+index,threshold_minutes,enabled,severity,owner,comment
+_internal,15,1,critical,splunk-admins,Every Splunk instance writes here - silence means a forwarder/indexer problem
+_audit,60,1,high,splunk-admins,
+_*,0,0,low,,"Other internal indexes ignored (introspection, telemetry...)"
+history,0,0,low,,Ignored
+lastchanceindex,0,0,low,,Ignored
+summary,1500,1,medium,splunk-admins,Written by scheduled searches (daily snapshots included)
+*,60,1,medium,,DEFAULT - any index not listed above alerts after 60 minutes without data

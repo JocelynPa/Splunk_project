@@ -1,0 +1,143 @@
+<form theme="light">
+  <label>Index Data Monitor</label>
+  <description>Freshness of every index: how long since the last event was indexed versus its allowed silence (lookup idxmon_thresholds). Click an index to see which sourcetypes and hosts stopped.</description>
+
+  <fieldset submitButton="false">
+    <input type="time" token="tm" searchWhenChanged="true">
+      <label>Volume chart period</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="sel_index" searchWhenChanged="true">
+      <label>Index (detail)</label>
+      <fieldForLabel>index</fieldForLabel>
+      <fieldForValue>index</fieldForValue>
+      <search>
+        <query>`idxmon_status` | sort index | fields index</query>
+        <earliest>-5m</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+  </fieldset>
+
+  <search id="base">
+    <query>`idxmon_status` | sort sort_order, - minutes_since | table index status silent_for last_indexed_str threshold_minutes severity owner events_lookback total_events minutes_since comment</query>
+    <earliest>-5m</earliest>
+    <latest>now</latest>
+    <refresh>300</refresh>
+    <refreshType>delay</refreshType>
+  </search>
+
+  <row>
+    <panel>
+      <single>
+        <title>STALE (silent beyond threshold)</title>
+        <search base="base"><query>stats count(eval(status="STALE")) as n</query></search>
+        <option name="drilldown">none</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[0]</option>
+        <option name="rangeColors">["0x65A637","0xD93F3C"]</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Warning (&gt;= 75% of threshold)</title>
+        <search base="base"><query>stats count(eval(status="Warning")) as n</query></search>
+        <option name="drilldown">none</option>
+        <option name="useColors">1</option>
+        <option name="rangeValues">[0]</option>
+        <option name="rangeColors">["0x65A637","0xF8BE34"]</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>OK</title>
+        <search base="base"><query>stats count(eval(status="OK")) as n</query></search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Empty / never received data</title>
+        <search base="base"><query>stats count(eval(status="Empty")) as n</query></search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Ignored (enabled=0)</title>
+        <search base="base"><query>stats count(eval(status="Ignored")) as n</query></search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Index freshness (click a row for detail)</title>
+      <table>
+        <search base="base">
+          <query>where status!="Ignored" | fields - minutes_since | rename index as Index, status as Status, silent_for as "Silent for", last_indexed_str as "Last indexed", threshold_minutes as "Threshold (min)", severity as Severity, owner as Owner, events_lookback as "Events (lookback)", total_events as "Total events", comment as Comment</query>
+        </search>
+        <option name="drilldown">cell</option>
+        <option name="count">20</option>
+        <format type="color" field="Status">
+          <colorPalette type="map">{"STALE":"#D93F3C","Warning":"#F8BE34","OK":"#65A637","Empty":"#999999"}</colorPalette>
+        </format>
+        <drilldown>
+          <set token="form.sel_index">$row.Index$</set>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>History: number of indexes per status (from summary index)</title>
+      <chart>
+        <search>
+          <query>index=summary sourcetype=idxmon_status | timechart span=1h dc(index) by status</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.seriesColors">["0xD93F3C","0xF8BE34","0x65A637","0x999999"]</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel depends="$sel_index$">
+      <title>Events per hour - $sel_index$</title>
+      <chart>
+        <search>
+          <query>| tstats count where index="$sel_index$" by _time span=1h</query>
+          <earliest>$tm.earliest$</earliest>
+          <latest>$tm.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel depends="$sel_index$">
+      <title>Sourcetypes / hosts in $sel_index$ - most silent first</title>
+      <table>
+        <search>
+          <query>`idxmon_detail($sel_index$)` | rename sourcetype as Sourcetype, host as Host, last_indexed as "Last indexed", silent_for as "Silent for", count as "Events (lookback)" | fields - minutes_since</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">20</option>
+      </table>
+    </panel>
+  </row>
+</form>

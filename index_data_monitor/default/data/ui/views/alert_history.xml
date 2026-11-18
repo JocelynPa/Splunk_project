@@ -1,0 +1,56 @@
+<form theme="light">
+  <label>Alert History</label>
+  <description>Executions and triggers of the "Index not receiving data" alert, and per-index silence episodes reconstructed from the status snapshots.</description>
+  <fieldset submitButton="false">
+    <input type="time" token="tm" searchWhenChanged="true">
+      <label>Period</label>
+      <default>
+        <earliest>-7d@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+
+  <row>
+    <panel>
+      <title>Silence episodes per index (snapshots with status STALE)</title>
+      <table>
+        <search>
+          <query>index=summary sourcetype=idxmon_status status=STALE | stats min(_time) as first_seen max(_time) as last_seen max(minutes_since) as max_silent_min latest(severity) as severity by index | eval duration=tostring(last_seen-first_seen,"duration"), still_stale=if(last_seen&gt;=relative_time(now(),"-20m"),"yes","no"), first_seen=strftime(first_seen,"%Y-%m-%d %H:%M"), last_seen=strftime(last_seen,"%Y-%m-%d %H:%M"), max_silent=tostring(max_silent_min*60,"duration") | sort - still_stale, - max_silent_min | table index severity first_seen last_seen duration max_silent still_stale | rename index as Index, severity as Severity, first_seen as "First seen stale", last_seen as "Last seen stale", duration as "Observed duration", max_silent as "Max silence", still_stale as "Still stale"</query>
+          <earliest>$tm.earliest$</earliest>
+          <latest>$tm.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <format type="color" field="Still stale">
+          <colorPalette type="map">{"yes":"#D93F3C","no":"#65A637"}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Alert runs (scheduler)</title>
+      <chart>
+        <search>
+          <query>index=_internal sourcetype=scheduler savedsearch_name="IDX Monitor - Alert - Index not receiving data" | timechart span=1h count by status</query>
+          <earliest>$tm.earliest$</earliest>
+          <latest>$tm.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Triggered alerts</title>
+      <table>
+        <search>
+          <query>index=_internal sourcetype=scheduler savedsearch_name="IDX Monitor - Alert - Index not receiving data" result_count&gt;0 | table _time result_count alert_actions status | sort - _time</query>
+          <earliest>$tm.earliest$</earliest>
+          <latest>$tm.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+</form>
