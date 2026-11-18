@@ -1,0 +1,5 @@
+<nav search_view="search" color="#5385ce">
+  <view name="index_monitor" default="true" />
+  <view name="alert_history" />
+  <view name="thresholds" />
+</nav>

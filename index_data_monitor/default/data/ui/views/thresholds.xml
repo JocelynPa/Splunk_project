@@ -1,0 +1,31 @@
+<dashboard theme="light">
+  <label>Thresholds</label>
+  <description>Effective threshold applied to every index, and the content of the lookup idxmon_thresholds. Edit the lookup with the Lookup Editor app (or the CSV in lookups/) - the first matching row wins, wildcards allowed, keep "*" last.</description>
+  <row>
+    <panel>
+      <title>Effective threshold per index</title>
+      <table>
+        <search>
+          <query>`idxmon_status` | table index threshold_minutes enabled severity owner comment | sort index | rename index as Index, threshold_minutes as "Threshold (min)", enabled as Enabled, severity as Severity, owner as Owner, comment as Comment</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">25</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Lookup idxmon_thresholds (rule order matters)</title>
+      <table>
+        <search>
+          <query>| inputlookup idxmon_thresholds</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+</dashboard>
