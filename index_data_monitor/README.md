@@ -13,6 +13,10 @@ Proactive alerting when an index **stops receiving data**.
   threshold), `OK`, `Empty` (never received data) or `Ignored`.
 - Saved search **IDX Monitor - Alert - Index not receiving data** runs every
   15 min, triggers one alert per STALE index, throttled 4h per index.
+- Saved search **IDX Monitor - Alert - Index recovered** (every 15 min, offset by 2 min
+  after the snapshot) fires once per index that goes from `STALE` back to
+  `OK`/`Warning`, by comparing two consecutive snapshots. It depends on the
+  snapshot search being enabled; throttled 1h per index.
 - Saved search **IDX Monitor - Status Snapshot to Summary Index** stores the
   statuses in `index=summary` (sourcetype `idxmon_status`) for the history views.
 
@@ -44,6 +48,8 @@ Proactive alerting when an index **stops receiving data**.
   (`srchIndexesAllowed`), otherwise inaccessible indexes will look silent.
 - Install on a search head with the indexers as search peers (the REST call
   uses `splunk_server=*`). Metric indexes are not covered (`tstats` on events only).
+- Recovery detection only works from snapshot history: an outage that began
+  before the app was installed (no prior `STALE` snapshot) gets no recovery alert.
 - A brand-new index with no data is `Empty` (no alert); once it received data
   and then stops, it becomes `STALE`.
 - Searches were written without a Splunk instance available to test them:
