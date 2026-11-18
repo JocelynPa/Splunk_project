@@ -15,7 +15,7 @@
       <fieldForLabel>index</fieldForLabel>
       <fieldForValue>index</fieldForValue>
       <search>
-        <query>`idxmon_status` | sort index | fields index</query>
+        <query>| `idxmon_status` | sort index | fields index</query>
         <earliest>-5m</earliest>
         <latest>now</latest>
       </search>
@@ -23,7 +23,7 @@
   </fieldset>
 
   <search id="base">
-    <query>`idxmon_status` | sort sort_order, - minutes_since | table index status silent_for last_indexed_str threshold_minutes severity owner events_lookback total_events minutes_since comment</query>
+    <query>| `idxmon_status` | sort sort_order, - minutes_since | table index status silent_for last_indexed_str threshold_minutes severity owner events_lookback total_events minutes_since comment</query>
     <earliest>-5m</earliest>
     <latest>now</latest>
     <refresh>300</refresh>
@@ -131,7 +131,7 @@
       <title>Sourcetypes / hosts in $sel_index$ - most silent first</title>
       <table>
         <search>
-          <query>`idxmon_detail($sel_index$)` | rename sourcetype as Sourcetype, host as Host, last_indexed as "Last indexed", silent_for as "Silent for", count as "Events (lookback)" | fields - minutes_since</query>
+          <query>| `idxmon_detail($sel_index$)` | rename sourcetype as Sourcetype, host as Host, last_indexed as "Last indexed", silent_for as "Silent for", count as "Events (lookback)" | fields - minutes_since</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
