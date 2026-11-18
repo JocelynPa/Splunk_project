@@ -1,12 +1,88 @@
-<dashboard theme="light">
+<form theme="light">
   <label>Thresholds</label>
-  <description>Effective threshold applied to every index, and the content of the lookup idxmon_thresholds. Edit the lookup with the Lookup Editor app (or the CSV in lookups/) - the first matching row wins, wildcards allowed, keep "*" last.</description>
+  <description>Add, change or delete the silence threshold of an index (or an index pattern such as app_*). Click a row of the lookup to load it into the form, then press Apply. A new rule is inserted before the first wildcard rule so it takes precedence over "*".</description>
+
+  <fieldset submitButton="true" autoRun="false">
+    <input type="text" token="f_index">
+      <label>Index or pattern</label>
+    </input>
+    <input type="text" token="f_thr">
+      <label>Threshold (minutes)</label>
+      <default>60</default>
+    </input>
+    <input type="dropdown" token="f_enabled">
+      <label>Monitoring</label>
+      <choice value="1">Enabled</choice>
+      <choice value="0">Ignored</choice>
+      <default>1</default>
+    </input>
+    <input type="dropdown" token="f_sev">
+      <label>Severity</label>
+      <choice value="low">low</choice>
+      <choice value="medium">medium</choice>
+      <choice value="high">high</choice>
+      <choice value="critical">critical</choice>
+      <default>medium</default>
+    </input>
+    <input type="text" token="f_owner">
+      <label>Owner / contact</label>
+      <default></default>
+    </input>
+    <input type="text" token="f_comment">
+      <label>Comment</label>
+      <default></default>
+    </input>
+    <input type="dropdown" token="f_action">
+      <label>Action</label>
+      <choice value="save">Save / update</choice>
+      <choice value="delete">Delete rule</choice>
+      <default>save</default>
+    </input>
+  </fieldset>
+
   <row>
-    <panel>
-      <title>Effective threshold per index</title>
+    <panel depends="$f_index$">
+      <title>Result: lookup content after "$f_action$" on "$f_index$"</title>
       <table>
         <search>
-          <query>`idxmon_status` | table index threshold_minutes enabled severity owner comment | sort index | rename index as Index, threshold_minutes as "Threshold (min)", enabled as Enabled, severity as Severity, owner as Owner, comment as Comment</query>
+          <query>| inputlookup idxmon_thresholds | streamstats count as rn | eval new=0 | eventstats min(eval(if(like(index,"%*%"),rn,null()))) as fw | append [| makeresults | eval index=$f_index|s$, threshold_minutes=$f_thr|s$, enabled=$f_enabled|s$, severity=$f_sev|s$, owner=$f_owner|s$, comment=$f_comment|s$, new=1 | fields - _time] | eval idx_l=lower(trim(index)), index=trim(index) | eventstats max(rn) as old_rn, max(new) as hasnew by idx_l | eventstats max(fw) as fw_all | eval pos=case(new=0, rn, isnotnull(old_rn), old_rn, isnotnull(fw_all), fw_all-0.5, true(), 1000000) | where new=1 OR hasnew=0 | where NOT (new=1 AND "$f_action$"="delete") | where len(index)&gt;0 | sort 0 pos | fields index threshold_minutes enabled severity owner comment | outputlookup idxmon_thresholds.csv</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">25</option>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Lookup idxmon_thresholds (rule order matters - click a row to edit it)</title>
+      <table>
+        <search>
+          <query>| inputlookup idxmon_thresholds</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">row</option>
+        <drilldown>
+          <set token="form.f_index">$row.index$</set>
+          <set token="form.f_thr">$row.threshold_minutes$</set>
+          <set token="form.f_enabled">$row.enabled$</set>
+          <set token="form.f_sev">$row.severity$</set>
+          <set token="form.f_owner">$row.owner$</set>
+          <set token="form.f_comment">$row.comment$</set>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Effective threshold per index (reload the page after a change)</title>
+      <table>
+        <search>
+          <query>| `idxmon_status` | table index threshold_minutes enabled severity owner comment | sort index | rename index as Index, threshold_minutes as "Threshold (min)", enabled as Enabled, severity as Severity, owner as Owner, comment as Comment</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
         </search>
@@ -15,17 +91,4 @@
       </table>
     </panel>
   </row>
-  <row>
-    <panel>
-      <title>Lookup idxmon_thresholds (rule order matters)</title>
-      <table>
-        <search>
-          <query>| inputlookup idxmon_thresholds</query>
-          <earliest>-5m</earliest>
-          <latest>now</latest>
-        </search>
-        <option name="drilldown">none</option>
-      </table>
-    </panel>
-  </row>
-</dashboard>
+</form>

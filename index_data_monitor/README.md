@@ -30,7 +30,8 @@ Proactive alerting when an index **stops receiving data**.
 
 ## Configuration
 
-1. **Thresholds**: edit `lookups/idxmon_thresholds.csv` (or use the Lookup
+1. **Thresholds**: use the *Thresholds* view (form: add/update/delete a rule, click a
+   row to load it; needs write permission on the lookup, role admin/power), or edit `lookups/idxmon_thresholds.csv` (or use the Lookup
    Editor app). Columns: `index` (wildcards allowed), `threshold_minutes`,
    `enabled` (0 = ignore), `severity`, `owner`, `comment`. **The first matching
    row wins** - keep specific rows first and `*` last. Default: 60 min.
@@ -53,4 +54,4 @@ Proactive alerting when an index **stops receiving data**.
 - A brand-new index with no data is `Empty` (no alert); once it received data
   and then stops, it becomes `STALE`.
 - Searches were written without a Splunk instance available to test them:
-  validate on a dev search head first (run `` `idxmon_status` `` in Search).
+  validate on a dev search head first (run `` | `idxmon_status` `` in Search).
