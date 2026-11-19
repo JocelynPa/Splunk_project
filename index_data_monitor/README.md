@@ -33,6 +33,14 @@ running on every input change, which is required for a form that writes to a loo
 | Alert History | Silence episodes per index, alert runs and triggers |
 | Thresholds | Form to edit index thresholds; effective threshold per index and the lookup content |
 
+## Localization
+
+The Simple XML views (the two threshold forms) and the app name are translated
+to French when the user's Splunk language is fr_FR
+(`locale/fr_FR/LC_MESSAGES/index_data_monitor.po`/`.mo`); other languages fall back to
+English. Dashboard Studio views, table column names built in SPL and alert email text
+stay in English. After a change, run `splunk restart` or reload `/debug/refresh`.
+
 ## Sourcetype thresholds
 
 Opt-in rules per (index, sourcetype) in `lookups/idxmon_st_thresholds.csv`,
