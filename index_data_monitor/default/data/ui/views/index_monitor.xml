@@ -1,163 +1,469 @@
-<form theme="light">
+<dashboard version="2" theme="dark">
   <label>Index Data Monitor</label>
-  <description>Freshness of every index: how long since the last event was indexed versus its allowed silence (lookup idxmon_thresholds). Click an index to see which sourcetypes and hosts stopped.</description>
-
-  <fieldset submitButton="false">
-    <input type="time" token="tm" searchWhenChanged="true">
-      <label>Volume chart period</label>
-      <default>
-        <earliest>-24h@h</earliest>
-        <latest>now</latest>
-      </default>
-    </input>
-    <input type="dropdown" token="sel_index" searchWhenChanged="true">
-      <label>Index (detail)</label>
-      <fieldForLabel>index</fieldForLabel>
-      <fieldForValue>index</fieldForValue>
-      <search>
-        <query>| `idxmon_status` | sort index | fields index</query>
-        <earliest>-5m</earliest>
-        <latest>now</latest>
-      </search>
-    </input>
-  </fieldset>
-
-  <search id="base">
-    <query>| `idxmon_status` | sort sort_order, - minutes_since | table index status silent_for last_indexed_str threshold_minutes severity owner events_lookback total_events minutes_since comment</query>
-    <earliest>-5m</earliest>
-    <latest>now</latest>
-    <refresh>300</refresh>
-    <refreshType>delay</refreshType>
-  </search>
-
-  <row>
-    <panel>
-      <single>
-        <title>STALE (silent beyond threshold)</title>
-        <search base="base"><query>stats count(eval(status="STALE")) as n</query></search>
-        <option name="drilldown">none</option>
-        <option name="useColors">1</option>
-        <option name="rangeValues">[0]</option>
-        <option name="rangeColors">["0x65A637","0xD93F3C"]</option>
-      </single>
-    </panel>
-    <panel>
-      <single>
-        <title>Warning (&gt;= 75% of threshold)</title>
-        <search base="base"><query>stats count(eval(status="Warning")) as n</query></search>
-        <option name="drilldown">none</option>
-        <option name="useColors">1</option>
-        <option name="rangeValues">[0]</option>
-        <option name="rangeColors">["0x65A637","0xF8BE34"]</option>
-      </single>
-    </panel>
-    <panel>
-      <single>
-        <title>OK</title>
-        <search base="base"><query>stats count(eval(status="OK")) as n</query></search>
-        <option name="drilldown">none</option>
-      </single>
-    </panel>
-    <panel>
-      <single>
-        <title>Empty / never received data</title>
-        <search base="base"><query>stats count(eval(status="Empty")) as n</query></search>
-        <option name="drilldown">none</option>
-      </single>
-    </panel>
-    <panel>
-      <single>
-        <title>Ignored (enabled=0)</title>
-        <search base="base"><query>stats count(eval(status="Ignored")) as n</query></search>
-        <option name="drilldown">none</option>
-      </single>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>Index freshness (click a row for detail)</title>
-      <table>
-        <search base="base">
-          <query>where status!="Ignored" | fields - minutes_since | rename index as Index, status as Status, silent_for as "Silent for", last_indexed_str as "Last indexed", threshold_minutes as "Threshold (min)", severity as Severity, owner as Owner, events_lookback as "Events (lookback)", total_events as "Total events", comment as Comment</query>
-        </search>
-        <option name="drilldown">cell</option>
-        <option name="count">20</option>
-        <format type="color" field="Status">
-          <colorPalette type="map">{"STALE":"#D93F3C","Warning":"#F8BE34","OK":"#65A637","Empty":"#999999"}</colorPalette>
-        </format>
-        <drilldown>
-          <set token="form.sel_index">$row.Index$</set>
-        </drilldown>
-      </table>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>Monitored sourcetypes (rules in Sourcetype Thresholds)</title>
-      <table>
-        <search>
-          <query>| `idxmon_status_st` | sort sort_order, - minutes_since | table index sourcetype status silent_for last_indexed_str threshold_minutes severity owner | rename index as Index, sourcetype as Sourcetype, status as Status, silent_for as "Silent for", last_indexed_str as "Last indexed", threshold_minutes as "Threshold (min)", severity as Severity, owner as Owner</query>
-          <earliest>-5m</earliest>
-          <latest>now</latest>
-          <refresh>300</refresh>
-          <refreshType>delay</refreshType>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">10</option>
-        <format type="color" field="Status">
-          <colorPalette type="map">{"STALE":"#D93F3C","Warning":"#F8BE34","OK":"#65A637"}</colorPalette>
-        </format>
-      </table>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>History: number of indexes per status (from summary index)</title>
-      <chart>
-        <search>
-          <query>index=summary sourcetype=idxmon_status | timechart span=1h dc(index) by status</query>
-          <earliest>-7d@h</earliest>
-          <latest>now</latest>
-        </search>
-        <option name="charting.chart">column</option>
-        <option name="charting.chart.stackMode">stacked</option>
-        <option name="charting.seriesColors">["0xD93F3C","0xF8BE34","0x65A637","0x999999"]</option>
-        <option name="charting.legend.placement">bottom</option>
-      </chart>
-    </panel>
-  </row>
-
-  <row>
-    <panel depends="$sel_index$">
-      <title>Events per hour - $sel_index$</title>
-      <chart>
-        <search>
-          <query>| tstats count where index="$sel_index$" by _time span=1h</query>
-          <earliest>$tm.earliest$</earliest>
-          <latest>$tm.latest$</latest>
-        </search>
-        <option name="charting.chart">column</option>
-        <option name="charting.legend.placement">none</option>
-        <option name="charting.axisTitleX.visibility">collapsed</option>
-      </chart>
-    </panel>
-  </row>
-
-  <row>
-    <panel depends="$sel_index$">
-      <title>Sourcetypes / hosts in $sel_index$ - most silent first</title>
-      <table>
-        <search>
-          <query>| `idxmon_detail($sel_index$)` | rename sourcetype as Sourcetype, host as Host, last_indexed as "Last indexed", silent_for as "Silent for", count as "Events (lookback)" | fields - minutes_since</query>
-          <earliest>-5m</earliest>
-          <latest>now</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="count">20</option>
-      </table>
-    </panel>
-  </row>
-</form>
+  <description>Freshness of every index and monitored sourcetype: time since the last indexed event versus the allowed silence.</description>
+  <definition><![CDATA[
+{
+  "title": "Index Data Monitor",
+  "description": "Freshness of every index versus its allowed silence. Click an index for sourcetypes and hosts.",
+  "inputs": {
+    "input_tm": {
+      "type": "input.timerange",
+      "title": "Volume chart period",
+      "options": {
+        "token": "tm",
+        "defaultValue": "-24h@h,now"
+      }
+    },
+    "input_idx": {
+      "type": "input.dropdown",
+      "title": "Index (detail)",
+      "options": {
+        "token": "sel_index",
+        "selectFirstSearchResult": true
+      },
+      "dataSources": {
+        "primary": "ds_idxlist"
+      }
+    }
+  },
+  "defaults": {},
+  "visualizations": {
+    "v_stale": {
+      "type": "splunk.singlevalue",
+      "title": "STALE",
+      "dataSources": {
+        "primary": "ds_stale"
+      },
+      "options": {
+        "majorValue": "> primary | seriesByName('n') | lastPoint()",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(kpiColors)"
+      },
+      "context": {
+        "kpiColors": [
+          {
+            "to": 1,
+            "value": "#65A637"
+          },
+          {
+            "from": 1,
+            "value": "#D93F3C"
+          }
+        ]
+      }
+    },
+    "v_warn": {
+      "type": "splunk.singlevalue",
+      "title": "Warning (>= 75% of threshold)",
+      "dataSources": {
+        "primary": "ds_warn"
+      },
+      "options": {
+        "majorValue": "> primary | seriesByName('n') | lastPoint()",
+        "trendDisplay": "off",
+        "majorColor": "> majorValue | rangeValue(kpiColors)"
+      },
+      "context": {
+        "kpiColors": [
+          {
+            "to": 1,
+            "value": "#65A637"
+          },
+          {
+            "from": 1,
+            "value": "#F8BE34"
+          }
+        ]
+      }
+    },
+    "v_ok": {
+      "type": "splunk.singlevalue",
+      "title": "OK",
+      "dataSources": {
+        "primary": "ds_ok"
+      },
+      "options": {
+        "majorValue": "> primary | seriesByName('n') | lastPoint()",
+        "trendDisplay": "off",
+        "majorColor": "#65A637"
+      }
+    },
+    "v_empty": {
+      "type": "splunk.singlevalue",
+      "title": "Empty (never received data)",
+      "dataSources": {
+        "primary": "ds_empty"
+      },
+      "options": {
+        "majorValue": "> primary | seriesByName('n') | lastPoint()",
+        "trendDisplay": "off"
+      }
+    },
+    "v_ign": {
+      "type": "splunk.singlevalue",
+      "title": "Ignored",
+      "dataSources": {
+        "primary": "ds_ign"
+      },
+      "options": {
+        "majorValue": "> primary | seriesByName('n') | lastPoint()",
+        "trendDisplay": "off"
+      }
+    },
+    "v_table": {
+      "type": "splunk.table",
+      "dataSources": {
+        "primary": "ds_table"
+      },
+      "options": {
+        "count": 12,
+        "columnFormat": {
+          "Status": {
+            "rowBackgroundColors": "> table | seriesByName('Status') | matchValue(color_Status)"
+          }
+        }
+      },
+      "context": {
+        "color_Status": [
+          {
+            "match": "STALE",
+            "value": "#D93F3C"
+          },
+          {
+            "match": "Warning",
+            "value": "#F8BE34"
+          },
+          {
+            "match": "OK",
+            "value": "#65A637"
+          },
+          {
+            "match": "Empty",
+            "value": "#8A8F98"
+          }
+        ]
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.setToken",
+          "options": {
+            "tokens": [
+              {
+                "token": "sel_index",
+                "key": "row.Index.value"
+              }
+            ]
+          }
+        }
+      ],
+      "title": "Index freshness (click a row for detail)"
+    },
+    "v_st": {
+      "type": "splunk.table",
+      "dataSources": {
+        "primary": "ds_st"
+      },
+      "options": {
+        "count": 8,
+        "columnFormat": {
+          "Status": {
+            "rowBackgroundColors": "> table | seriesByName('Status') | matchValue(color_Status)"
+          }
+        }
+      },
+      "context": {
+        "color_Status": [
+          {
+            "match": "STALE",
+            "value": "#D93F3C"
+          },
+          {
+            "match": "Warning",
+            "value": "#F8BE34"
+          },
+          {
+            "match": "OK",
+            "value": "#65A637"
+          },
+          {
+            "match": "Empty",
+            "value": "#8A8F98"
+          }
+        ]
+      },
+      "title": "Monitored sourcetypes (rules in Sourcetype Thresholds)"
+    },
+    "v_hist": {
+      "type": "splunk.column",
+      "dataSources": {
+        "primary": "ds_hist"
+      },
+      "options": {
+        "stackMode": "stacked",
+        "legendDisplay": "bottom",
+        "seriesColorsByField": {
+          "STALE": "#D93F3C",
+          "Warning": "#F8BE34",
+          "OK": "#65A637",
+          "Empty": "#8A8F98"
+        }
+      },
+      "title": "History: number of indexes per status (summary index, 7 days)"
+    },
+    "v_vol": {
+      "type": "splunk.column",
+      "dataSources": {
+        "primary": "ds_vol"
+      },
+      "options": {
+        "legendDisplay": "off"
+      },
+      "title": "Events per hour - selected index"
+    },
+    "v_detail": {
+      "type": "splunk.table",
+      "dataSources": {
+        "primary": "ds_detail"
+      },
+      "options": {
+        "count": 12
+      },
+      "title": "Sourcetypes / hosts of the selected index - most silent first"
+    }
+  },
+  "dataSources": {
+    "ds_base": {
+      "type": "ds.search",
+      "options": {
+        "query": "| `idxmon_status` | sort sort_order, - minutes_since | table index status silent_for last_indexed_str threshold_minutes severity owner events_lookback total_events minutes_since comment",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        },
+        "refresh": "5m",
+        "refreshType": "delay"
+      },
+      "name": "Index status"
+    },
+    "ds_stale": {
+      "type": "ds.chain",
+      "options": {
+        "extend": "ds_base",
+        "query": "stats count(eval(status=\"STALE\")) as n"
+      },
+      "name": "Stale"
+    },
+    "ds_warn": {
+      "type": "ds.chain",
+      "options": {
+        "extend": "ds_base",
+        "query": "stats count(eval(status=\"Warning\")) as n"
+      },
+      "name": "Warning"
+    },
+    "ds_ok": {
+      "type": "ds.chain",
+      "options": {
+        "extend": "ds_base",
+        "query": "stats count(eval(status=\"OK\")) as n"
+      },
+      "name": "OK"
+    },
+    "ds_empty": {
+      "type": "ds.chain",
+      "options": {
+        "extend": "ds_base",
+        "query": "stats count(eval(status=\"Empty\")) as n"
+      },
+      "name": "Empty"
+    },
+    "ds_ign": {
+      "type": "ds.chain",
+      "options": {
+        "extend": "ds_base",
+        "query": "stats count(eval(status=\"Ignored\")) as n"
+      },
+      "name": "Ignored"
+    },
+    "ds_table": {
+      "type": "ds.chain",
+      "options": {
+        "extend": "ds_base",
+        "query": "where status!=\"Ignored\" | fields - minutes_since | rename index as Index, status as Status, silent_for as \"Silent for\", last_indexed_str as \"Last indexed\", threshold_minutes as \"Threshold (min)\", severity as Severity, owner as Owner, events_lookback as \"Events (lookback)\", total_events as \"Total events\", comment as Comment"
+      },
+      "name": "Freshness table"
+    },
+    "ds_st": {
+      "type": "ds.search",
+      "options": {
+        "query": "| `idxmon_status_st` | sort sort_order, - minutes_since | table index sourcetype status silent_for last_indexed_str threshold_minutes severity owner | rename index as Index, sourcetype as Sourcetype, status as Status, silent_for as \"Silent for\", last_indexed_str as \"Last indexed\", threshold_minutes as \"Threshold (min)\", severity as Severity, owner as Owner",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        },
+        "refresh": "5m",
+        "refreshType": "delay"
+      },
+      "name": "Sourcetype status"
+    },
+    "ds_hist": {
+      "type": "ds.search",
+      "options": {
+        "query": "index=summary sourcetype=idxmon_status | timechart span=1h dc(index) by status",
+        "queryParameters": {
+          "earliest": "-7d@h",
+          "latest": "now"
+        }
+      },
+      "name": "Status history"
+    },
+    "ds_idxlist": {
+      "type": "ds.search",
+      "options": {
+        "query": "| `idxmon_status` | sort index | eval label=index, value=index | fields label value",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      },
+      "name": "Index list"
+    },
+    "ds_vol": {
+      "type": "ds.search",
+      "options": {
+        "query": "| tstats count where index=\"$sel_index$\" by _time span=1h",
+        "queryParameters": {
+          "earliest": "$tm.earliest$",
+          "latest": "$tm.latest$"
+        }
+      },
+      "name": "Hourly volume"
+    },
+    "ds_detail": {
+      "type": "ds.search",
+      "options": {
+        "query": "| `idxmon_detail($sel_index$)` | rename sourcetype as Sourcetype, host as Host, last_indexed as \"Last indexed\", silent_for as \"Silent for\", count as \"Events (lookback)\" | fields - minutes_since",
+        "queryParameters": {
+          "earliest": "-5m",
+          "latest": "now"
+        }
+      },
+      "name": "Sourcetypes and hosts"
+    }
+  },
+  "layout": {
+    "type": "grid",
+    "options": {
+      "width": 1440,
+      "height": 1960
+    },
+    "structure": [
+      {
+        "item": "v_stale",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 280,
+          "h": 130
+        }
+      },
+      {
+        "item": "v_warn",
+        "type": "block",
+        "position": {
+          "x": 290,
+          "y": 0,
+          "w": 280,
+          "h": 130
+        }
+      },
+      {
+        "item": "v_ok",
+        "type": "block",
+        "position": {
+          "x": 580,
+          "y": 0,
+          "w": 280,
+          "h": 130
+        }
+      },
+      {
+        "item": "v_empty",
+        "type": "block",
+        "position": {
+          "x": 870,
+          "y": 0,
+          "w": 280,
+          "h": 130
+        }
+      },
+      {
+        "item": "v_ign",
+        "type": "block",
+        "position": {
+          "x": 1160,
+          "y": 0,
+          "w": 280,
+          "h": 130
+        }
+      },
+      {
+        "item": "v_table",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 140,
+          "w": 1440,
+          "h": 440
+        }
+      },
+      {
+        "item": "v_st",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 590,
+          "w": 1440,
+          "h": 300
+        }
+      },
+      {
+        "item": "v_hist",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 900,
+          "w": 1440,
+          "h": 300
+        }
+      },
+      {
+        "item": "v_vol",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1210,
+          "w": 1440,
+          "h": 300
+        }
+      },
+      {
+        "item": "v_detail",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1520,
+          "w": 1440,
+          "h": 420
+        }
+      }
+    ],
+    "globalInputs": [
+      "input_tm",
+      "input_idx"
+    ]
+  }
+}
+]]></definition>
+</dashboard>

@@ -22,6 +22,11 @@ Proactive alerting when an index **stops receiving data**.
 
 ## Views
 
+*Index Data Monitor* and *Alert History* are **Dashboard Studio** dashboards (dark theme,
+Splunk 9.x+; tested target: 10.4). The two threshold forms stay in Simple XML
+because Dashboard Studio has no Apply button / no way to stop searches from
+running on every input change, which is required for a form that writes to a lookup.
+
 | View | Purpose |
 |---|---|
 | Index Data Monitor | KPIs, freshness table, status history, drilldown to sourcetypes/hosts and hourly volume |

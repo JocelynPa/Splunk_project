@@ -1,56 +1,196 @@
-<form theme="light">
+<dashboard version="2" theme="dark">
   <label>Alert History</label>
-  <description>Executions and triggers of the "Index not receiving data" alert, and per-index silence episodes reconstructed from the status snapshots.</description>
-  <fieldset submitButton="false">
-    <input type="time" token="tm" searchWhenChanged="true">
-      <label>Period</label>
-      <default>
-        <earliest>-7d@h</earliest>
-        <latest>now</latest>
-      </default>
-    </input>
-  </fieldset>
-
-  <row>
-    <panel>
-      <title>Silence episodes per index (snapshots with status STALE)</title>
-      <table>
-        <search>
-          <query>index=summary sourcetype=idxmon_status status=STALE | stats min(_time) as first_seen max(_time) as last_seen max(minutes_since) as max_silent_min latest(severity) as severity by index | eval duration=tostring(last_seen-first_seen,"duration"), still_stale=if(last_seen&gt;=relative_time(now(),"-20m"),"yes","no"), first_seen=strftime(first_seen,"%Y-%m-%d %H:%M"), last_seen=strftime(last_seen,"%Y-%m-%d %H:%M"), max_silent=tostring(max_silent_min*60,"duration") | sort - still_stale, - max_silent_min | table index severity first_seen last_seen duration max_silent still_stale | rename index as Index, severity as Severity, first_seen as "First seen stale", last_seen as "Last seen stale", duration as "Observed duration", max_silent as "Max silence", still_stale as "Still stale"</query>
-          <earliest>$tm.earliest$</earliest>
-          <latest>$tm.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <format type="color" field="Still stale">
-          <colorPalette type="map">{"yes":"#D93F3C","no":"#65A637"}</colorPalette>
-        </format>
-      </table>
-    </panel>
-  </row>
-
-  <row>
-    <panel>
-      <title>Alert runs (scheduler)</title>
-      <chart>
-        <search>
-          <query>index=_internal sourcetype=scheduler savedsearch_name="IDX Monitor - Alert - Index not receiving data" | timechart span=1h count by status</query>
-          <earliest>$tm.earliest$</earliest>
-          <latest>$tm.latest$</latest>
-        </search>
-        <option name="charting.chart">column</option>
-        <option name="charting.chart.stackMode">stacked</option>
-      </chart>
-    </panel>
-    <panel>
-      <title>Triggered alerts</title>
-      <table>
-        <search>
-          <query>index=_internal sourcetype=scheduler savedsearch_name="IDX Monitor - Alert - Index not receiving data" result_count&gt;0 | table _time result_count alert_actions status | sort - _time</query>
-          <earliest>$tm.earliest$</earliest>
-          <latest>$tm.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-      </table>
-    </panel>
-  </row>
-</form>
+  <description>Executions and triggers of the index and sourcetype alerts, and per-index / per-sourcetype silence episodes.</description>
+  <definition><![CDATA[
+{
+  "title": "Alert History",
+  "description": "Executions and triggers of the alerts and silence episodes reconstructed from status snapshots.",
+  "inputs": {
+    "input_tm": {
+      "type": "input.timerange",
+      "title": "Period",
+      "options": {
+        "token": "tm",
+        "defaultValue": "-7d@h,now"
+      }
+    }
+  },
+  "defaults": {},
+  "visualizations": {
+    "v_ep": {
+      "type": "splunk.table",
+      "dataSources": {
+        "primary": "ds_ep"
+      },
+      "options": {
+        "count": 10,
+        "columnFormat": {
+          "Still stale": {
+            "rowBackgroundColors": "> table | seriesByName('Still stale') | matchValue(color_Still_stale)"
+          }
+        }
+      },
+      "context": {
+        "color_Still_stale": [
+          {
+            "match": "yes",
+            "value": "#D93F3C"
+          },
+          {
+            "match": "no",
+            "value": "#65A637"
+          }
+        ]
+      },
+      "title": "Silence episodes per index (snapshots with status STALE)"
+    },
+    "v_epst": {
+      "type": "splunk.table",
+      "dataSources": {
+        "primary": "ds_epst"
+      },
+      "options": {
+        "count": 10,
+        "columnFormat": {
+          "Still stale": {
+            "rowBackgroundColors": "> table | seriesByName('Still stale') | matchValue(color_Still_stale)"
+          }
+        }
+      },
+      "context": {
+        "color_Still_stale": [
+          {
+            "match": "yes",
+            "value": "#D93F3C"
+          },
+          {
+            "match": "no",
+            "value": "#65A637"
+          }
+        ]
+      },
+      "title": "Silence episodes per sourcetype"
+    },
+    "v_runs": {
+      "type": "splunk.column",
+      "dataSources": {
+        "primary": "ds_runs"
+      },
+      "options": {
+        "stackMode": "stacked",
+        "legendDisplay": "bottom"
+      },
+      "title": "Alert runs (scheduler)"
+    },
+    "v_trig": {
+      "type": "splunk.table",
+      "dataSources": {
+        "primary": "ds_trig"
+      },
+      "options": {
+        "count": 10
+      },
+      "title": "Triggered alerts"
+    }
+  },
+  "dataSources": {
+    "ds_ep": {
+      "type": "ds.search",
+      "options": {
+        "query": "index=summary sourcetype=idxmon_status status=STALE | stats min(_time) as first_seen max(_time) as last_seen max(minutes_since) as max_silent_min latest(severity) as severity by index | eval duration=tostring(last_seen-first_seen,\"duration\"), still_stale=if(last_seen>=relative_time(now(),\"-20m\"),\"yes\",\"no\"), first_seen=strftime(first_seen,\"%Y-%m-%d %H:%M\"), last_seen=strftime(last_seen,\"%Y-%m-%d %H:%M\"), max_silent=tostring(max_silent_min*60,\"duration\") | sort - still_stale, - max_silent_min | table index severity first_seen last_seen duration max_silent still_stale | rename index as Index, severity as Severity, first_seen as \"First seen stale\", last_seen as \"Last seen stale\", duration as \"Observed duration\", max_silent as \"Max silence\", still_stale as \"Still stale\"",
+        "queryParameters": {
+          "earliest": "$tm.earliest$",
+          "latest": "$tm.latest$"
+        }
+      },
+      "name": "Silence episodes (index)"
+    },
+    "ds_epst": {
+      "type": "ds.search",
+      "options": {
+        "query": "index=summary sourcetype=idxmon_status_st status=STALE | stats min(_time) as first_seen max(_time) as last_seen max(minutes_since) as max_silent_min latest(severity) as severity by index sourcetype | eval duration=tostring(last_seen-first_seen,\"duration\"), still_stale=if(last_seen>=relative_time(now(),\"-20m\"),\"yes\",\"no\"), first_seen=strftime(first_seen,\"%Y-%m-%d %H:%M\"), last_seen=strftime(last_seen,\"%Y-%m-%d %H:%M\"), max_silent=tostring(max_silent_min*60,\"duration\") | sort - still_stale, - max_silent_min | table index sourcetype severity first_seen last_seen duration max_silent still_stale | rename index as Index, sourcetype as Sourcetype, severity as Severity, first_seen as \"First seen stale\", last_seen as \"Last seen stale\", duration as \"Observed duration\", max_silent as \"Max silence\", still_stale as \"Still stale\"",
+        "queryParameters": {
+          "earliest": "$tm.earliest$",
+          "latest": "$tm.latest$"
+        }
+      },
+      "name": "Silence episodes (sourcetype)"
+    },
+    "ds_runs": {
+      "type": "ds.search",
+      "options": {
+        "query": "index=_internal sourcetype=scheduler (savedsearch_name=\"IDX Monitor - Alert - Index not receiving data\" OR savedsearch_name=\"IDX Monitor - Alert - Sourcetype not receiving data\") | timechart span=1h count by status",
+        "queryParameters": {
+          "earliest": "$tm.earliest$",
+          "latest": "$tm.latest$"
+        }
+      },
+      "name": "Alert runs"
+    },
+    "ds_trig": {
+      "type": "ds.search",
+      "options": {
+        "query": "index=_internal sourcetype=scheduler savedsearch_name=\"IDX Monitor - Alert*\" result_count>0 | table _time savedsearch_name result_count status | sort - _time | rename savedsearch_name as Alert, result_count as Results",
+        "queryParameters": {
+          "earliest": "$tm.earliest$",
+          "latest": "$tm.latest$"
+        }
+      },
+      "name": "Triggered alerts"
+    }
+  },
+  "layout": {
+    "type": "grid",
+    "options": {
+      "width": 1440,
+      "height": 1040
+    },
+    "structure": [
+      {
+        "item": "v_ep",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 1440,
+          "h": 340
+        }
+      },
+      {
+        "item": "v_epst",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 350,
+          "w": 1440,
+          "h": 340
+        }
+      },
+      {
+        "item": "v_runs",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 700,
+          "w": 710,
+          "h": 320
+        }
+      },
+      {
+        "item": "v_trig",
+        "type": "block",
+        "position": {
+          "x": 730,
+          "y": 700,
+          "w": 710,
+          "h": 320
+        }
+      }
+    ],
+    "globalInputs": [
+      "input_tm"
+    ]
+  }
+}
+]]></definition>
+</dashboard>
