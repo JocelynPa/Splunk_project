@@ -26,7 +26,18 @@ Proactive alerting when an index **stops receiving data**.
 |---|---|
 | Index Data Monitor | KPIs, freshness table, status history, drilldown to sourcetypes/hosts and hourly volume |
 | Alert History | Silence episodes per index, alert runs and triggers |
-| Thresholds | Effective threshold per index and the lookup content |
+| Thresholds | Form to edit index thresholds; effective threshold per index and the lookup content |
+
+## Sourcetype thresholds
+
+Opt-in rules per (index, sourcetype) in `lookups/idxmon_st_thresholds.csv`,
+edited from the *Sourcetype Thresholds* view. Wildcards are allowed on both
+fields (first match wins). Rules without wildcards also detect a sourcetype
+that vanished completely (no event in the lookback), wildcard rules only apply
+to combinations seen in the lookback. Dedicated alerts: **Sourcetype not
+receiving data**, **Sourcetype recovered**, plus a snapshot to the summary index
+(sourcetype `idxmon_status_st`). Index-level and sourcetype-level alerts are
+independent.
 
 ## Configuration
 

@@ -95,6 +95,26 @@
 
   <row>
     <panel>
+      <title>Monitored sourcetypes (rules in Sourcetype Thresholds)</title>
+      <table>
+        <search>
+          <query>| `idxmon_status_st` | sort sort_order, - minutes_since | table index sourcetype status silent_for last_indexed_str threshold_minutes severity owner | rename index as Index, sourcetype as Sourcetype, status as Status, silent_for as "Silent for", last_indexed_str as "Last indexed", threshold_minutes as "Threshold (min)", severity as Severity, owner as Owner</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+          <refresh>300</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">10</option>
+        <format type="color" field="Status">
+          <colorPalette type="map">{"STALE":"#D93F3C","Warning":"#F8BE34","OK":"#65A637"}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
       <title>History: number of indexes per status (from summary index)</title>
       <chart>
         <search>

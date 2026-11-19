@@ -1,0 +1,2 @@
+index,sourcetype,threshold_minutes,enabled,severity,owner,comment
+_internal,splunkd,15,1,critical,splunk-admins,Example rule - delete or adapt
