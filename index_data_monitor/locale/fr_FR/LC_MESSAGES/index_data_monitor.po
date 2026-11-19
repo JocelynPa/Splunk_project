@@ -1,0 +1,86 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: fr_FR\n"
+
+msgid "Thresholds"
+msgstr "Seuils"
+
+msgid "Add, change or delete the silence threshold of an index (or an index pattern such as app_*). Click a row of the lookup to load it into the form, then press Apply. A new rule is inserted before the first wildcard rule so it takes precedence over \"*\"."
+msgstr "Ajouter, modifier ou supprimer le seuil de silence d'un index (ou d'un motif d'index tel que app_*). Cliquez sur une ligne du lookup pour la charger dans le formulaire, puis sur Apply. Une nouvelle règle est insérée avant la première règle à joker pour passer avant \"*\"."
+
+msgid "Index or pattern"
+msgstr "Index ou motif"
+
+msgid "Threshold (minutes)"
+msgstr "Seuil (minutes)"
+
+msgid "Monitoring"
+msgstr "Surveillance"
+
+msgid "Enabled"
+msgstr "Activée"
+
+msgid "Ignored"
+msgstr "Ignorée"
+
+msgid "Severity"
+msgstr "Sévérité"
+
+msgid "low"
+msgstr "faible"
+
+msgid "medium"
+msgstr "moyenne"
+
+msgid "high"
+msgstr "élevée"
+
+msgid "critical"
+msgstr "critique"
+
+msgid "Owner / contact"
+msgstr "Propriétaire / contact"
+
+msgid "Comment"
+msgstr "Commentaire"
+
+msgid "Action"
+msgstr "Action"
+
+msgid "Save / update"
+msgstr "Enregistrer / mettre à jour"
+
+msgid "Delete rule"
+msgstr "Supprimer la règle"
+
+msgid "Result: lookup content after \"$f_action$\" on \"$f_index$\""
+msgstr "Résultat : contenu du lookup après \"$f_action$\" sur \"$f_index$\""
+
+msgid "Lookup idxmon_thresholds (rule order matters - click a row to edit it)"
+msgstr "Lookup idxmon_thresholds (l'ordre des règles compte - cliquez sur une ligne pour la modifier)"
+
+msgid "Effective threshold per index (reload the page after a change)"
+msgstr "Seuil effectif par index (rechargez la page après une modification)"
+
+msgid "Sourcetype Thresholds"
+msgstr "Seuils par sourcetype"
+
+msgid "Add, change or delete the silence threshold of one sourcetype in one index (patterns allowed: index app_*, sourcetype cisco:*). Only the sourcetypes listed here are monitored at this level. Click a row of the lookup to load it into the form, then press Apply. A new rule is inserted before the first wildcard rule so it takes precedence over \"*\"."
+msgstr "Ajouter, modifier ou supprimer le seuil de silence d'un sourcetype dans un index (motifs autorisés : index app_*, sourcetype cisco:*). Seuls les sourcetypes listés ici sont surveillés à ce niveau. Cliquez sur une ligne du lookup pour la charger dans le formulaire, puis sur Apply. Une nouvelle règle est insérée avant la première règle à joker pour passer avant \"*\"."
+
+msgid "Sourcetype or pattern"
+msgstr "Sourcetype ou motif"
+
+msgid "Result: lookup content after \"$f_action$\" on \"$f_index$\" / \"$f_st$\""
+msgstr "Résultat : contenu du lookup après \"$f_action$\" sur \"$f_index$\" / \"$f_st$\""
+
+msgid "Lookup idxmon_st_thresholds (rule order matters - click a row to edit it)"
+msgstr "Lookup idxmon_st_thresholds (l'ordre des règles compte - cliquez sur une ligne pour la modifier)"
+
+msgid "Current status of monitored sourcetypes (reload after a change)"
+msgstr "Statut actuel des sourcetypes surveillés (rechargez après une modification)"
+
+msgid "Index Data Monitor"
+msgstr "Moniteur de données des index"
+

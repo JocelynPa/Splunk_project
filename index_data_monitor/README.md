@@ -22,11 +22,35 @@ Proactive alerting when an index **stops receiving data**.
 
 ## Views
 
+*Index Data Monitor* and *Alert History* are **Dashboard Studio** dashboards (dark theme,
+Splunk 9.x+; tested target: 10.4). The two threshold forms stay in Simple XML
+because Dashboard Studio has no Apply button / no way to stop searches from
+running on every input change, which is required for a form that writes to a lookup.
+
 | View | Purpose |
 |---|---|
 | Index Data Monitor | KPIs, freshness table, status history, drilldown to sourcetypes/hosts and hourly volume |
 | Alert History | Silence episodes per index, alert runs and triggers |
-| Thresholds | Effective threshold per index and the lookup content |
+| Thresholds | Form to edit index thresholds; effective threshold per index and the lookup content |
+
+## Localization
+
+The Simple XML views (the two threshold forms) and the app name are translated
+to French when the user's Splunk language is fr_FR
+(`locale/fr_FR/LC_MESSAGES/index_data_monitor.po`/`.mo`); other languages fall back to
+English. Dashboard Studio views, table column names built in SPL and alert email text
+stay in English. After a change, run `splunk restart` or reload `/debug/refresh`.
+
+## Sourcetype thresholds
+
+Opt-in rules per (index, sourcetype) in `lookups/idxmon_st_thresholds.csv`,
+edited from the *Sourcetype Thresholds* view. Wildcards are allowed on both
+fields (first match wins). Rules without wildcards also detect a sourcetype
+that vanished completely (no event in the lookback), wildcard rules only apply
+to combinations seen in the lookback. Dedicated alerts: **Sourcetype not
+receiving data**, **Sourcetype recovered**, plus a snapshot to the summary index
+(sourcetype `idxmon_status_st`). Index-level and sourcetype-level alerts are
+independent.
 
 ## Configuration
 

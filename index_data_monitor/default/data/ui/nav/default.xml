@@ -2,4 +2,5 @@
   <view name="index_monitor" default="true" />
   <view name="alert_history" />
   <view name="thresholds" />
+  <view name="thresholds_sourcetype" />
 </nav>

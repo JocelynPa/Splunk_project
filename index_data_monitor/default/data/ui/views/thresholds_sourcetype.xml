@@ -1,0 +1,101 @@
+<form theme="light">
+  <label>Sourcetype Thresholds</label>
+  <description>Add, change or delete the silence threshold of one sourcetype in one index (patterns allowed: index app_*, sourcetype cisco:*). Only the sourcetypes listed here are monitored at this level. Click a row of the lookup to load it into the form, then press Apply. A new rule is inserted before the first wildcard rule so it takes precedence over "*".</description>
+
+  <fieldset submitButton="true" autoRun="false">
+    <input type="text" token="f_index">
+      <label>Index or pattern</label>
+    </input>
+    <input type="text" token="f_st">
+      <label>Sourcetype or pattern</label>
+    </input>
+    <input type="text" token="f_thr">
+      <label>Threshold (minutes)</label>
+      <default>60</default>
+    </input>
+    <input type="dropdown" token="f_enabled">
+      <label>Monitoring</label>
+      <choice value="1">Enabled</choice>
+      <choice value="0">Ignored</choice>
+      <default>1</default>
+    </input>
+    <input type="dropdown" token="f_sev">
+      <label>Severity</label>
+      <choice value="low">low</choice>
+      <choice value="medium">medium</choice>
+      <choice value="high">high</choice>
+      <choice value="critical">critical</choice>
+      <default>medium</default>
+    </input>
+    <input type="text" token="f_owner">
+      <label>Owner / contact</label>
+      <default></default>
+    </input>
+    <input type="text" token="f_comment">
+      <label>Comment</label>
+      <default></default>
+    </input>
+    <input type="dropdown" token="f_action">
+      <label>Action</label>
+      <choice value="save">Save / update</choice>
+      <choice value="delete">Delete rule</choice>
+      <default>save</default>
+    </input>
+  </fieldset>
+
+  <row>
+    <panel depends="$f_index$,$f_st$">
+      <title>Result: lookup content after "$f_action$" on "$f_index$" / "$f_st$"</title>
+      <table>
+        <search>
+          <query>| inputlookup idxmon_st_thresholds | streamstats count as rn | eval new=0 | eventstats min(eval(if(like(index,"%*%") OR like(sourcetype,"%*%"),rn,null()))) as fw | append [| makeresults | eval index=$f_index|s$, sourcetype=$f_st|s$, threshold_minutes=$f_thr|s$, enabled=$f_enabled|s$, severity=$f_sev|s$, owner=$f_owner|s$, comment=$f_comment|s$, new=1 | fields - _time] | eval index=trim(index), sourcetype=trim(sourcetype), key=lower(index)."|".lower(sourcetype) | eventstats max(rn) as old_rn, max(new) as hasnew by key | eventstats max(fw) as fw_all | eval pos=case(new=0, rn, isnotnull(old_rn), old_rn, isnotnull(fw_all), fw_all-0.5, true(), 1000000) | where new=1 OR hasnew=0 | where NOT (new=1 AND "$f_action$"="delete") | where len(index)&gt;0 AND len(sourcetype)&gt;0 | sort 0 pos | fields index sourcetype threshold_minutes enabled severity owner comment | outputlookup idxmon_st_thresholds.csv</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">25</option>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Lookup idxmon_st_thresholds (rule order matters - click a row to edit it)</title>
+      <table>
+        <search>
+          <query>| inputlookup idxmon_st_thresholds</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">row</option>
+        <drilldown>
+          <set token="form.f_index">$row.index$</set>
+          <set token="form.f_st">$row.sourcetype$</set>
+          <set token="form.f_thr">$row.threshold_minutes$</set>
+          <set token="form.f_enabled">$row.enabled$</set>
+          <set token="form.f_sev">$row.severity$</set>
+          <set token="form.f_owner">$row.owner$</set>
+          <set token="form.f_comment">$row.comment$</set>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Current status of monitored sourcetypes (reload after a change)</title>
+      <table>
+        <search>
+          <query>| `idxmon_status_st` | sort sort_order, - minutes_since | table index sourcetype status silent_for last_indexed_str threshold_minutes severity owner comment | rename index as Index, sourcetype as Sourcetype, status as Status, silent_for as "Silent for", last_indexed_str as "Last indexed", threshold_minutes as "Threshold (min)", severity as Severity, owner as Owner, comment as Comment</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">25</option>
+        <format type="color" field="Status">
+          <colorPalette type="map">{"STALE":"#D93F3C","Warning":"#F8BE34","OK":"#65A637"}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+</form>
