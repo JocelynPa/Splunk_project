@@ -69,6 +69,12 @@ independent.
 
 ## Notes / limits
 
+- Snapshots store the monitored names in `monitored_index` / `monitored_sourcetype`:
+  `index` and `sourcetype` are reserved metadata fields and would be overwritten by the
+  real index/sourcetype of the summary events. Snapshots written by version 1.x before
+  this fix lack these fields and are ignored by the history views and recovery alerts.
+
+
 - Run the alert as a user whose role can search **all** indexes
   (`srchIndexesAllowed`), otherwise inaccessible indexes will look silent.
 - Install on a search head with the indexers as search peers (the REST call
