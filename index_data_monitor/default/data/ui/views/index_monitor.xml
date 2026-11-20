@@ -309,7 +309,7 @@
     "ds_hist": {
       "type": "ds.search",
       "options": {
-        "query": "index=summary sourcetype=idxmon_status | timechart span=1h dc(index) by status",
+        "query": "index=summary sourcetype=idxmon_status | where isnotnull(monitored_index) | timechart span=1h dc(monitored_index) by status",
         "queryParameters": {
           "earliest": "-7d@h",
           "latest": "now"
